@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import mongoose from "mongoose";
 import authRoutes from "./routes/authRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js"; // ✅ Import Admin Routes
 
 dotenv.config();
 
@@ -12,6 +13,7 @@ app.use(cors());
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes); // ✅ Add Admin Routes
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)

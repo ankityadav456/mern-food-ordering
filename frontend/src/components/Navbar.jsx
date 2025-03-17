@@ -7,7 +7,7 @@ const Navbar = () => {
   const { user, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-
+  console.log(user);
   // Function to close mobile menu after click
   const handleMenuClick = () => {
     setMenuOpen(false);
@@ -61,7 +61,7 @@ const Navbar = () => {
               {/* User Dropdown */}
               {userMenuOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white text-black rounded-lg shadow-lg overflow-hidden">
-                  {user.role === "admin" && ( // ✅ Show Admin Panel for Admins Only
+                  {user.isAdmin && ( // ✅ Show Admin Panel for Admins Only
                     <Link
                       to="/admin-dashboard"
                       onClick={() => setUserMenuOpen(false)}

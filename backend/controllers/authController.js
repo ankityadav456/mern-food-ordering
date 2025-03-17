@@ -53,6 +53,7 @@ export const registerUser = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
+        isAdmin: user.isAdmin, // ✅ Include isAdmin
       },
       token,
     });
@@ -104,6 +105,7 @@ export const loginUser = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
+        isAdmin: user.isAdmin, // ✅ Include isAdmin
       },
       token,
     });
@@ -125,7 +127,12 @@ export const getUserProfile = async (req, res) => {
 
     res.json({
       success: true,
-      user,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        isAdmin: user.isAdmin, // ✅ Include isAdmin
+      },
     });
   } catch (error) {
     console.error("Error in getUserProfile:", error);

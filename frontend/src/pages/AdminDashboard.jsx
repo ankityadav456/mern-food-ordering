@@ -7,9 +7,10 @@ const AdminDashboard = () => {
   const { user, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  if (!user || user.role !== "admin") {
+  if (!user || !user.isAdmin) {
     return <p className="text-center text-red-500 text-lg mt-10">Access Denied</p>;
   }
+  
 
   return (
     <div className="flex min-h-screen">

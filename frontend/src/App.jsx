@@ -1,13 +1,14 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { AuthProvider, useAuth } from "./context/AuthContext";
+import { AuthProvider } from "./context/AuthContext";
 import { DarkModeProvider } from "./context/DarkModeContext";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute"; // ✅ Import AdminRoute
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
-import AdminDashboard from "./pages/AdminDashboard"; // ✅ Add Admin Dashboard
+import AdminDashboard from "./pages/AdminDashboard"; // ✅ Admin Dashboard
 
 const Layout = ({ children }) => {
   const location = useLocation();
@@ -19,11 +20,6 @@ const Layout = ({ children }) => {
       <main className="min-h-screen">{children}</main>
     </>
   );
-};
-
-const AdminRoute = ({ children }) => {
-  const { user } = useAuth();
-  return user && user.role === "admin" ? children : <Navigate to="/" />;
 };
 
 const App = () => {

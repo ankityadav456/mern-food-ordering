@@ -3,12 +3,9 @@ import { useAuth } from "../context/AuthContext";
 
 const AdminRoute = ({ children }) => {
   const { user } = useAuth();
+  console.log("AdminRoute Check:", user); // Debugging log
 
-  if (!user || user.role !== "admin") {
-    return <Navigate to="/" />; // Redirect non-admins to home
-  }
-
-  return children;
+  return user && user.isAdmin ? children : <Navigate to="/" />;
 };
 
 export default AdminRoute;

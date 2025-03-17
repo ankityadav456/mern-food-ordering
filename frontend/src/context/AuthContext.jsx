@@ -28,14 +28,14 @@ export const AuthProvider = ({ children }) => {
         _id: res.data.user._id,
         name: res.data.user.name,
         email: res.data.user.email,
-        role: res.data.user.role, // ✅ Store role
+        isAdmin: res.data.user.isAdmin,  // ✅ Change from role to isAdmin
       });
   
       localStorage.setItem("user", JSON.stringify({
         _id: res.data.user._id,
         name: res.data.user.name,
         email: res.data.user.email,
-        role: res.data.user.role, // ✅ Save role in localStorage
+        isAdmin: res.data.user.isAdmin, // ✅ Save isAdmin in localStorage
       }));
   
     } catch (error) {
@@ -46,6 +46,7 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     }
   };
+  
   
 
   // ✅ Signup Function
@@ -61,7 +62,7 @@ export const AuthProvider = ({ children }) => {
           _id: res.data.user._id,
           name: res.data.user.name,
           email: res.data.user.email,
-          role: res.data.user.role, // ✅ Store role
+          isAdmin: res.data.user.isAdmin, // ✅ Store role
         };
   
         setUser(userData);
@@ -88,7 +89,7 @@ export const AuthProvider = ({ children }) => {
           _id: res.data.user._id,
           name: res.data.user.name,
           email: res.data.user.email,
-          role: res.data.user.role, // ✅ Store role
+          isAdmin: res.data.user.isAdmin, // ✅ Store role
         };
   
         setUser(userData);
