@@ -2,6 +2,7 @@ import { useFood } from "../context/FoodContext";
 import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
 import FoodModal from "../components/FoodModal";
+import foodBg from "../assets/Images/AddFood.png"; // Example background image
 
 export default function AdminFoodPage() {
   const { foodItems, addFoodItem, updateFoodItem, deleteFoodItem } = useFood();
@@ -37,20 +38,31 @@ export default function AdminFoodPage() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-4">🍽️ Manage Food Items</h1>
-
-      <button
-        onClick={() => openModal()}
-        className="mb-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-      >
-        ➕ Add New Food
-      </button>
+      <h1 className="text-3xl font-bold mb-4 text-center mb-5">🍽️ Manage Food Items</h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {/* Add New Food Item Card */}
+        <div
+          onClick={() => openModal()}
+          className="border-2 border-dashed border-gray-400 rounded-lg p-4 shadow-md bg-white flex flex-col items-center justify-center cursor-pointer hover:bg-gray-100 relative overflow-hidden animate-border-rotate"
+        >
+          <div
+            className="p-4 transition-all relative"
+            style={{ backgroundImage: `url(${foodBg})`, backgroundSize: "cover", backgroundPosition: "center", width: "100px", height: "100px" }}
+          ></div>
+          <h2 className="text-lg font-semibold text-gray-500 mt-3">Add New Food</h2>
+          <div className="absolute inset-0 border-4 border-transparent rounded-lg animate-border-clockwise"></div>
+        </div>
+
         {foodItems.length > 0 ? (
           foodItems.map((item) => (
             <div key={item._id} className="border rounded-lg p-4 shadow-md bg-white">
-              <img src={item.image} alt={item.name} className="w-full h-32 object-cover rounded-md mb-2" />
+              <img
+                src={item.image}
+                alt={item.name}
+                className="w-full h-40 object-cover rounded-md mb-2 shadow-sm border border-gray-200"
+              />
+
               <h2 className="text-lg font-semibold">{item.name}</h2>
               <p className="text-gray-600">${item.price}</p>
               <p className="text-gray-500 text-sm">Category: {item.category}</p>

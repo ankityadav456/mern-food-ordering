@@ -1,3 +1,130 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ==== Custom Styles ==== */
+@layer components {
+
+    /* ===== Sidebar Styles ===== */
+    .sidebar {
+        @apply bg-[#121212] text-white h-screen fixed top-0 left-0 transition-all duration-300 shadow-lg flex flex-col border-r border-gray-800;
+    }
+
+    .sidebar-collapsed {
+        @apply w-16;
+    }
+
+    .sidebar-expanded {
+        @apply w-60;
+    }
+
+    .sidebar-header {
+        @apply flex items-center justify-between p-4 border-b border-gray-700;
+    }
+
+    .sidebar-logo {
+        @apply w-10 h-10 rounded-full;
+    }
+
+    .sidebar-title {
+        @apply text-xl font-semibold text-[#FFD700] tracking-wide;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar-link {
+        @apply flex items-center p-3 my-2 mx-2 rounded-lg transition-all duration-300;
+    }
+
+    .sidebar-active {
+        @apply bg-[#8B0000]/30 text-[#FFD700] font-semibold shadow-md border-l-4 border-[#FFD700] scale-105;
+    }
+
+    .sidebar-inactive {
+        @apply hover:bg-[#8B0000]/20 hover:text-[#FFD700] transition duration-200 hover:scale-105;
+    }
+
+    /* Sidebar Toggle Button */
+    .sidebar-toggle {
+        @apply text-[#FFD700] hover:bg-gray-900 p-2 rounded-lg transition-all hover:scale-110;
+    }
+
+    /* Sidebar Logout Button */
+    .sidebar-logout-btn {
+        @apply flex items-center w-full p-3 rounded-lg transition-all duration-300 bg-[#8B0000]/40 text-white hover:bg-[#8B0000] hover:scale-105;
+    }
+
+    /* Logout Button */
+    .logout-btn {
+        @apply flex items-center w-full p-3 rounded-lg transition-all duration-300 bg-[#8B0000]/40 text-white hover:bg-[#8B0000] hover:scale-105;
+    }
+
+    /* ===== Navbar Styles ===== */
+    .navbar {
+        @apply bg-black text-white p-4 shadow-md fixed top-0 right-0 transition-all duration-300 z-10;
+    }
+
+    /* Search Bar */
+    /* Search Bar */
+    .search-input {
+        @apply w-64 p-2 rounded-lg border border-gray-600 bg-transparent text-white pr-10
+        /* Right padding for icon */
+        focus:outline-none focus:ring-2 focus:ring-[#FFD700];
+    }
+
+    .search-icon {
+        @apply absolute right-3 top-1/2 transform -translate-y-1/2 text-[#FFD700] cursor-pointer;
+    }
+
+    .clear-search {
+        @apply absolute right-10 text-gray-400 hover:text-white;
+    }
+
+    .search-btn {
+        @apply bg-[#FFD700] text-black p-2 rounded-lg hover:bg-[#8B0000] transition;
+    }
+
+    /* Cart Button */
+    .cart-btn {
+        @apply bg-[#FFD700] text-black p-2 rounded-lg hover:bg-[#8B0000] transition;
+    }
+
+    /* User Dropdown */
+    .user-btn {
+        @apply bg-[#FFD700] px-4 py-2 rounded-lg flex items-center space-x-2 text-black hover:bg-[#8B0000] transition;
+    }
+
+    /* ===== User Dropdown ===== */
+    .user-dropdown {
+        @apply absolute right-0 mt-2 w-48 bg-black text-white rounded-lg shadow-lg border border-[#FFD700] overflow-hidden;
+        /* Ensures rounded corners work properly */
+    }
+
+    .dropdown-item {
+        @apply block px-4 py-2 hover:bg-[#FFD700] hover:text-black transition;
+        /* No extra padding */
+    }
+
+
+    /* Navbar Logout Button (Fixed Conflict) */
+    .dropdown-logout-btn {
+        @apply block w-full text-left px-4 py-2 bg-[#8B0000] text-white hover:bg-red-600 transition;
+    }
+
+    /* Mobile Menu */
+    .mobile-menu {
+        @apply absolute top-16 left-0 w-full bg-black flex flex-col space-y-4 p-4 lg:hidden z-20;
+    }
+
+    .mobile-link {
+        @apply hover:text-[#FFD700] transition;
+    }
+
+    /* Auth Buttons */
+    .login-btn {
+        @apply bg-[#FFD700] px-4 py-2 rounded-lg text-black hover:bg-[#8B0000] transition;
+    }
+
+    .signup-btn {
+        @apply bg-[#8B0000] px-4 py-2 rounded-lg text-white hover:bg-[#FFD700] hover:text-black transition;
+    }
+}

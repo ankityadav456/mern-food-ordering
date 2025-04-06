@@ -13,14 +13,20 @@ const FoodModal = ({ isOpen, onClose, onSubmit, initialData, categories }) => {
   const [previewImage, setPreviewImage] = useState("");
 
   useEffect(() => {
-    if (initialData) {
-      setFoodData(initialData);
-      setPreviewImage(initialData.image || "");
-    } else {
-      setFoodData({ name: "", price: "", image: "", category: "" });
-      setPreviewImage("");
+    if (isOpen) {
+      if (initialData) {
+        setFoodData(initialData);
+        setPreviewImage(initialData.image || "");
+      } else {
+        resetForm(); // Reset form when opening a fresh modal
+      }
     }
-  }, [initialData]);
+  }, [isOpen, initialData]);
+
+  const resetForm = () => {
+    setFoodData({ name: "", price: "", image: "", category: "" });
+    setPreviewImage("");
+  };
 
   const handleChange = (e) => {
     setFoodData({ ...foodData, [e.target.name]: e.target.value });
@@ -44,37 +50,45 @@ const FoodModal = ({ isOpen, onClose, onSubmit, initialData, categories }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit(foodData);
+    resetForm();
+    onClose();
+  };
+
+  const handleClose = () => {
+    resetForm(); // Reset values when closing the modal
     onClose();
   };
 
   if (!isOpen) return null;
 
   return (
-    <motion.div 
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 overflow-y-auto"
+    <motion.div
+      className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-md flex items-center justify-center p-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      onClick={handleClose} // Close modal on outside click
     >
-      <motion.div 
-        className="bg-white p-6 md:p-8 rounded-2xl shadow-lg w-full max-w-lg sm:max-w-md relative max-h-[90vh] overflow-y-auto"
+      <motion.div
+        className="bg-white p-6 md:p-8 rounded-xl shadow-2xl w-full max-w-lg sm:max-w-md relative max-h-[85vh] overflow-y-auto"
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: -50, opacity: 0 }}
+        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
       >
         {/* Close Button */}
-        <button 
-          onClick={onClose} 
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
+        <button
+          onClick={handleClose}
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 transition"
         >
-          <X size={20} />
+          <X size={24} />
         </button>
 
-        <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
+        <h2 className="text-2xl font-semibold mb-6 text-center text-gray-900">
           {initialData ? "Edit Food Item" : "Add Food Item"}
         </h2>
 
-        {/* Responsive Image Preview */}
+        {/* Image Preview */}
         {previewImage ? (
           <motion.img
             src={previewImage}
@@ -91,6 +105,7 @@ const FoodModal = ({ isOpen, onClose, onSubmit, initialData, categories }) => {
           </div>
         )}
 
+        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <input
@@ -99,7 +114,7 @@ const FoodModal = ({ isOpen, onClose, onSubmit, initialData, categories }) => {
               value={foodData.name}
               onChange={handleChange}
               placeholder="Food Name"
-              className="w-full p-3 border rounded-lg shadow-sm focus:ring focus:ring-blue-200"
+              className="w-full p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-300 outline-none"
               required
             />
             <input
@@ -108,15 +123,15 @@ const FoodModal = ({ isOpen, onClose, onSubmit, initialData, categories }) => {
               value={foodData.price}
               onChange={handleChange}
               placeholder="Price ($)"
-              className="w-full p-3 border rounded-lg shadow-sm focus:ring focus:ring-blue-200"
+              className="w-full p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-300 outline-none"
               step="0.01"
               required
             />
           </div>
 
-          {/* Modern File Upload UI */}
+          {/* Upload Image */}
           <label className="block text-sm font-medium text-gray-700">Upload Image</label>
-          <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:bg-gray-50 transition cursor-pointer">
+          <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:bg-gray-100 transition cursor-pointer">
             <Upload size={30} className="mx-auto text-gray-400" />
             <p className="text-sm text-gray-600 mt-2">Click to upload</p>
             <input
@@ -127,12 +142,12 @@ const FoodModal = ({ isOpen, onClose, onSubmit, initialData, categories }) => {
             />
           </div>
 
-          {/* Category Dropdown */}
+          {/* Category Selection */}
           <select
             name="category"
             value={foodData.category}
             onChange={handleChange}
-            className="w-full p-3 border rounded-lg shadow-sm focus:ring focus:ring-blue-200"
+            className="w-full p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-300 outline-none"
             required
           >
             <option value="" disabled>Select Category</option>
@@ -143,18 +158,18 @@ const FoodModal = ({ isOpen, onClose, onSubmit, initialData, categories }) => {
             ))}
           </select>
 
-          {/* Buttons */}
+          {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row justify-between mt-4 gap-3">
-            <button 
-              type="button" 
-              onClick={onClose} 
+            <button
+              type="button"
+              onClick={handleClose}
               className="w-full sm:w-auto px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition"
             >
               ❌ Cancel
             </button>
-            <button 
-              type="submit" 
-              className="w-full sm:w-auto px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+            <button
+              type="submit"
+              className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
             >
               ✅ {initialData ? "Update" : "Add"}
             </button>

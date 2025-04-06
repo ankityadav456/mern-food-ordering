@@ -1,49 +1,47 @@
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { DarkModeProvider } from "./context/DarkModeContext";
-import Navbar from "./components/Navbar";
+import { FoodProvider } from "./context/FoodContext";
+import { CartProvider } from "./context/CartContext"; // 🛒 Add this
+import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
-import AdminRoute from "./components/AdminRoute"; // ✅ Import AdminRoute
+import AdminRoute from "./components/AdminRoute";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
-import AdminDashboard from "./pages/AdminDashboard"; // ✅ Admin Dashboard
-import MenuPage from "./pages/MenuPage"; // Import the MenuPage
-import AddFoodPage from "./pages/AddFoodPage"; // Import the MenuPage
-import { FoodProvider } from "./context/FoodContext"; // ✅ Import FoodProvider
-
-const Layout = ({ children }) => {
-  const location = useLocation();
-  const hideNavbar = ["/login", "/signup"].includes(location.pathname);
-
-  return (
-    <>
-      {!hideNavbar && <Navbar />}
-      <main className="min-h-screen">{children}</main>
-    </>
-  );
-};
+import AdminDashboard from "./pages/AdminDashboard";
+import MenuPage from "./pages/MenuPage";
+import AddFoodPage from "./pages/AddFoodPage";
+import Cart from "./pages/Cart";
 
 const App = () => {
   return (
     <BrowserRouter>
-      <DarkModeProvider> {/* ✅ Dark Mode Context */}
+      <DarkModeProvider>
         <AuthProvider>
-        <FoodProvider> 
-          <Layout>
-            <Routes>
-              <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-              <Route path="/admin-dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} /> {/* ✅ Admin Protected Route */}
-              <Route path="*" element={<Navigate to="/" />} />
-              <Route path="/menu" element={<ProtectedRoute><MenuPage /></ProtectedRoute>} />
-              <Route path="/add-food" element={<AdminRoute><AddFoodPage /></AdminRoute>} />
-            </Routes>
-          </Layout>
-          </FoodProvider> 
+          <FoodProvider>
+            <CartProvider> {/* ✅ Wrap Routes with CartProvider */}
+              <Routes>
+                {/* Pages Wrapped in Layout (Sidebar & Navbar Included) */}
+                <Route path="/" element={<Layout />}>
+                  <Route index element={<ProtectedRoute><Home /></ProtectedRoute>} />
+                  <Route path="dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                  <Route path="admin-dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+                  <Route path="menu" element={<ProtectedRoute><MenuPage /></ProtectedRoute>} />
+                  <Route path="food-management" element={<AdminRoute><AddFoodPage /></AdminRoute>} />
+                  <Route path="cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
+                </Route>
+
+                {/* Authentication Pages (No Sidebar/Navbar) */}
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+
+                {/* Redirect Unknown Routes */}
+                <Route path="*" element={<Navigate to="/" />} />
+              </Routes>
+            </CartProvider>
+          </FoodProvider>
         </AuthProvider>
       </DarkModeProvider>
     </BrowserRouter>
