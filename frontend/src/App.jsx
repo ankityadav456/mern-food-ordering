@@ -25,7 +25,7 @@ const App = () => {
               <Routes>
                 {/* Pages Wrapped in Layout (Sidebar & Navbar Included) */}
                 <Route path="/" element={<Layout />}>
-                  <Route index element={<ProtectedRoute><Home /></ProtectedRoute>} />
+                <Route index element={<Home />} /> {/* 👈 Now it's PUBLIC */} 
                   <Route path="dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
                   <Route path="admin-dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
                   <Route path="menu" element={<ProtectedRoute><MenuPage /></ProtectedRoute>} />

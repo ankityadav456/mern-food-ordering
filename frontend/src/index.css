@@ -128,3 +128,18 @@
         @apply bg-[#8B0000] px-4 py-2 rounded-lg text-white hover:bg-[#FFD700] hover:text-black transition;
     }
 }
+
+/* Scrollbar Styling */
+.sidebar::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .sidebar::-webkit-scrollbar-thumb {
+    background-color: #D4AF37; /* Gold Thumb */
+    border-radius: 8px;
+  }
+  
+  .sidebar::-webkit-scrollbar-track {
+    background: #1A1A1A; /* Dark Track */
+  }
+  

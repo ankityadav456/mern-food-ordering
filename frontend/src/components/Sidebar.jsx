@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import {
   Home,
   Menu,
@@ -11,10 +12,9 @@ import {
 } from "lucide-react";
 import logo from "../assets/Images/AppLogo.png";
 
-const Sidebar = ({ isCollapsed, toggleSidebar, isZoomed }) => {
+const Sidebar = ({ isCollapsed, toggleSidebar, isZoomed, isDrawerMode, onNavigate }) => {
   const location = useLocation();
-
-
+ const { user, logout } = useAuth();
   const menuItems = [
     { name: "Home", path: "/", icon: <Home size={22} /> },
     { name: "Menu", path: "/menu", icon: <Menu size={22} /> },
@@ -22,11 +22,20 @@ const Sidebar = ({ isCollapsed, toggleSidebar, isZoomed }) => {
     { name: "Dashboard", path: "/dashboard", icon: <LayoutDashboard size={22} /> },
   ];
 
+  const handleNavClick = () => {
+    if (isDrawerMode && onNavigate) {
+      onNavigate();
+    }
+  };
+
   return (
-    <div className={`sidebar ${isCollapsed ? "sidebar-collapsed" : "sidebar-expanded"}`}>
+    <div
+      className={`sidebar h-screen overflow-y-auto scrollbar-thin scrollbar-thumb-[#444] scrollbar-track-transparent
+        ${isCollapsed ? "sidebar-collapsed" : "sidebar-expanded"}`}
+    >
       {/* Header */}
-      <div className="sidebar-header flex items-center justify-between h-16 px-4 border-b border-[#2A2A2A]">
-        <Link to="/" className="flex items-center space-x-2 overflow-hidden">
+      <div className="sidebar-header flex items-center justify-between h-16 px-4 border-b border-[#2A2A2A] sticky top-0 bg-[#1A1A1A] z-10">
+        <Link to="/" className="flex items-center space-x-2 overflow-hidden" onClick={handleNavClick}>
           <img
             src={logo}
             alt="Yumigo Logo"
@@ -43,10 +52,10 @@ const Sidebar = ({ isCollapsed, toggleSidebar, isZoomed }) => {
         {!isZoomed && (
           <button
             onClick={toggleSidebar}
-            className="text-[#D4AF37] hover:text-[#B22222]"
+            className="ml-auto p-1.5 rounded-md bg-[#2A2A2A] text-[#D4AF37] hover:bg-[#B22222] hover:text-white transition-all duration-300"
             aria-label="Toggle Sidebar"
           >
-            {isCollapsed ? <ChevronRight size={24} /> : <ChevronLeft size={24} />}
+            {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
           </button>
         )}
       </div>
@@ -63,7 +72,8 @@ const Sidebar = ({ isCollapsed, toggleSidebar, isZoomed }) => {
             <Link
               key={item.path}
               to={item.path}
-              className={`sidebar-link ${isCollapsed ? "mx-auto justify-center" : "mx-5"} ${isActive ? "sidebar-active" : "sidebar-inactive"
+              onClick={handleNavClick}
+              className={`${isDrawerMode ? "p-2" : "p-3"} sidebar-link ${isCollapsed ? "mx-auto justify-center" : "mx-5"} ${isActive ? "sidebar-active" : "sidebar-inactive"
                 }`}
             >
               <span className="flex-shrink-0">{item.icon}</span>
@@ -78,14 +88,18 @@ const Sidebar = ({ isCollapsed, toggleSidebar, isZoomed }) => {
       </nav>
 
       {/* Logout */}
-      <div className="p-3 mt-auto">
-        <button className="logout-btn" aria-label="Logout">
-          <LogOut size={22} />
-          <span className={`${isCollapsed ? "hidden" : "ml-3"} transition-all duration-300`}>
-            Logout
-          </span>
-        </button>
-      </div>
+<div className="p-3 mt-auto">
+  <button onClick={logout}
+    className={`flex items-center w-full justify-${isCollapsed ? "center" : "start"} gap-3 py-2 px-3 rounded-md 
+                text-[#D4AF37] border border-[#2A2A2A] bg-[#1A1A1A] hover:bg-[#B22222] hover:text-white 
+                transition-all duration-300`}
+    aria-label="Logout"
+  >
+    <LogOut size={22} />
+    <span className={`${isCollapsed ? "hidden" : "text-md font-medium"}`}>Logout</span>
+  </button>
+</div>
+
     </div>
   );
 };

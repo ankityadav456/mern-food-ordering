@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 
 const Layout = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -11,12 +11,15 @@ const Layout = () => {
   const [isTemporarySidebarVisible, setIsTemporarySidebarVisible] = useState(false);
   const [isZoomed, setIsZoomed] = useState(false);
 
+  const location = useLocation();
+  const sidebarRef = useRef();
+
   useEffect(() => {
     const checkZoom = () => {
       const zoom = window.devicePixelRatio;
       setIsZoomed(zoom > 2); // Hide at 150%+
     };
-  
+
     checkZoom();
     window.addEventListener("resize", checkZoom);
     return () => window.removeEventListener("resize", checkZoom);
@@ -57,17 +60,53 @@ const Layout = () => {
 
   const shouldShowSidebar = isSidebarVisible || isTemporarySidebarVisible;
 
+  useEffect(() => {
+    if (isDrawerMode && isTemporarySidebarVisible) {
+      setIsTemporarySidebarVisible(false);
+    }
+  }, [location]);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        isDrawerMode &&
+        isTemporarySidebarVisible &&
+        sidebarRef.current &&
+        !sidebarRef.current.contains(e.target)
+      ) {
+        setIsTemporarySidebarVisible(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isDrawerMode, isTemporarySidebarVisible]);
+
+  const dynamicMargin = isDrawerMode
+    ? "ml-0"
+    : isSidebarVisible
+    ? isCollapsed
+      ? "ml-16"
+      : "ml-60"
+    : "ml-0";
+
   return (
     <div className="relative min-h-screen bg-[#121212] text-white">
       {/* Sidebar */}
       {shouldShowSidebar && (
         <div
+          ref={sidebarRef}
           className={`fixed top-0 left-0 h-full bg-[#1A1A1A] border-r border-[#333] transition-all duration-300
             ${isDrawerMode ? "z-50 w-60" : "z-20"} ${
             isCollapsed && !isDrawerMode ? "w-16" : "w-60"
           }`}
         >
-          <Sidebar isCollapsed={isCollapsed} toggleSidebar={toggleSidebar} isZoomed={isZoomed}/>
+          <Sidebar
+            isCollapsed={isCollapsed}
+            toggleSidebar={toggleSidebar}
+            isZoomed={isZoomed}
+            isDrawerMode={isDrawerMode}
+          />
         </div>
       )}
 
@@ -79,36 +118,29 @@ const Layout = () => {
         />
       )}
 
-      {/* Navbar */}
-      <div className="fixed top-0 left-0 w-full z-30">
-        <Navbar
-          isCollapsed={isCollapsed}
-          toggleSidebar={toggleSidebar}
-          isSidebarVisible={isSidebarVisible}
-          setIsSidebarVisible={setIsSidebarVisible}
-          isDrawerMode={isDrawerMode}
-          isZoomed={isZoomed}
-        />
+      {/* Navbar (aligned with main) */}
+      <div className={`fixed top-0 z-30 w-full transition-all duration-300 ${dynamicMargin}`}>
+        <div className="max-w-[1440px] mx-auto px-4">
+          <Navbar
+            isCollapsed={isCollapsed}
+            toggleSidebar={toggleSidebar}
+            isSidebarVisible={isSidebarVisible}
+            setIsSidebarVisible={setIsSidebarVisible}
+            isDrawerMode={isDrawerMode}
+            isZoomed={isZoomed}
+          />
+        </div>
       </div>
 
       {/* Main layout */}
-      <div
-        className={`pt-16 transition-all duration-300 ${
-          isDrawerMode
-            ? "ml-0"
-            : isSidebarVisible
-            ? isCollapsed
-              ? "ml-16"
-              : "ml-60"
-            : "ml-0"
-        }`}
-      >
-        <main className="min-h-screen bg-[#1A1A1A] text-white">
-          <Outlet />
-        </main>
-
-        <div className="border-t border-[#222]">
-          <Footer />
+      <div className={`pt-16 transition-all duration-300 ${dynamicMargin}`}>
+        <div className="max-w-[1440px] mx-auto px-4">
+          <main className="min-h-screen bg-[#1A1A1A] text-white">
+            <Outlet />
+          </main>
+          <div className="border-t border-[#222]">
+            <Footer />
+          </div>
         </div>
       </div>
     </div>
