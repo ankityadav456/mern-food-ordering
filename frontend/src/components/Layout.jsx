@@ -134,7 +134,7 @@ const Layout = () => {
 
       {/* Main layout */}
       <div className={`pt-16 transition-all duration-300 ${dynamicMargin}`}>
-        <div className="max-w-[1440px] mx-auto px-4">
+        <div className="max-w-[1440px] mx-auto">
           <main className="min-h-screen bg-[#1A1A1A] text-white">
             <Outlet />
           </main>

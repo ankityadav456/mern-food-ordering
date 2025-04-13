@@ -13,7 +13,7 @@ export const FoodProvider = ({ children }) => {
   // ✅ Fetch all food items
   const fetchFoodItems = async () => {
     setLoading(true);
-    try {
+    try { 
       const res = await axios.get("/food");
       setFoodItems(res.data);
     } catch (err) {

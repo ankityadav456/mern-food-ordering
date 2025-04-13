@@ -2,7 +2,6 @@ import { createContext, useContext, useState, useEffect } from "react";
 import axios from "../utils/axiosInstance";
 import { useNavigate } from "react-router-dom";
 
-// Create Authentication Context
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -14,30 +13,26 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem("token");
     if (token) {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      fetchUser();
+      fetchUser(token);
     } else {
       setLoading(false);
     }
   }, []);
 
-  // ✅ Fetch User Details
-  const fetchUser = async () => {
+  const fetchUser = async (token) => {
     try {
       const res = await axios.get("/auth/me");
-      setUser({
+
+      const userData = {
         _id: res.data.user._id,
         name: res.data.user.name,
         email: res.data.user.email,
-        isAdmin: res.data.user.isAdmin,  // ✅ Change from role to isAdmin
-      });
-  
-      localStorage.setItem("user", JSON.stringify({
-        _id: res.data.user._id,
-        name: res.data.user.name,
-        email: res.data.user.email,
-        isAdmin: res.data.user.isAdmin, // ✅ Save isAdmin in localStorage
-      }));
-  
+        isAdmin: res.data.user.isAdmin,
+        token, // ✅ Save token in user object
+      };
+
+      setUser(userData);
+      localStorage.setItem("user", JSON.stringify(userData));
     } catch (error) {
       console.error("Fetch User Failed:", error.response?.data?.message || error.message);
       setUser(null);
@@ -46,70 +41,67 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     }
   };
-  
-  
 
-  // ✅ Signup Function
   const signup = async (name, email, password) => {
     try {
       const res = await axios.post("/auth/register", { name, email, password });
-  
+
       if (res.data.token) {
-        localStorage.setItem("token", res.data.token);
-        axios.defaults.headers.common["Authorization"] = `Bearer ${res.data.token}`;
-  
+        const token = res.data.token;
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        localStorage.setItem("token", token);
+
         const userData = {
           _id: res.data.user._id,
           name: res.data.user.name,
           email: res.data.user.email,
-          isAdmin: res.data.user.isAdmin, // ✅ Store role
+          isAdmin: res.data.user.isAdmin,
+          token, // ✅ Include token
         };
-  
+
         setUser(userData);
         localStorage.setItem("user", JSON.stringify(userData));
-        navigate("/"); // Redirect after signup ✅
+        navigate("/");
       }
     } catch (error) {
       console.error("Signup failed:", error.response?.data?.message || "Something went wrong");
       throw new Error(error.response?.data?.message || "Signup failed");
     }
   };
-  
 
-  // ✅ Login Function
   const login = async (email, password) => {
     try {
       const res = await axios.post("/auth/login", { email, password });
-  
+
       if (res.data.token) {
-        localStorage.setItem("token", res.data.token);
-        axios.defaults.headers.common["Authorization"] = `Bearer ${res.data.token}`;
-  
+        const token = res.data.token;
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        localStorage.setItem("token", token);
+
         const userData = {
           _id: res.data.user._id,
           name: res.data.user.name,
           email: res.data.user.email,
-          isAdmin: res.data.user.isAdmin, // ✅ Store role
+          isAdmin: res.data.user.isAdmin,
+          token, // ✅ Include token
         };
-  
+
         setUser(userData);
         localStorage.setItem("user", JSON.stringify(userData));
-        navigate("/"); // Redirect after login ✅
+        navigate("/");
       }
     } catch (error) {
       console.error("Login failed:", error.response?.data?.message || "Something went wrong");
       throw new Error(error.response?.data?.message || "Login failed");
     }
   };
-  
 
-  // ✅ Logout Function
   const logout = () => {
     setUser(null);
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     delete axios.defaults.headers.common["Authorization"];
-    navigate("/login"); // Redirect after logout ✅
+    navigate("/login");
   };
 
   return (
@@ -119,5 +111,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// Hook for using auth context
 export const useAuth = () => useContext(AuthContext);
