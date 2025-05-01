@@ -1,12 +1,14 @@
-import express from "express";
 import dotenv from "dotenv";
+import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 
 import authRoutes from "./routes/authRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import foodRoutes from "./routes/foodRoutes.js";
-import cartRoutes from "./routes/cartRoutes.js"; // ✅ Import Cart Routes
+import cartRoutes from "./routes/cartRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js"; // Payment Route
+import orderRoutes from "./routes/orderRoutes.js";
 
 dotenv.config();
 
@@ -23,13 +25,18 @@ app.use(cors());
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/food", foodRoutes);
-app.use("/api/cart", cartRoutes); // ✅ Add Cart Routes here
+app.use("/api/cart", cartRoutes);
+app.use("/api/payment", paymentRoutes); // Add Payment Route
+app.use("/api/orders", orderRoutes); // ✅ Mount order route
 
 // ✅ MongoDB Connection
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB Connected"))
-  .catch((err) => console.error("❌ MongoDB Connection Error:", err));
+  .catch((err) => {
+    console.error("❌ MongoDB Connection Error:", err);
+    process.exit(1); // Exit the process if DB connection fails
+  });
 
 // ✅ Start Express Server
 const PORT = process.env.PORT || 5000;

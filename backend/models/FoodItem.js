@@ -1,3 +1,4 @@
+// models/FoodItem.js
 import mongoose from "mongoose";
 
 const foodSchema = new mongoose.Schema({
@@ -5,7 +6,7 @@ const foodSchema = new mongoose.Schema({
   category: { 
     type: String, 
     required: true,
-    enum: ["Fast Food", "Beverages", "Dessert", "Vegetarian", "Non-Vegetarian"] // ✅ Allowed values
+    enum: ["Fast Food", "Beverages", "Dessert", "Vegetarian", "Non-Vegetarian"] // Allowed categories
   },
   price: { type: Number, required: true },
   image: { type: String, required: true },

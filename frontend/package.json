@@ -12,6 +12,8 @@
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.2",
     "@reduxjs/toolkit": "^2.6.0",
+    "@stripe/react-stripe-js": "^3.6.0",
+    "@stripe/stripe-js": "^7.2.0",
     "axios": "^1.8.1",
     "class-variance-authority": "^0.7.1",
     "framer-motion": "^12.6.3",

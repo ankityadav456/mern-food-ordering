@@ -17,6 +17,9 @@ import AdminDashboard from "./pages/AdminDashboard";
 import MenuPage from "./pages/MenuPage";
 import AddFoodPage from "./pages/AddFoodPage";
 import Cart from "./pages/Cart";
+import CheckoutPage from "./pages/CheckoutPage";
+import OrderSuccessPage from "./pages/OrderSuccessPage";
+import OrderSummary from "./pages/OrderSummary";
 
 const App = () => {
   return (
@@ -34,6 +37,9 @@ const App = () => {
                     <Route path="menu" element={<ProtectedRoute><MenuPage /></ProtectedRoute>} />
                     <Route path="food-management" element={<AdminRoute><AddFoodPage /></AdminRoute>} />
                     <Route path="cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
+                    <Route path="order-success" element={<ProtectedRoute><OrderSuccessPage /></ProtectedRoute>} />
+                    <Route path="orders" element={<ProtectedRoute><OrderSummary /></ProtectedRoute>} />
+                    <Route path="checkout" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
                   </Route>
 
                   <Route path="/login" element={<Login />} />

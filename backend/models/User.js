@@ -1,7 +1,7 @@
 // models/User.js
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
-import cartItemSchema from "./Cart.js"; // ✅ Imported separated cart schema
+import cartItemSchema from "./Cart.js";
 
 const userSchema = new mongoose.Schema(
   {
@@ -9,14 +9,12 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     isAdmin: { type: Boolean, default: false },
-
-    // ✅ Embedded cart using imported schema
     cart: [cartItemSchema],
+    orders: [{ type: mongoose.Schema.Types.ObjectId, ref: "Order" }]
   },
   { timestamps: true }
 );
 
-// ✅ Hash password before saving
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   const salt = await bcrypt.genSalt(10);
@@ -24,7 +22,6 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-// ✅ Method to compare passwords
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return bcrypt.compare(enteredPassword, this.password);
 };

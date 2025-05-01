@@ -5,17 +5,18 @@ import toast, { Toaster } from "react-hot-toast";
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import { SearchContext } from "../context/SearchContext";
 import { useCart } from "../context/CartContext";
-import Loader from "../components/Loader"; // ✅
+import Loader from "../components/Loader";
 
 const MenuPage = () => {
-  const [loading, setLoading] = useState(false); // ✅ Loader state
+  const [loading, setLoading] = useState(false);
   const { foodItems } = useFood();
   const { searchQuery } = useContext(SearchContext);
-  const { addToCart } = useCart();
+  const { cartItems, addToCart } = useCart();
 
   const [filteredFoods, setFilteredFoods] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortOrder, setSortOrder] = useState("");
+  const [priceLimit, setPriceLimit] = useState(500);
 
   const categories = ["All", "Fast Food", "Beverages", "Dessert", "Vegetarian", "Non-Vegetarian"];
 
@@ -26,9 +27,9 @@ const MenuPage = () => {
       );
       setFilteredFoods(result);
     } else {
-      filterFoods(selectedCategory);
+      filterFoods(selectedCategory, priceLimit);
     }
-  }, [searchQuery, foodItems]);
+  }, [searchQuery, foodItems, sortOrder, priceLimit]);
 
   const renderStars = (rating) => {
     const stars = [];
@@ -44,43 +45,55 @@ const MenuPage = () => {
     return <div className="flex items-center gap-1 mt-1">{stars}</div>;
   };
 
-  const filterFoods = (category) => {
-    setLoading(true); // ✅ Show loader
+  const filterFoods = (category, priceCap = priceLimit) => {
+    setLoading(true);
     setTimeout(() => {
       let result =
         category === "All"
           ? foodItems
           : foodItems.filter(item => item.category === category);
 
+      result = result.filter(item => item.price <= priceCap);
+
       if (sortOrder === "asc") result.sort((a, b) => a.price - b.price);
       if (sortOrder === "desc") result.sort((a, b) => b.price - a.price);
 
       setFilteredFoods(result);
-      setLoading(false); // ✅ Hide loader
-    }, 500); // Simulate network delay
+      setLoading(false);
+    }, 400);
   };
 
   const handleAddToCart = async (food) => {
     try {
-      await addToCart(food); // from context
+      await addToCart(food);
       // toast.success(`${food.name} added to cart!`);
     } catch (error) {
-      toast.error("Failed to add item to cart");
+      // toast.error("Failed to add item to cart");
     }
   };
 
   const handleSortChange = (value) => {
     setSortOrder(value);
-    filterFoods(selectedCategory);
+    filterFoods(selectedCategory, priceLimit);
+  };
+
+  const handlePriceChange = (e) => {
+    const value = parseInt(e.target.value);
+    setPriceLimit(value);
+    filterFoods(selectedCategory, value);
+  };
+
+  const getItemQuantity = (id) => {
+    const item = cartItems.find(ci => ci.foodId._id === id);
+    return item ? item.quantity : 0;
   };
 
   return (
     <div className="min-h-screen bg-[#0d0d0d] text-white p-4 relative">
-      <Toaster position="top-right" />
+      <Toaster position="top-right" className="mt-20" style="mt-10px"/>
+      {loading && <Loader />}
 
-      {loading && <Loader />} {/* ✅ Conditional Loader */}
-
-      {/* Menu Filters */}
+      {/* Filter UI */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -91,66 +104,94 @@ const MenuPage = () => {
 
         <div className="mt-6 flex flex-col md:flex-row justify-between items-center gap-4">
           {/* Sort Dropdown */}
-          <select
-            value={sortOrder}
-            onChange={(e) => handleSortChange(e.target.value)}
-            className="px-4 py-2 rounded-lg bg-[#1A1A1A] border border-[#D4AF37] text-white"
-          >
-            <option value="">Sort By</option>
-            <option value="asc">Price: Low to High</option>
-            <option value="desc">Price: High to Low</option>
-          </select>
-
-          {/* Categories */}
-          <div className="flex flex-wrap justify-center md:justify-start gap-2">
-            {categories.map((category) => (
-              <motion.button
-                key={category}
-                onClick={() => {
-                  setSelectedCategory(category);
-                  filterFoods(category);
-                }}
-                className={`px-4 py-2 rounded-full border ${selectedCategory === category
-                  ? "bg-[#D4AF37] text-black border-[#D4AF37]"
-                  : "bg-transparent text-white border-[#2A2A2A] hover:border-[#D4AF37]"
-                  }`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                {category}
-              </motion.button>
-            ))}
+          <div className="flex gap-3 items-center">
+            <label className="text-sm text-[#FFD700] font-medium">Sort:</label>
+            <select
+              value={sortOrder}
+              onChange={(e) => handleSortChange(e.target.value)}
+              className="px-4 py-2 rounded-lg bg-[#111] border border-[#FFD700] text-white focus:outline-none"
+            >
+              <option value="">Default</option>
+              <option value="asc">Price: Low → High</option>
+              <option value="desc">Price: High → Low</option>
+            </select>
           </div>
+
+          {/* Price Filter */}
+          <div className="flex gap-2 items-center">
+            <label className="text-sm text-[#FFD700] font-medium">Max Price:</label>
+            <input
+              type="range"
+              min="50"
+              max="500"
+              step="50"
+              value={priceLimit}
+              onChange={handlePriceChange}
+              className="w-32 accent-[#FFD700] bg-[#222]"
+            />
+            <span className="text-sm text-white">₹{priceLimit}</span>
+          </div>
+        </div>
+
+        {/* Categories */}
+        <div className="flex overflow-x-auto gap-2 mt-4 scrollbar-hide py-1">
+          {categories.map((category) => (
+            <motion.button
+              key={category}
+              onClick={() => {
+                setSelectedCategory(category);
+                filterFoods(category);
+              }}
+              className={`whitespace-nowrap px-4 py-2 rounded-full border transition-all duration-200 ${
+                selectedCategory === category
+                  ? "bg-[#FFD700] text-black font-semibold"
+                  : "bg-[#111] text-white border-[#2A2A2A] hover:border-[#FFD700]"
+              }`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              {category}
+            </motion.button>
+          ))}
         </div>
       </motion.div>
 
-      {/* Food Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6">
+      {/* Food Items Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6">
         {filteredFoods.length > 0 ? (
           filteredFoods.map((item) => (
             <motion.div
               key={item._id}
-              className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl shadow-lg overflow-hidden hover:shadow-[#D4AF37]/40 transition"
+              className={`relative bg-[#121212] border ${
+                getItemQuantity(item._id) > 0
+                  ? "border-[#FFD700] shadow-[#FFD700]/40"
+                  : "border-[#D4AF37]/10"
+              } rounded-xl shadow-md hover:shadow-[#FFD700]/30 transition-all duration-300`}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
             >
-              <img src={item.image} alt={item.name} className="w-full h-48 object-cover" />
-              <div className="p-4">
-                <h3 className="text-xl font-semibold text-[#D4AF37] truncate">{item.name}</h3>
-                <p className="text-white text-lg font-bold">
+              {/* Quantity Badge */}
+              {getItemQuantity(item._id) > 0 && (
+                <div title="Qty" className="absolute top-2 right-2 bg-[#FFD700] text-black text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-md">
+                  {getItemQuantity(item._id)}
+                </div>
+              )}
+
+              <img src={item.image} alt={item.name} className="w-full h-40 object-cover rounded-t-xl" />
+              <div className="p-3">
+                <h3 className="text-lg font-bold text-[#FFD700] truncate">{item.name}</h3>
+                <p className="text-white text-md font-semibold">
                   ₹{item.price.toLocaleString("en-IN")}
                 </p>
                 <p className="text-sm text-gray-400">{item.category}</p>
                 {renderStars(item.rating || 4.5)}
-                <p className="text-xs text-gray-500 mt-1">⏱ Estimated Delivery: {item.deliveryTime || "25-35 mins"}</p>
-                <div className="flex mt-4">
-                  <button
-                    className="w-full py-2 rounded-lg bg-gradient-to-r from-[#D4AF37] to-[#B22222] text-black font-semibold hover:opacity-90"
-                    onClick={() => handleAddToCart(item)}
-                  >
-                    Add to Cart
-                  </button>
-                </div>
+                <p className="text-xs text-gray-500 mt-1">⏱ {item.deliveryTime || "25-35 mins"}</p>
+                <button
+                  className="mt-3 w-full py-2 rounded-lg bg-gradient-to-r from-[#FFD700] to-[#8B0000] text-black font-semibold hover:opacity-90"
+                  onClick={() => handleAddToCart(item)}
+                >
+                  Add to Cart
+                </button>
               </div>
             </motion.div>
           ))

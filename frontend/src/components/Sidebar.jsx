@@ -30,7 +30,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar, isZoomed, isDrawerMode, onNavigat
 
   return (
     <div
-      className={`sidebar h-screen overflow-y-auto scrollbar-thin scrollbar-thumb-[#444] scrollbar-track-transparent
+      className={`sidebar py-1 h-screen overflow-y-auto scrollbar-thin scrollbar-thumb-[#444] scrollbar-track-transparent
         ${isCollapsed ? "sidebar-collapsed" : "sidebar-expanded"}`}
     >
       {/* Header */}

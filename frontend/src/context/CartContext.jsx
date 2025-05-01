@@ -20,7 +20,6 @@ export const CartProvider = ({ children }) => {
   // ✅ Fetch Cart Items
   const fetchCartItems = async () => {
     try {
-      console.log("📦 Fetching cart with token:", user?.token);
 
       const res = await axios.get("/cart", {
         headers: {
@@ -28,7 +27,6 @@ export const CartProvider = ({ children }) => {
         },
       });
 
-      console.log("🛒 Cart data:", res.data);
       setCartItems(res.data); // ✅ Your backend returns array, not { cart: [] }
     } catch (error) {
       console.error("❌ Failed to fetch cart:", error.response?.data || error.message);
@@ -101,7 +99,7 @@ export const CartProvider = ({ children }) => {
           Authorization: `Bearer ${user?.token}`,
         },
       });
-      toast.success("Cart cleared");
+      // toast.success("Cart cleared");
       setCartItems([]);
     } catch (error) {
       console.error("❌ Clear cart error:", error.response?.data || error.message);
@@ -109,13 +107,10 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  // ✅ Auto-fetch cart when user logs in
-  // useEffect(() => {
-  //   console.log("🧪 Current user:", user);
-  //   if (user?.token) {
-  //     fetchCartItems();
-  //   }
-  // }, [user]);
+  // Calculate total price
+  const getTotalPrice = () => {
+    return cartItems.reduce((total, item) => total + item.foodId.price * item.quantity, 0);
+  };
 
   return (
     <CartContext.Provider
@@ -126,6 +121,7 @@ export const CartProvider = ({ children }) => {
         removeFromCart,
         updateItemQuantity,
         clearCart,
+        getTotalPrice, // Provide getTotalPrice function
       }}
     >
       {children}
