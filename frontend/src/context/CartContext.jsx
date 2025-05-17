@@ -47,7 +47,7 @@ export const CartProvider = ({ children }) => {
         }
       );
       
-      toast.success(`${foodItem.name} added to cart`);
+      // toast.success(`${foodItem.name} added to cart`);
       fetchCartItems();
     } catch (error) {
       console.error("❌ Add to cart error:", error.response?.data || error.message);
@@ -63,7 +63,7 @@ export const CartProvider = ({ children }) => {
           Authorization: `Bearer ${user?.token}`,
         },
       });
-      toast.success("Item removed from cart");
+      // toast.success("Item removed from cart");
       fetchCartItems();
     } catch (error) {
       console.error("❌ Remove from cart error:", error.response?.data || error.message);

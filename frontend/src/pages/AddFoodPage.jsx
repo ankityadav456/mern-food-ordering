@@ -2,7 +2,7 @@ import { useFood } from "../context/FoodContext";
 import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
 import FoodModal from "../components/FoodModal";
-import foodBg from "../assets/Images/AddFood.png"; // Example background image
+import foodBg from "../assets/Images/AddFood.png";
 
 export default function AdminFoodPage() {
   const { foodItems, addFoodItem, updateFoodItem, deleteFoodItem } = useFood();
@@ -10,12 +10,11 @@ export default function AdminFoodPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedFood, setSelectedFood] = useState(null);
 
-  // Define category options
   const categories = ["Fast Food", "Beverages", "Dessert", "Vegetarian", "Non-Vegetarian"];
 
   if (!user?.isAdmin) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-screen bg-gray-100 dark:bg-black">
         <h2 className="text-red-500 text-2xl font-bold">🚫 Access Denied: Admins Only</h2>
       </div>
     );
@@ -37,40 +36,50 @@ export default function AdminFoodPage() {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-4 text-center mb-5">🍽️ Manage Food Items</h1>
+    <div className="p-6 max-w-6xl mx-auto text-gray-900 dark:text-white">
+      <h1 className="text-4xl font-bold mb-8 text-center dark:text-gold">🍽️ Manage Food Items</h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {/* Add New Food Item Card */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {/* Add New Food */}
         <div
           onClick={() => openModal()}
-          className="border-2 border-dashed border-gray-400 rounded-lg p-4 shadow-md bg-white flex flex-col items-center justify-center cursor-pointer hover:bg-gray-100 relative overflow-hidden animate-border-rotate"
+          className="group border-2 border-dashed border-gray-400 rounded-xl p-4 shadow-lg bg-gray-100 dark:bg-[#1b1b1b] flex flex-col items-center justify-center cursor-pointer hover:border-gold hover:shadow-gold transition duration-300 relative overflow-hidden w-60"
         >
           <div
-            className="p-4 transition-all relative"
-            style={{ backgroundImage: `url(${foodBg})`, backgroundSize: "cover", backgroundPosition: "center", width: "100px", height: "100px" }}
-          ></div>
-          <h2 className="text-lg font-semibold text-gray-500 mt-3">Add New Food</h2>
-          <div className="absolute inset-0 border-4 border-transparent rounded-lg animate-border-clockwise"></div>
+            className="p-4 bg-white dark:bg-black rounded-full shadow-md"
+            style={{
+              backgroundImage: `url(${foodBg})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              width: "100px",
+              height: "100px",
+            }}
+          />
+          <h2 className="text-lg font-semibold mt-4 text-center text-gray-700 dark:text-gray-300">
+            Add New Food
+          </h2>
         </div>
 
+        {/* Food Items List */}
         {foodItems.length > 0 ? (
           foodItems.map((item) => (
-            <div key={item._id} className="border rounded-lg p-4 shadow-md bg-white">
+            <div
+              key={item._id}
+              className="bg-white dark:bg-[#1c1c1c] border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-md hover:shadow-xl transition duration-300 w-64"
+            >
               <img
                 src={item.image}
                 alt={item.name}
-                className="w-full h-40 object-cover rounded-md mb-2 shadow-sm border border-gray-200"
+                className="p-3 w-full h-40 object-cover rounded-md mb-3 border border-gray-300 dark:border-gray-700"
               />
+              <h2 className="text-xl font-semibold mb-1">{item.name}</h2>
+              <p className="text-gray-700 dark:text-gray-400 mb-1">${item.price}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-500">Category: {item.category}</p>
 
-              <h2 className="text-lg font-semibold">{item.name}</h2>
-              <p className="text-gray-600">${item.price}</p>
-              <p className="text-gray-500 text-sm">Category: {item.category}</p>
-
-              <div className="flex justify-between mt-3">
+              <div className="flex justify-between mt-4 space-x-2">
                 <button
                   onClick={() => openModal(item)}
-                  className="px-3 py-1 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
+                  className="w-full px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition"
                 >
                   ✏️ Edit
                 </button>
@@ -81,7 +90,7 @@ export default function AdminFoodPage() {
                       alert("🗑️ Food item deleted successfully!");
                     }
                   }}
-                  className="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                  className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition"
                 >
                   🗑️ Delete
                 </button>
@@ -89,17 +98,19 @@ export default function AdminFoodPage() {
             </div>
           ))
         ) : (
-          <p className="text-gray-500">No food items available.</p>
+          <p className="text-gray-600 dark:text-gray-400 col-span-full text-center mt-6">
+            No food items available.
+          </p>
         )}
       </div>
 
-      {/* Food Modal with Categories */}
+      {/* Modal */}
       <FoodModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         onSubmit={handleSubmit}
         initialData={selectedFood}
-        categories={categories} // Passing categories as a prop
+        categories={categories}
       />
     </div>
   );

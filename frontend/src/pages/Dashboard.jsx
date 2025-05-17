@@ -35,7 +35,7 @@ const Dashboard = () => {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      className="p-4 md:p-8 text-white min-h-screen bg-[#0d0d0d]"
+      className="p-4 md:p-8 min-h-screen bg-white text-black dark:bg-[#0d0d0d] dark:text-white"
     >
       {/* Welcome Message */}
       <motion.h1
@@ -102,11 +102,11 @@ const Dashboard = () => {
             key={index}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.97 }}
-            className="bg-[#1a1a1a] border border-[#2A2A2A] rounded-xl p-6 text-center hover:shadow-xl transition-all"
+            className="bg-gray-100 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2A2A2A] rounded-xl p-6 text-center hover:shadow-xl transition-all"
           >
             <Link to={action.to} className="flex flex-col items-center">
               {action.icon}
-              <span className="text-white text-lg font-semibold mt-2">
+              <span className="text-black dark:text-white text-lg font-semibold mt-2">
                 {action.label}
               </span>
             </Link>
@@ -124,9 +124,9 @@ const Dashboard = () => {
         <h2 className="text-2xl font-bold mb-6 text-[#D4AF37]">Your Orders</h2>
 
         {loading ? (
-          <div className="text-gray-400">Loading orders...</div>
+          <div className="text-gray-500 dark:text-gray-400">Loading orders...</div>
         ) : orders.length === 0 ? (
-          <div className="bg-[#1a1a1a] border border-[#2A2A2A] rounded-xl p-6 text-gray-300 text-sm">
+          <div className="bg-gray-100 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2A2A2A] rounded-xl p-6 text-gray-600 dark:text-gray-300 text-sm">
             You haven’t placed any orders yet. Start by exploring the{" "}
             <Link to="/menu" className="text-[#D4AF37] underline">
               menu
@@ -139,13 +139,13 @@ const Dashboard = () => {
               <motion.div
                 key={idx}
                 whileHover={{ scale: 1.05 }}
-                className="bg-[#1a1a1a] border border-[#2A2A2A] rounded-xl p-6 shadow-md hover:shadow-xl transition-all cursor-pointer"
+                className="bg-gray-100 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2A2A2A] rounded-xl p-6 shadow-md hover:shadow-xl transition-all cursor-pointer"
                 onClick={() => navigate(`/order-summary/${order._id}`)}
               >
                 <h3 className="text-lg font-semibold mb-2">Order #{idx + 1}</h3>
-                <p className="text-sm text-gray-400 mb-2">Items: {order.items.length}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Items: {order.items.length}</p>
                 <p className="text-xl font-bold text-[#D4AF37] mb-2">₹{order.totalAmount}</p>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   Placed on: {new Date(order.createdAt).toLocaleDateString()}
                 </p>
               </motion.div>

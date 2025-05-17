@@ -6,12 +6,15 @@ import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import { SearchContext } from "../context/SearchContext";
 import { useCart } from "../context/CartContext";
 import Loader from "../components/Loader";
+import { useTheme } from "../context/ThemeContext";
 
 const MenuPage = () => {
   const [loading, setLoading] = useState(false);
   const { foodItems } = useFood();
   const { searchQuery } = useContext(SearchContext);
   const { cartItems, addToCart } = useCart();
+  // const { theme } = useContext(useTheme);
+    const { theme } = useTheme();
 
   const [filteredFoods, setFilteredFoods] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -29,7 +32,7 @@ const MenuPage = () => {
     } else {
       filterFoods(selectedCategory, priceLimit);
     }
-  }, [searchQuery, foodItems, sortOrder, priceLimit]);
+  }, [searchQuery, foodItems, sortOrder, priceLimit, selectedCategory]);
 
   const renderStars = (rating) => {
     const stars = [];
@@ -66,9 +69,9 @@ const MenuPage = () => {
   const handleAddToCart = async (food) => {
     try {
       await addToCart(food);
-      // toast.success(`${food.name} added to cart!`);
+      toast.success(`${food.name} added to cart!`);
     } catch (error) {
-      // toast.error("Failed to add item to cart");
+      toast.error("Failed to add item to cart");
     }
   };
 
@@ -89,27 +92,43 @@ const MenuPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0d0d0d] text-white p-4 relative">
-      <Toaster position="top-right" className="mt-20" style="mt-10px"/>
+    <div className={`min-h-screen p-4 relative transition-colors duration-300 ${
+      theme === 'dark' ? 'bg-[#0d0d0d] text-white' : 'bg-white text-black'
+    }`}>
+      <Toaster position="top-right" />
       {loading && <Loader />}
 
-      {/* Filter UI */}
+      {/* Filter Section */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="bg-gradient-to-br from-[#0d0d0d] via-[#1A1A1A] to-[#0d0d0d] border border-[#2A2A2A] rounded-2xl shadow-xl p-6 mx-2 md:mx-6"
+        className={`rounded-2xl shadow-xl p-6 mx-2 md:mx-6 border transition-all ${
+          theme === 'dark'
+            ? 'bg-gradient-to-br from-[#0d0d0d] via-[#1A1A1A] to-[#0d0d0d] border-[#2A2A2A]'
+            : 'bg-gray-100 border-gray-300'
+        }`}
       >
         <h2 className="text-3xl font-bold text-center text-[#D4AF37]">Menu</h2>
 
+        {/* Active Filters */}
+        <div className="text-sm text-center text-gray-400 mt-2">
+          Showing: <span className="text-[#FFD700] font-medium">{selectedCategory}</span>, 
+          Sort: <span className="text-[#FFD700] font-medium">{sortOrder || "Default"}</span>, 
+          Max Price: <span className="text-[#FFD700] font-medium">₹{priceLimit}</span>
+        </div>
+
         <div className="mt-6 flex flex-col md:flex-row justify-between items-center gap-4">
-          {/* Sort Dropdown */}
           <div className="flex gap-3 items-center">
             <label className="text-sm text-[#FFD700] font-medium">Sort:</label>
             <select
               value={sortOrder}
               onChange={(e) => handleSortChange(e.target.value)}
-              className="px-4 py-2 rounded-lg bg-[#111] border border-[#FFD700] text-white focus:outline-none"
+              className={`px-4 py-2 rounded-lg border focus:outline-none ${
+                theme === 'dark'
+                  ? 'bg-[#111] border-[#FFD700] text-white'
+                  : 'bg-white border-gray-400 text-black'
+              }`}
             >
               <option value="">Default</option>
               <option value="asc">Price: Low → High</option>
@@ -117,7 +136,6 @@ const MenuPage = () => {
             </select>
           </div>
 
-          {/* Price Filter */}
           <div className="flex gap-2 items-center">
             <label className="text-sm text-[#FFD700] font-medium">Max Price:</label>
             <input
@@ -127,13 +145,12 @@ const MenuPage = () => {
               step="50"
               value={priceLimit}
               onChange={handlePriceChange}
-              className="w-32 accent-[#FFD700] bg-[#222]"
+              className="w-32 accent-[#FFD700] bg-transparent"
             />
-            <span className="text-sm text-white">₹{priceLimit}</span>
+            <span className="text-sm">₹{priceLimit}</span>
           </div>
         </div>
 
-        {/* Categories */}
         <div className="flex overflow-x-auto gap-2 mt-4 scrollbar-hide py-1">
           {categories.map((category) => (
             <motion.button
@@ -144,8 +161,12 @@ const MenuPage = () => {
               }}
               className={`whitespace-nowrap px-4 py-2 rounded-full border transition-all duration-200 ${
                 selectedCategory === category
-                  ? "bg-[#FFD700] text-black font-semibold"
-                  : "bg-[#111] text-white border-[#2A2A2A] hover:border-[#FFD700]"
+                  ? theme === 'dark'
+                    ? 'bg-[#FFD700] text-black font-semibold'
+                    : 'bg-[#8B0000] text-white font-semibold'
+                  : theme === 'dark'
+                  ? 'bg-[#111] text-white border-[#2A2A2A] hover:border-[#FFD700]'
+                  : 'bg-white text-black border-gray-300 hover:border-[#8B0000]'
               }`}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -157,40 +178,58 @@ const MenuPage = () => {
       </motion.div>
 
       {/* Food Items Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6">
         {filteredFoods.length > 0 ? (
           filteredFoods.map((item) => (
             <motion.div
               key={item._id}
-              className={`relative bg-[#121212] border ${
+              className={`relative border rounded-xl shadow-md transition-all duration-300 ${
                 getItemQuantity(item._id) > 0
-                  ? "border-[#FFD700] shadow-[#FFD700]/40"
-                  : "border-[#D4AF37]/10"
-              } rounded-xl shadow-md hover:shadow-[#FFD700]/30 transition-all duration-300`}
+                  ? 'border-[#FFD700] shadow-[#FFD700]/40'
+                  : theme === 'dark'
+                  ? 'bg-[#121212] border-[#D4AF37]/10 hover:shadow-[#FFD700]/30'
+                  : 'bg-white border-gray-200 hover:shadow-lg'
+              }`}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
             >
-              {/* Quantity Badge */}
               {getItemQuantity(item._id) > 0 && (
                 <div title="Qty" className="absolute top-2 right-2 bg-[#FFD700] text-black text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-md">
                   {getItemQuantity(item._id)}
                 </div>
               )}
 
-              <img src={item.image} alt={item.name} className="w-full h-40 object-cover rounded-t-xl" />
+              <img src={item.image} alt={item.name} className="p-3 w-full h-40 object-cover rounded-md mb-3" />
               <div className="p-3">
                 <h3 className="text-lg font-bold text-[#FFD700] truncate">{item.name}</h3>
-                <p className="text-white text-md font-semibold">
+                <p className={`text-md font-semibold ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
                   ₹{item.price.toLocaleString("en-IN")}
                 </p>
-                <p className="text-sm text-gray-400">{item.category}</p>
+
+                {/* Category Badge */}
+                <p className={`text-xs mt-1 font-semibold ${
+                  item.category === "Vegetarian"
+                    ? "text-green-500"
+                    : item.category === "Non-Vegetarian"
+                    ? "text-red-500"
+                    : "text-gray-500"
+                }`}>
+                  {item.category}
+                </p>
+
                 {renderStars(item.rating || 4.5)}
                 <p className="text-xs text-gray-500 mt-1">⏱ {item.deliveryTime || "25-35 mins"}</p>
+
                 <button
-                  className="mt-3 w-full py-2 rounded-lg bg-gradient-to-r from-[#FFD700] to-[#8B0000] text-black font-semibold hover:opacity-90"
+                  className={`mt-3 w-full py-2 rounded-lg font-semibold hover:opacity-90 ${
+                    getItemQuantity(item._id) > 0
+                      ? 'bg-gray-400 cursor-not-allowed text-white'
+                      : 'bg-gradient-to-r from-[#FFD700] to-[#8B0000] text-black'
+                  }`}
+                  disabled={getItemQuantity(item._id) > 0}
                   onClick={() => handleAddToCart(item)}
                 >
-                  Add to Cart
+                  {getItemQuantity(item._id) > 0 ? "In Cart" : "Add to Cart"}
                 </button>
               </div>
             </motion.div>

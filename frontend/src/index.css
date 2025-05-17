@@ -10,6 +10,18 @@
         @apply bg-[#121212] text-white h-screen fixed top-0 left-0 transition-all duration-300 shadow-lg flex flex-col border-r border-gray-800;
     }
 
+    /* Dark mode Sidebar */
+    .dark .sidebar {
+        @apply bg-[#1A1A1A] text-white;
+        /* Dark background */
+    }
+
+    /* Light mode Sidebar */
+    .light .sidebar {
+        @apply bg-[#F5F5F5] text-black;
+        /* Light background */
+    }
+
     .sidebar-collapsed {
         @apply w-16;
     }
@@ -63,12 +75,15 @@
         @apply bg-black text-white p-4 shadow-md fixed top-0 right-0 transition-all duration-300 z-10;
     }
 
-    /* Search Bar */
+    /* Light Mode Navbar */
+    .light .navbar {
+        @apply bg-[#F5F5F5] text-black;
+        /* Light background */
+    }
+
     /* Search Bar */
     .search-input {
-        @apply w-64 p-2 rounded-lg border border-gray-600 bg-transparent text-white pr-10
-        /* Right padding for icon */
-        focus:outline-none focus:ring-2 focus:ring-[#FFD700];
+        @apply w-64 p-2 rounded-lg border border-gray-600 bg-transparent text-white pr-10;
     }
 
     .search-icon {
@@ -96,14 +111,11 @@
     /* ===== User Dropdown ===== */
     .user-dropdown {
         @apply absolute right-0 mt-2 w-48 bg-black text-white rounded-lg shadow-lg border border-[#FFD700] overflow-hidden;
-        /* Ensures rounded corners work properly */
     }
 
     .dropdown-item {
         @apply block px-4 py-2 hover:bg-[#FFD700] hover:text-black transition;
-        /* No extra padding */
     }
-
 
     /* Navbar Logout Button (Fixed Conflict) */
     .dropdown-logout-btn {
@@ -132,14 +144,60 @@
 /* Scrollbar Styling */
 .sidebar::-webkit-scrollbar {
     width: 8px;
-  }
-  
-  .sidebar::-webkit-scrollbar-thumb {
-    background-color: #D4AF37; /* Gold Thumb */
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background-color: #D4AF37;
+    /* Gold Thumb */
     border-radius: 8px;
-  }
-  
-  .sidebar::-webkit-scrollbar-track {
-    background: #1A1A1A; /* Dark Track */
-  }
-  
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: #1A1A1A;
+    /* Dark Track */
+}
+
+/* Light Mode Scrollbar */
+.light .sidebar::-webkit-scrollbar-track {
+    background: #E0E0E0;
+    /* Light gray background for light mode */
+}
+
+/* Dark Mode Scrollbar */
+.dark .sidebar::-webkit-scrollbar-track {
+    background: #1A1A1A;
+    /* Dark background for dark mode */
+}
+
+/* Optional: Hover state for the scrollbar thumb */
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background-color: #FFD700;
+    /* Gold on hover */
+}
+
+/* Light Mode */
+html,
+body {
+    @apply bg-white text-black dark:bg-[#0d0d0d] dark:text-white transition-colors duration-300;
+}
+
+/* Dark Mode Styles */
+.dark html,
+.dark body {
+    @apply bg-[#121212] text-white;
+}
+
+
+@layer components {
+    .home-highlight {
+        @apply text-[#FFD700] dark:text-[#B8860B];
+    }
+
+    .home-btn {
+        @apply bg-[#FFD700] text-black dark:bg-[#8B0000] dark:text-white transition-all duration-300 hover:scale-105;
+    }
+
+    .home-btn:hover {
+        @apply bg-[#B8860B] dark:bg-[#FFD700] dark:text-black;
+    }
+}

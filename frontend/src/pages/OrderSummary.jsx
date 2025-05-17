@@ -2,12 +2,13 @@ import { useAuth } from "../context/AuthContext";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axiosInstance from "../utils/axiosInstance";
+import Loader from "../components/Loader";
 
 const OrderSummary = () => {
     const { user } = useAuth();
     const { orderId } = useParams(); // Get order ID from URL
     const [order, setOrder] = useState(null);
-
+  const [loading, setLoading] = useState(true);
     useEffect(() => {
         const fetchOrder = async () => {
             try {
@@ -16,6 +17,7 @@ const OrderSummary = () => {
                 });
                 setOrder(data.orders);
             } catch (error) {
+                setLoading(false);
                 console.error("Error fetching order", error);
             }
         };
@@ -25,10 +27,11 @@ const OrderSummary = () => {
           }
     }, [user]);
 
-    if (!order) return <div>Loading...</div>;
+    if (!order) return <div>{loading && <Loader />}</div>;
 
     return (
-        <div className="p-6 bg-[#0d0d0d] text-white">
+        <div className="min-h-screen bg-[#111] p-10">
+             {/* {loading && <Loader />} */}
             <h2 className="text-2xl font-bold mb-4 text-[#D4AF37]">Order Summary</h2>
 
             <div className="bg-[#1a1a1a] border border-[#2A2A2A] rounded-xl p-6 shadow-lg">
