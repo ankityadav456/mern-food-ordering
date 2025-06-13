@@ -2,15 +2,18 @@ import { useFood } from "../context/FoodContext";
 import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
 import FoodModal from "../components/FoodModal";
-import foodBg from "../assets/Images/AddFood.png";
-
+import addBtnLight from "../assets/Images/lightModeAdd.png";
+import Swal from 'sweetalert2';
+import 'sweetalert2/src/sweetalert2.scss'; // Optional if you want to customize styles
+// import addBtnDark from "../assets/Images/darkModeAdd.png";
+import { Utensils } from "lucide-react";
 export default function AdminFoodPage() {
   const { foodItems, addFoodItem, updateFoodItem, deleteFoodItem } = useFood();
   const { user } = useAuth();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedFood, setSelectedFood] = useState(null);
 
-  const categories = ["Fast Food", "Beverages", "Dessert", "Vegetarian", "Non-Vegetarian"];
+  const categories = ["Pizza", "Burger", "Dessert", "Vegetarian", "Non-Vegetarian"];
 
   if (!user?.isAdmin) {
     return (
@@ -35,9 +38,36 @@ export default function AdminFoodPage() {
     }
   };
 
+  
+const handleDelete = async (item) => {
+  const result = await Swal.fire({
+    title: 'Are you sure?',
+    text: 'Do you really want to delete this food item? This action cannot be undone.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33', // red
+    cancelButtonColor: '#3085d6', // blue
+    confirmButtonText: 'Yes, delete it!',
+    cancelButtonText: 'Cancel',
+  });
+
+  if (result.isConfirmed) {
+    await deleteFoodItem(item._id);
+    Swal.fire('Deleted!', '🗑️ Food item has been deleted.', 'success');
+  }
+};
+
   return (
     <div className="p-6 max-w-6xl mx-auto text-gray-900 dark:text-white">
-      <h1 className="text-4xl font-bold mb-8 text-center dark:text-gold">🍽️ Manage Food Items</h1>
+
+      <h1 className="text-3xl md:text-2xl lg:text-3xl font-extrabold text-center mb-8 text-black dark:text-gold flex items-center justify-center gap-3 tracking-tight">
+  <Utensils className="w-8 h-8 text-black dark:text-gold" />
+  <span className="relative inline-block">
+    Manage Food Items
+  </span>
+</h1>
+
+
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {/* Add New Food */}
@@ -46,9 +76,9 @@ export default function AdminFoodPage() {
           className="group border-2 border-dashed border-gray-400 rounded-xl p-4 shadow-lg bg-gray-100 dark:bg-[#1b1b1b] flex flex-col items-center justify-center cursor-pointer hover:border-gold hover:shadow-gold transition duration-300 relative overflow-hidden w-60"
         >
           <div
-            className="p-4 bg-white dark:bg-black rounded-full shadow-md"
+            className="p-4 bg-white dark:bg-white rounded-full shadow-md"
             style={{
-              backgroundImage: `url(${foodBg})`,
+              backgroundImage: `url(${addBtnLight})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
               width: "100px",
@@ -84,12 +114,7 @@ export default function AdminFoodPage() {
                   ✏️ Edit
                 </button>
                 <button
-                  onClick={async () => {
-                    if (window.confirm("Are you sure you want to delete this food item?")) {
-                      await deleteFoodItem(item._id);
-                      alert("🗑️ Food item deleted successfully!");
-                    }
-                  }}
+                   onClick={() => handleDelete(item)}
                   className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition"
                 >
                   🗑️ Delete

@@ -35,7 +35,7 @@ const Dashboard = () => {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      className="p-4 md:p-8 min-h-screen bg-white text-black dark:bg-[#0d0d0d] dark:text-white"
+      className="p-4 md:p-8 min-h-screen  bg-[#FAF9F6] text-black dark:bg-[#0d0d0d] dark:text-white"
     >
       {/* Welcome Message */}
       <motion.h1

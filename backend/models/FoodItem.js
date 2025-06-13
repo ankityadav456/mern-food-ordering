@@ -6,7 +6,7 @@ const foodSchema = new mongoose.Schema({
   category: { 
     type: String, 
     required: true,
-    enum: ["Fast Food", "Beverages", "Dessert", "Vegetarian", "Non-Vegetarian"] // Allowed categories
+    enum: ["Pizza", "Burger", "Chinese", "Chicken", "Biryani"] // Allowed categories
   },
   price: { type: Number, required: true },
   image: { type: String, required: true },

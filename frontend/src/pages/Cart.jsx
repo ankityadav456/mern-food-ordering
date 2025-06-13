@@ -74,6 +74,10 @@ const Cart = () => {
     return item.foodId.category?.toLowerCase() === filter.toLowerCase();
   });
 
+  const backhandle = () => {
+    
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex justify-center items-center bg-white dark:bg-[#0d0d0d]">
@@ -83,7 +87,7 @@ const Cart = () => {
   }
 
   return (
-    <div className="min-h-screen px-8 py-5 bg-white text-black dark:bg-[#0d0d0d] dark:text-white transition-colors duration-300">
+    <div className="min-h-screen px-8 py-5  bg-[#FAF9F6] text-black dark:bg-[#0d0d0d] dark:text-white transition-colors duration-300">
       <Toaster position="top-right" />
       <h2 className="text-3xl font-bold mb-4 pb-2 border-b border-[#D4AF37] text-center">
         Your Cart 🛒{" "}
@@ -181,6 +185,13 @@ const Cart = () => {
               </p>
 
               <div className="mt-4 sm:mt-0 flex space-x-4">
+           
+                  <Link
+              to="/"
+              className="px-5 py-2 bg-gray-200 dark:bg-[#2A2A2A] text-black dark:text-white rounded-full hover:bg-[#B22222] transition"
+            >
+              Back
+            </Link>
                 <button
                   onClick={handleClearCart}
                   className="px-5 py-2 bg-gray-200 dark:bg-[#2A2A2A] text-black dark:text-white rounded-full hover:bg-[#B22222] transition"

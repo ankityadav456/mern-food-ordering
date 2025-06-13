@@ -47,7 +47,7 @@ export const CartProvider = ({ children }) => {
         }
       );
       
-      // toast.success(`${foodItem.name} added to cart`);
+      toast.success(`${foodItem.name} added to cart`);
       fetchCartItems();
     } catch (error) {
       console.error("❌ Add to cart error:", error.response?.data || error.message);

@@ -1,6 +1,6 @@
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import axios from "../utils/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
@@ -14,6 +14,43 @@ const CheckoutForm = () => {
   const navigate = useNavigate();
   const stripe = useStripe();
   const elements = useElements();
+
+  // Track dark mode (Tailwind 'dark' class on <html>)
+  const [isDark, setIsDark] = useState(() =>
+    document.documentElement.classList.contains("dark")
+  );
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      const darkModeActive = document.documentElement.classList.contains("dark");
+      setIsDark(darkModeActive);
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const CARD_OPTIONS = useMemo(() => ({
+    style: {
+      base: {
+        fontSize: "16px",
+        color: isDark ? "#f1f1f1" : "#000",
+        // backgroundColor: isDark ? "#111" : "#fff",  // Stripe doesn't officially support backgroundColor here, but no harm including
+        "::placeholder": {
+          color: isDark ? "#aaa" : "#888",
+        },
+        fontFamily: "Arial, sans-serif",
+        iconColor: isDark ? "#FFD700" : "#B22222",
+      },
+      invalid: {
+        color: "#FF4136",
+      },
+    },
+  }), [isDark]);
 
   useEffect(() => {
     if (cartItems.length === 0) return;
@@ -73,25 +110,12 @@ const CheckoutForm = () => {
     }
   };
 
-  const CARD_OPTIONS = {
-    style: {
-      base: {
-        fontSize: "16px",
-        color: "#000",
-        "::placeholder": {
-          color: "#888",
-        },
-      },
-      invalid: {
-        color: "#FF4136",
-      },
-    },
-  };
-
   return (
-    <div className="max-w-4xl mx-auto p-6 rounded-2xl shadow-2xl border mt-10 
-                    bg-white border-gray-200 text-black 
-                    dark:bg-[#111] dark:border-[#FFD700]/30 dark:text-white">
+    <div
+      className="max-w-4xl mx-auto p-6 rounded-2xl shadow-2xl border m-10 mx-12
+                 bg-white border-gray-200 text-black 
+                 dark:bg-[#111] dark:border-[#FFD700]/30 dark:text-white"
+    >
       <h2 className="text-3xl font-bold text-[#B22222] dark:text-[#FFD700] mb-6">Checkout</h2>
 
       {cartItems.length > 0 ? (
@@ -114,8 +138,10 @@ const CheckoutForm = () => {
             ))}
           </div>
 
-          <div className="mt-6 border-t pt-4 text-right space-y-1
-                          border-gray-300 dark:border-[#333]">
+          <div
+            className="mt-6 border-t pt-4 text-right space-y-1
+                       border-gray-300 dark:border-[#333]"
+          >
             <p className="text-base">Subtotal: ₹{getTotalPrice()}</p>
             <p className="text-base">Delivery Charge: ₹40</p>
             <p className="text-xl font-bold text-[#B22222] dark:text-[#FFD700]">
