@@ -2,11 +2,25 @@ import Order from "../models/Order.js";
 import User from "../models/User.js";
 import FoodItem from "../models/FoodItem.js";
 
-// ✅ Place a new order
+// ✅ Place a new order with delivery address
 export const placeOrder = async (req, res) => {
   try {
-    const { items, totalAmount } = req.body;
-    const userId = req.user.id; // Assuming user is set by auth middleware
+    const { items, totalAmount, deliveryAddress } = req.body;
+    const userId = req.user.id;
+
+    // Validate address fields
+    if (
+      !deliveryAddress ||
+      !deliveryAddress.fullName ||
+      !deliveryAddress.mobileNumber ||
+      !deliveryAddress.roomNumber ||
+      !deliveryAddress.street ||
+      !deliveryAddress.city ||
+      !deliveryAddress.state ||
+      !deliveryAddress.pincode
+    ) {
+      return res.status(400).json({ message: "All delivery address fields are required" });
+    }
 
     // Validate and prepare order items
     const orderItems = await Promise.all(
@@ -36,15 +50,16 @@ export const placeOrder = async (req, res) => {
       });
     }
 
-    // Create order with correct `user` field
+    // Create order with address
     const order = await Order.create({
-      user: userId, // ✅ fixed: use `user`, not `userId`
+      user: userId,
       items: orderItems,
       totalAmount: calculatedTotal,
       paymentStatus: "Paid",
+      deliveryAddress, // ✅ Save address here
     });
 
-    // Push order reference to user document
+    // Optional: Save order reference to user document
     await User.findByIdAndUpdate(userId, { $push: { orders: order._id } });
 
     res.status(201).json({ message: "Order placed successfully", order });

@@ -1,3 +1,4 @@
+// controllers/authController.js
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
@@ -11,9 +12,7 @@ const generateToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
 };
 
-// @desc    Register a new user
-// @route   POST /api/auth/register
-// @access  Public
+// Register User
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -27,20 +26,12 @@ export const registerUser = async (req, res) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // Hash Password
-    // const salt = await bcrypt.genSalt(10);
-    // const hashedPassword = await bcrypt.hash(password, salt);
-    // console.log("Hashed Password:", hashedPassword); // Debugging
-
-    // Create User
     const user = await User.create({ name, email, password });
-    console.log("Registered User:", user);
 
     if (!user) {
       return res.status(400).json({ message: "Invalid user data" });
     }
 
-    // Generate Token
     const token = generateToken(user._id);
     if (!token) {
       return res.status(500).json({ message: "Token generation failed" });
@@ -53,7 +44,8 @@ export const registerUser = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
-        isAdmin: user.isAdmin, // ✅ Include isAdmin
+        isAdmin: user.isAdmin,
+        address: user.address || null,
       },
       token,
     });
@@ -63,36 +55,25 @@ export const registerUser = async (req, res) => {
   }
 };
 
-// @desc    Login user
-// @route   POST /api/auth/login
-// @access  Public
+// Login User
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log(req.body)
+
     if (!email || !password) {
       return res.status(400).json({ message: "Both email and password are required" });
     }
 
     const user = await User.findOne({ email });
-    console.log("Login Attempt User:", user);
     if (!user) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    // Debugging: Print stored and entered password
-    console.log("Stored Password:", user.password);
-    console.log("Entered Password:", password);
-
-    // Compare Passwords
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log("Password Match:", isMatch);
     if (!isMatch) {
-      console.log("Password mismatch!");
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    // Generate Token
     const token = generateToken(user._id);
     if (!token) {
       return res.status(500).json({ message: "Token generation failed" });
@@ -105,7 +86,8 @@ export const loginUser = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
-        isAdmin: user.isAdmin, // ✅ Include isAdmin
+        isAdmin: user.isAdmin,
+        address: user.address || null,
       },
       token,
     });
@@ -115,9 +97,7 @@ export const loginUser = async (req, res) => {
   }
 };
 
-// @desc    Get logged-in user info
-// @route   GET /api/auth/me
-// @access  Private
+// Get User Profile
 export const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
@@ -131,11 +111,57 @@ export const getUserProfile = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
-        isAdmin: user.isAdmin, // ✅ Include isAdmin
+        isAdmin: user.isAdmin,
+        address: user.address || null,
       },
     });
   } catch (error) {
     console.error("Error in getUserProfile:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// ✅ Update Address Controller
+export const updateAddress = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    console.log(req.user)
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.address = req.body;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: "Address updated successfully",
+      address: user.address,
+    });
+  } catch (error) {
+    console.error("Error in updateAddress:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+// DELETE Address Controller
+export const deleteAddress = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.address = null; // Properly clear address field
+    await user.save();
+
+    res.json({
+      success: true,
+      message: "Address deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error in deleteAddress:", error);
     res.status(500).json({ message: "Server error" });
   }
 };

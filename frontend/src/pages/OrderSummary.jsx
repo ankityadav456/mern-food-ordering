@@ -3,62 +3,120 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axiosInstance from "../utils/axiosInstance";
 import Loader from "../components/Loader";
+import { motion } from "framer-motion";
+import { useTheme } from "../context/ThemeContext";
 
 const OrderSummary = () => {
-    const { user } = useAuth();
-    const { orderId } = useParams(); // Get order ID from URL
-    const [order, setOrder] = useState(null);
+  const { user } = useAuth();
+  const { theme } = useTheme();
+  const { orderId } = useParams();
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-    useEffect(() => {
-        const fetchOrder = async () => {
-            try {
-                const { data } = await axiosInstance.get("/orders/user-orders", {
-                    params: { userId: user?._id },
-                });
-                setOrder(data.orders);
-            } catch (error) {
-                setLoading(false);
-                console.error("Error fetching order", error);
-            }
-        };
 
-        if (user?._id) {
-            fetchOrder();
-          }
-    }, [user]);
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const { data } = await axiosInstance.get("/orders/user-orders", {
+          params: { userId: user?._id },
+        });
+        setOrders(data.orders);
+      } catch (error) {
+        console.error("Error fetching orders", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    if (!order) return <div>{loading && <Loader />}</div>;
+    if (user?._id) {
+      fetchOrders();
+    }
+  }, [user]);
 
-    return (
-        <div className="min-h-screen bg-[#111] p-10">
-             {/* {loading && <Loader />} */}
-            <h2 className="text-2xl font-bold mb-4 text-[#D4AF37]">Order Summary</h2>
+  if (loading) return <Loader />;
 
-            <div className="bg-[#1a1a1a] border border-[#2A2A2A] rounded-xl p-6 shadow-lg">
-                <h3 className="text-xl font-semibold mb-4">Order #{order[0]._id}</h3>
-                <p className="text-lg text-gray-400 mb-2">Placed on: {new Date(order[0].createdAt).toLocaleDateString()}</p>
+  // Theme classes
+  const bgColor = theme === "dark" ? "bg-[#111]" : "bg-[#FAF9F6]";
+  const textColor = theme === "dark" ? "text-white" : "text-black";
+  const tableBg = theme === "dark" ? "bg-[#1a1a1a]" : "bg-white";
+  const borderColor = theme === "dark" ? "border-[#2A2A2A]" : "border-gray-300";
+  const hoverColor = theme === "dark" ? "hover:bg-[#2b2b2b]" : "hover:bg-gray-100";
+  const noDataColor = theme === "dark" ? "text-gray-400" : "text-gray-600";
 
-                <div className="mb-6">
-                    <h4 className="text-lg font-semibold mb-2">Items</h4>
-                    <ul className="space-y-2">
-                        {order[0].items.map((item, idx) => (
-                            <li key={idx} className="text-gray-300">
-                                {item.foodId.name} x {item.quantity} - ₹{item.foodId.price * item.quantity}
-                            </li>
-                        ))}
+  return (
+    <div className={`min-h-screen ${bgColor} ${textColor} p-6 md:p-10`}>
+      <motion.h2
+        className="text-3xl font-bold mb-8 text-center text-[#FFD700]"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7 }}
+      >
+        My Order History
+      </motion.h2>
+
+      {orders.length === 0 ? (
+        <div className={`text-center ${noDataColor} text-lg`}>No orders found.</div>
+      ) : (
+        <div className="overflow-x-auto">
+          <motion.table
+            className={`min-w-full ${tableBg} ${borderColor} border rounded-xl overflow-hidden shadow-lg`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8 }}
+          >
+            <thead className="bg-[#FFD700] text-black">
+              <tr>
+                <th className="py-3 px-4 text-left">Order ID</th>
+                <th className="py-3 px-4 text-left">Date</th>
+                <th className="py-3 px-4 text-left">Items</th>
+                <th className="py-3 px-4 text-left">Total</th>
+                <th className="py-3 px-4 text-left">Address</th>
+              </tr>
+            </thead>
+            <tbody>
+              {orders.map((order, index) => (
+                <motion.tr
+                  key={order._id}
+                  className={`${borderColor} border-b ${hoverColor} transition-all duration-300`}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <td className="py-4 px-4 break-all">{order._id}</td>
+                  <td className="py-4 px-4">{new Date(order.createdAt).toLocaleDateString()}</td>
+                  <td className="py-4 px-4">
+                    <ul className="space-y-1">
+                      {order.items.map((item, idx) => (
+                        <li key={idx}>
+                          {item.foodId.name} x {item.quantity} - ₹{item.foodId.price * item.quantity}
+                        </li>
+                      ))}
                     </ul>
-                </div>
-
-                <div className="mb-4">
-                    <p className="text-lg font-semibold">Total: ₹{order[0].totalAmount}</p>
-                </div>
-
-                <div className="mb-4">
-                    <p className="text-gray-400">Delivery Address: {order.deliveryAddress}</p>
-                </div>
-            </div>
+                  </td>
+                  <td className="py-4 px-4 font-semibold text-[#FFD700]">₹{order.totalAmount}</td>
+                  <td className="py-4 px-4">
+                    {order.deliveryAddress ? (
+                      <div>
+                        <p>{order.deliveryAddress.fullName}</p>
+                        <p>Mobile: {order.deliveryAddress.mobileNumber}</p>
+                        <p>
+                          {order.deliveryAddress.roomNumber}, {order.deliveryAddress.street}
+                        </p>
+                        <p>
+                          {order.deliveryAddress.city}, {order.deliveryAddress.state} - {order.deliveryAddress.pincode}
+                        </p>
+                      </div>
+                    ) : (
+                      <p className={noDataColor}>No Address Provided</p>
+                    )}
+                  </td>
+                </motion.tr>
+              ))}
+            </tbody>
+          </motion.table>
         </div>
-    );
+      )}
+    </div>
+  );
 };
 
 export default OrderSummary;

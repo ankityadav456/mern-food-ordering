@@ -96,6 +96,8 @@ const MenuPage = () => {
   const handleAddToCart = async (food) => {
     try {
       await addToCart(food);
+      setQuickViewItem(null);
+    setQuantity(1);
       // toast.success(`${food.name} added to cart!`);
     } catch (error) {
       toast.error("Failed to add item to cart");
@@ -391,7 +393,7 @@ const MenuPage = () => {
 
               {/* Add to Cart */}
               <button
-                onClick={() => handleQuantityChange(quickViewItem._id, quantity)}
+                onClick={() => quantity > 1 ? handleQuantityChange(quickViewItem._id, quantity) : handleAddToCart(quickViewItem)}
                 className="mt-4 w-full py-2 rounded-lg bg-gradient-to-r from-[#FFD700] to-[#8B0000] text-black font-bold hover:opacity-90"
               >
                 {quantity > 1 ? `Update Quantity to ${quantity}` : "Add to Cart"}

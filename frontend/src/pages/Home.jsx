@@ -34,7 +34,7 @@ const Home = () => {
   }, []);
 
   return (
-    <div className={`${isDark ? "bg-[#0d0d0d] text-white" : "bg-white text-black"} pt-4`}>
+    <div className={`${isDark ? "bg-[#0d0d0d] text-white" : "bg-[#FAF9F6] text-black"} pt-4`}>
       {/* Modern Animated Banner Slider */}
       <div className="relative w-full max-w-6xl mx-auto h-[200px] md:h-[300px] lg:h-[350px] overflow-hidden rounded-2xl">
   <AnimatePresence mode="wait">
@@ -44,7 +44,7 @@ const Home = () => {
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.8 }}
-      className="absolute inset-0 w-full h-full"
+      className="absolute inset-0 w-full h-full mt-4"
     >
       <img
         src={banners[currentSlide]}

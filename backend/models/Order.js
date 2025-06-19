@@ -1,3 +1,4 @@
+// models/Order.js
 import mongoose from "mongoose";
 
 const orderItemSchema = new mongoose.Schema({
@@ -20,16 +21,26 @@ const orderItemSchema = new mongoose.Schema({
   },
 });
 
+const addressSchema = new mongoose.Schema({
+  fullName: { type: String, required: true },
+  mobileNumber: { type: String, required: true },
+  roomNumber: { type: String, required: true },
+  street: { type: String, required: true },
+  city: { type: String, required: true },
+  state: { type: String, required: true },
+  pincode: { type: String, required: true }
+});
+
 const orderSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true, // ✅ Required to prevent bugs
+      required: true,
     },
     items: {
       type: [orderItemSchema],
-      required: true, // ✅ Required to ensure items array is present
+      required: true,
     },
     totalAmount: {
       type: Number,
@@ -39,6 +50,10 @@ const orderSchema = new mongoose.Schema(
       type: String,
       enum: ["Pending", "Paid", "Failed"],
       default: "Paid",
+    },
+    deliveryAddress: {
+      type: addressSchema,
+      required: true, // ✅ Ensure address is mandatory for every order
     },
   },
   { timestamps: true }

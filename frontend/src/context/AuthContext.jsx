@@ -28,7 +28,8 @@ export const AuthProvider = ({ children }) => {
         name: res.data.user.name,
         email: res.data.user.email,
         isAdmin: res.data.user.isAdmin,
-        token, // ✅ Save token in user object
+        address: res.data.user.address || null, // ✅ Add address here
+        token,
       };
 
       setUser(userData);
@@ -56,7 +57,8 @@ export const AuthProvider = ({ children }) => {
           name: res.data.user.name,
           email: res.data.user.email,
           isAdmin: res.data.user.isAdmin,
-          token, // ✅ Include token
+          address: res.data.user.address || null, // ✅ Add address here
+          token,
         };
 
         setUser(userData);
@@ -83,7 +85,8 @@ export const AuthProvider = ({ children }) => {
           name: res.data.user.name,
           email: res.data.user.email,
           isAdmin: res.data.user.isAdmin,
-          token, // ✅ Include token
+          address: res.data.user.address || null, // ✅ Add address here
+          token,
         };
 
         setUser(userData);
@@ -96,6 +99,64 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // const saveAddress = async (addressData) => {
+  //   try {
+  //     const res = await axios.put("/auth/save-address", addressData);
+  //     if (res.data.success) {
+  //       const updatedUser = { ...user, address: res.data.address };
+  //       setUser(updatedUser);
+  //       localStorage.setItem("user", JSON.stringify(updatedUser));
+  //     }
+  //   } catch (error) {
+  //     console.error("Save Address Failed:", error.response?.data?.message || "Something went wrong");
+  //     throw new Error(error.response?.data?.message || "Save Address Failed");
+  //   }
+  // };
+
+  // const deleteAddress = async () => {
+  //   try {
+  //     const res = await axios.delete("/auth/delete-address");
+  //     if (res.data.success) {
+  //       const updatedUser = { ...user, address: null };
+  //       setUser(updatedUser);
+  //       localStorage.setItem("user", JSON.stringify(updatedUser));
+  //     }
+  //   } catch (error) {
+  //     console.error("Delete Address Failed:", error.response?.data?.message || "Something went wrong");
+  //     throw new Error(error.response?.data?.message || "Delete Address Failed");
+  //   }
+  // };
+
+   const saveAddress = async (addressData) => {
+    try {
+      const res = await axios.put("/auth/save-address", addressData);
+      if (res.data.success) {
+        const updatedUser = { ...user, address: res.data.address };
+        setUser(updatedUser);
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+        return res.data.address; // Return the updated address to update UI
+      }
+    } catch (error) {
+      console.error("Save Address Failed:", error.response?.data?.message || "Something went wrong");
+      throw new Error(error.response?.data?.message || "Save Address Failed");
+    }
+  };
+
+  const deleteAddress = async () => {
+    try {
+      const res = await axios.delete("/auth/delete-address");
+      if (res.data.success) {
+        const updatedUser = { ...user, address: null };
+        setUser(updatedUser);
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+      }
+    } catch (error) {
+      console.error("Delete Address Failed:", error.response?.data?.message || "Something went wrong");
+      throw new Error(error.response?.data?.message || "Delete Address Failed");
+    }
+  };
+
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem("token");
@@ -105,7 +166,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, signup, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, signup, login, logout, saveAddress, deleteAddress, loading }}>
       {!loading && children}
     </AuthContext.Provider>
   );

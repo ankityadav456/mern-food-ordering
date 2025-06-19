@@ -10,7 +10,16 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     isAdmin: { type: Boolean, default: false },
     cart: [cartItemSchema],
-    orders: [{ type: mongoose.Schema.Types.ObjectId, ref: "Order" }]
+    orders: [{ type: mongoose.Schema.Types.ObjectId, ref: "Order" }],
+    address: { // ✅ Address field added
+      fullName: { type: String },
+      mobileNumber: { type: String },
+      roomNumber: { type: String },
+      street: { type: String },
+      city: { type: String },
+      state: { type: String },
+      pincode: { type: String }
+    }
   },
   { timestamps: true }
 );
