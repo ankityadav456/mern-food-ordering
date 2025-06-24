@@ -31,6 +31,7 @@ const Dashboard = () => {
   }, [user]);
 
   return (
+    <div className="py-6 max-w-6xl mx-auto text-gray-900 dark:text-white">
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
@@ -169,6 +170,7 @@ const Dashboard = () => {
         </Link>
       </motion.div>
     </motion.div>
+    </div>
   );
 };
 

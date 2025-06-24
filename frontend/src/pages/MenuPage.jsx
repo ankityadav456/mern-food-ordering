@@ -30,14 +30,14 @@ const MenuPage = () => {
   const [sortOrder, setSortOrder] = useState("");
   const [priceLimit, setPriceLimit] = useState(1000);
   const [quickViewItem, setQuickViewItem] = useState(null);
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(0);
   const [showFilterModal, setShowFilterModal] = useState(false);
 
   const categories = [
     { name: "All", image: All },
     { name: "Pizza", image: pizza },
     { name: "Burger", image: burger },
-    { name: "Chinease", image: chinese },
+    { name: "Chinese", image: chinese },
     { name: "Biryani", image: biryani },
     { name: "Chicken", image: chicken },
   ];
@@ -55,7 +55,7 @@ const MenuPage = () => {
 
   useEffect(() => {
     if (quickViewItem) {
-      setQuantity(getItemQuantity(quickViewItem._id) || 1);
+      setQuantity(getItemQuantity(quickViewItem._id) || 0);
     }
   }, [quickViewItem]);
 
@@ -97,7 +97,7 @@ const MenuPage = () => {
     try {
       await addToCart(food);
       setQuickViewItem(null);
-    setQuantity(1);
+      // setQuantity(1);
       // toast.success(`${food.name} added to cart!`);
     } catch (error) {
       toast.error("Failed to add item to cart");
@@ -107,7 +107,7 @@ const MenuPage = () => {
     if (quantity < 1) return;
     await updateItemQuantity(id, quantity);
     setQuickViewItem(null);
-    setQuantity(1);
+    // setQuantity(1);
 
   };
 
@@ -129,7 +129,8 @@ const MenuPage = () => {
   };
 
   return (
-    <div className={`min-h-screen p-4 pt-8 relative transition-colors duration-300 ${theme === "dark" ? "bg-[#0d0d0d] text-white" : "bg-[#FAF9F6] text-black"}`}>
+       <div className="py-6 max-w-6xl mx-auto text-gray-900 dark:text-white">
+    {/* // <div className={`min-h-screen p-4 pt-8 relative transition-colors duration-300 ${theme === "dark" ? "bg-[#0d0d0d] text-white" : "bg-[#FAF9F6] text-black"}`}> */}
       <Toaster position="top-right" />
       {loading && <Loader />}
 
@@ -331,7 +332,7 @@ const MenuPage = () => {
             exit={{ opacity: 0 }}
             onClick={() => {
               setQuickViewItem(null);
-              setQuantity(1);
+              // setQuantity(1);
             }}
           >
             <motion.div
@@ -345,7 +346,7 @@ const MenuPage = () => {
               <button
                 onClick={() => {
                   setQuickViewItem(null);
-                  setQuantity(1);
+                  // setQuantity(1);
                 }}
                 className="absolute top-3 right-3 text-gray-400 hover:text-red-500"
               >
@@ -372,7 +373,7 @@ const MenuPage = () => {
               <p className="text-sm mt-1 text-gray-500">⏱ {quickViewItem.deliveryTime || "25-35 mins"}</p>
 
               {/* Quantity Selector */}
-              <div className="flex items-center justify-between mt-4">
+              <div className={`flex items-center justify-between mt-4 ${quantity == 0 ? "hidden" : ""}`}>
                 <span className="text-sm">Select Quantity</span>
                 <div className="flex items-center gap-2 border px-3 py-1 rounded-lg bg-gray-100 dark:bg-gray-800">
                   <button

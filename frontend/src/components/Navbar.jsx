@@ -90,7 +90,7 @@ const Navbar = ({ isCollapsed, toggleSidebar, isSidebarVisible, isDrawerMode, is
         </form>
 
         <div className="flex items-center space-x-4 ml-auto relative flex-shrink-0">
-          <div className="hidden md:flex items-center space-x-6 ml-8 text-base font-medium">
+          <div className="hidden lg:flex items-center space-x-6 ml-8 text-base font-medium">
             {navLinks}
           </div>
 
@@ -105,7 +105,7 @@ const Navbar = ({ isCollapsed, toggleSidebar, isSidebarVisible, isDrawerMode, is
             )}
           </Link>
 
-          <button onClick={toggleTheme} className={`p-2 rounded-full border ${borderColor} transition`} style={{ backgroundColor: theme === "dark" ? "#1A1A1A" : "#fff", color: gold }}>
+          <button onClick={toggleTheme} className={`hidden lg:block p-2 rounded-full border ${borderColor} transition`} style={{ backgroundColor: theme === "dark" ? "#1A1A1A" : "#fff", color: gold }}>
             {theme === "dark" ? <Sun size={24} /> : <Moon size={24} />}
           </button>
 

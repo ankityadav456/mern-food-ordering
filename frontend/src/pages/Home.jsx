@@ -8,8 +8,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import promo1 from "../assets/Images/PB1.png";
 import promo2 from "../assets/Images/PB2.png";
 import promo3 from "../assets/Images/PB3.png";
+const banners = [
+  "https://images.unsplash.com/photo-1600891964599-f61ba0e24092?auto=format&fit=crop&w=1920&q=80", // Salad & grill
+  "https://images.unsplash.com/photo-1551218808-94e220e084d2?auto=format&fit=crop&w=1920&q=80", // Pizza top view
+  promo1,promo2,promo3
+];
 
-const banners = [promo1, promo2, promo3];
+
+// const banners = [promo1, promo2, promo3];
 
 const Home = () => {
   const { theme } = useTheme();
@@ -37,48 +43,48 @@ const Home = () => {
     <div className={`${isDark ? "bg-[#0d0d0d] text-white" : "bg-[#FAF9F6] text-black"} pt-4`}>
       {/* Modern Animated Banner Slider */}
       <div className="relative w-full max-w-6xl mx-auto h-[200px] md:h-[300px] lg:h-[350px] overflow-hidden rounded-2xl">
-  <AnimatePresence mode="wait">
-    <motion.div
-      key={currentSlide}
-      initial={{ opacity: 0, scale: 1.05 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ duration: 0.8 }}
-      className="absolute inset-0 w-full h-full mt-4"
-    >
-      <img
-        src={banners[currentSlide]}
-        alt={`Slide ${currentSlide + 1}`}
-        className="w-full h-full object-cover rounded-2xl"
-      />
-    </motion.div>
-  </AnimatePresence>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentSlide}
+            initial={{ opacity: 0, scale: 1.05 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.8 }}
+            className="absolute inset-0 w-full h-full mt-4"
+          >
+            <img
+              src={banners[currentSlide]}
+              alt={`Slide ${currentSlide + 1}`}
+              className="w-full h-full object-cover rounded-2xl"
+            />
+          </motion.div>
+        </AnimatePresence>
 
-  {/* Slide Indicators */}
-  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-    {banners.map((_, idx) => (
-      <button
-        key={idx}
-        onClick={() => setCurrentSlide(idx)}
-        className={`w-3 h-3 rounded-full transition ${currentSlide === idx ? "bg-white" : "bg-white/50"}`}
-      ></button>
-    ))}
-  </div>
+        {/* Slide Indicators */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+          {banners.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrentSlide(idx)}
+              className={`w-3 h-3 rounded-full transition ${currentSlide === idx ? "bg-white" : "bg-white/50"}`}
+            ></button>
+          ))}
+        </div>
 
-  {/* Navigation Buttons */}
-  <button
-    onClick={prevSlide}
-    className="absolute top-1/2 left-4 -translate-y-1/2 bg-black/60 text-white p-2 md:p-3 rounded-full z-10 hover:scale-110 transition"
-  >
-    <FaArrowLeft />
-  </button>
-  <button
-    onClick={nextSlide}
-    className="absolute top-1/2 right-4 -translate-y-1/2 bg-black/60 text-white p-2 md:p-3 rounded-full z-10 hover:scale-110 transition"
-  >
-    <FaArrowRight />
-  </button>
-</div>
+        {/* Navigation Buttons */}
+        <button
+          onClick={prevSlide}
+          className="absolute top-1/2 left-4 -translate-y-1/2 bg-black/60 text-white p-2 md:p-3 rounded-full z-10 hover:scale-110 transition"
+        >
+          <FaArrowLeft />
+        </button>
+        <button
+          onClick={nextSlide}
+          className="absolute top-1/2 right-4 -translate-y-1/2 bg-black/60 text-white p-2 md:p-3 rounded-full z-10 hover:scale-110 transition"
+        >
+          <FaArrowRight />
+        </button>
+      </div>
 
 
       {/* How We Serve */}
