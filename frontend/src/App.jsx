@@ -20,6 +20,7 @@ import Cart from "./pages/Cart";
 import CheckoutPage from "./pages/CheckoutPage";
 import OrderSuccessPage from "./pages/OrderSuccessPage";
 import OrderSummary from "./pages/OrderSummary";
+import ProfilePage from "./pages/ProfilePage";
 
 const App = () => {
   return (
@@ -40,6 +41,7 @@ const App = () => {
                       <Route path="order-success" element={<ProtectedRoute><OrderSuccessPage /></ProtectedRoute>} />
                       <Route path="orders" element={<ProtectedRoute><OrderSummary /></ProtectedRoute>} />
                       <Route path="checkout" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
+                      <Route path="profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
                     </Route>
 
                     <Route path="/login" element={<Login />} />

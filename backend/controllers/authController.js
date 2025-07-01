@@ -1,6 +1,7 @@
-// controllers/authController.js
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import path from "path";
+import fs from "fs";
 import User from "../models/User.js";
 
 // Generate JWT Token
@@ -46,6 +47,7 @@ export const registerUser = async (req, res) => {
         email: user.email,
         isAdmin: user.isAdmin,
         address: user.address || null,
+        avatar: user.avatar || null,
       },
       token,
     });
@@ -88,6 +90,7 @@ export const loginUser = async (req, res) => {
         email: user.email,
         isAdmin: user.isAdmin,
         address: user.address || null,
+        avatar: user.avatar || null,
       },
       token,
     });
@@ -113,6 +116,7 @@ export const getUserProfile = async (req, res) => {
         email: user.email,
         isAdmin: user.isAdmin,
         address: user.address || null,
+        avatar: user.avatar || null,
       },
     });
   } catch (error) {
@@ -121,11 +125,65 @@ export const getUserProfile = async (req, res) => {
   }
 };
 
-// ✅ Update Address Controller
+// Update Profile
+export const updateUserProfile = async (req, res) => {
+  try {
+    const { userId, name, mobile, address } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.name = name || user.name;
+    user.mobile = mobile || user.mobile;
+    user.address = address || user.address;
+
+    const updatedUser = await user.save();
+
+    res.json({
+      success: true,
+      message: "Profile updated successfully",
+      updatedUser: {
+        _id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        mobile: updatedUser.mobile || null,
+        isAdmin: updatedUser.isAdmin,
+        address: updatedUser.address || null,
+        avatar: updatedUser.avatar || null,
+      },
+    });
+  } catch (error) {
+    console.error("Error in updateUserProfile:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Update Avatar
+export const updateUserAvatar = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    // console.log(user)
+    if (req.file) {
+      const avatarPath = `/uploads/avatars/${req.file.filename}`;
+      user.avatar = avatarPath;
+      await user.save();
+      res.json({ success: true,
+         message: "Avatar updated successfully",
+         avatar: avatarPath });
+    } else {
+      res.status(400).json({ message: "No file uploaded" });
+    }
+  } catch (error) {
+    console.error("Error in updateUserAvatar:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Update Address
 export const updateAddress = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
-    console.log(req.user)
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -144,8 +202,7 @@ export const updateAddress = async (req, res) => {
   }
 };
 
-
-// DELETE Address Controller
+// Delete Address
 export const deleteAddress = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -153,7 +210,7 @@ export const deleteAddress = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    user.address = null; // Properly clear address field
+    user.address = null;
     await user.save();
 
     res.json({

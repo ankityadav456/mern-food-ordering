@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import axios from "../utils/axiosInstance";
 import { useNavigate } from "react-router-dom";
-
+import Swal from 'sweetalert2';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -29,6 +29,7 @@ export const AuthProvider = ({ children }) => {
         email: res.data.user.email,
         isAdmin: res.data.user.isAdmin,
         address: res.data.user.address || null, // ✅ Add address here
+        avatar: res.data.user.avatar || null, // ✅ Add avatar field
         token,
       };
 
@@ -99,35 +100,44 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // const saveAddress = async (addressData) => {
-  //   try {
-  //     const res = await axios.put("/auth/save-address", addressData);
-  //     if (res.data.success) {
-  //       const updatedUser = { ...user, address: res.data.address };
-  //       setUser(updatedUser);
-  //       localStorage.setItem("user", JSON.stringify(updatedUser));
-  //     }
-  //   } catch (error) {
-  //     console.error("Save Address Failed:", error.response?.data?.message || "Something went wrong");
-  //     throw new Error(error.response?.data?.message || "Save Address Failed");
-  //   }
-  // };
+  // 📌 Update user profile (name, mobile, address)
+  const updateProfile = async (formData) => {
+    try {
+      const res = await axios.put("/auth/update-profile", formData);
+      Swal.fire(res.data.message);
+      const updatedUser = res.data.updatedUser;
 
-  // const deleteAddress = async () => {
-  //   try {
-  //     const res = await axios.delete("/auth/delete-address");
-  //     if (res.data.success) {
-  //       const updatedUser = { ...user, address: null };
-  //       setUser(updatedUser);
-  //       localStorage.setItem("user", JSON.stringify(updatedUser));
-  //     }
-  //   } catch (error) {
-  //     console.error("Delete Address Failed:", error.response?.data?.message || "Something went wrong");
-  //     throw new Error(error.response?.data?.message || "Delete Address Failed");
-  //   }
-  // };
+      const newUser = { ...user, ...updatedUser };
+      setUser(newUser);
+      localStorage.setItem("user", JSON.stringify(newUser));
+    } catch (error) {
+      console.error("Update profile failed:", error.response?.data?.message || error.message);
+      throw new Error("Profile update failed");
+    }
+  };
 
-   const saveAddress = async (addressData) => {
+  // 📌 Upload new avatar image
+  const updateAvatar = async (file) => {
+  try {
+    const formData = new FormData();
+    formData.append("avatar", file);
+
+    const res = await axios.put("/auth/update-avatar", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    Swal.fire(res.data.message);
+    const updatedAvatar = res.data.avatar;
+    const updatedUser = { ...user, avatar: updatedAvatar };
+    setUser(updatedUser);
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+  } catch (error) {
+    console.error("Avatar upload failed:", error.response?.data?.message || error.message);
+    throw new Error("Avatar upload failed");
+  }
+};
+
+
+  const saveAddress = async (addressData) => {
     try {
       const res = await axios.put("/auth/save-address", addressData);
       if (res.data.success) {
@@ -166,7 +176,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, signup, login, logout, saveAddress, deleteAddress, loading }}>
+    <AuthContext.Provider value={{ user, signup, login, logout, saveAddress, deleteAddress, updateAvatar, updateProfile, loading }}>
       {!loading && children}
     </AuthContext.Provider>
   );

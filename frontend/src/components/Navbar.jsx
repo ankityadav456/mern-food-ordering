@@ -19,6 +19,7 @@ const Navbar = ({ isCollapsed, toggleSidebar, isSidebarVisible, isDrawerMode, is
   const [navMenuOpen, setNavMenuOpen] = useState(false);
   const userMenuRef = useRef(null);
   const navigate = useNavigate();
+  const avatarUrl = user?.avatar ? `${import.meta.env.VITE_BACKEND_URL}${user.avatar}` : "";
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -113,7 +114,7 @@ const Navbar = ({ isCollapsed, toggleSidebar, isSidebarVisible, isDrawerMode, is
             <div ref={userMenuRef} className="relative group">
               <button onClick={() => setUserMenuOpen(!userMenuOpen)} className="focus:outline-none p-[2px] rounded-full bg-gradient-to-tr from-[#D4AF37] via-[#B22222] to-[#D4AF37] hover:scale-105 transition">
                 <div className={`${theme === "dark" ? "bg-[#0d0d0d]" : "bg-white"} p-[2px] rounded-full`}>
-                  <img src={user.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${user.name}`} alt="User Avatar" className="h-10 w-10 rounded-full object-cover border-2" />
+                  <img src={avatarUrl} alt="User Avatar" className="h-10 w-10 rounded-full object-cover" />
                 </div>
               </button>
               {userMenuOpen && (
@@ -126,6 +127,7 @@ const Navbar = ({ isCollapsed, toggleSidebar, isSidebarVisible, isDrawerMode, is
                     <Link to="/admin-dashboard" className="block px-5 py-3 hover:bg-red-600 hover:text-white transition">Admin Panel</Link>
                   )}
                   <Link to="/dashboard" className="block px-5 py-3 hover:bg-red-600 hover:text-white transition">Dashboard</Link>
+                  <Link to="/profile" className="block px-5 py-3 hover:bg-red-600 hover:text-white transition">Manage Profile</Link>
                   <button onClick={logout} className="w-full text-left px-5 py-3 hover:bg-red-600 hover:text-white transition">Logout</button>
                 </div>
               )}
