@@ -3,7 +3,7 @@ import express from "express";
 import stripePackage from "stripe";
 dotenv.config();
 const stripe = stripePackage(process.env.STRIPE_SECRET_KEY); // Use your secret key
-console.log(process.env.STRIPE_SECRET_KEY)
+// console.log(process.env.STRIPE_SECRET_KEY)
 const router = express.Router();
 
 // Route to create a payment intent

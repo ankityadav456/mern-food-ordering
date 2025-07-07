@@ -2,6 +2,9 @@ import { createContext, useContext, useState, useEffect } from "react";
 import axios from "../utils/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import Swal from 'sweetalert2';
+import defualtUserLogo from '../assets/Images/profile.png'
+import { toast } from "react-hot-toast";
+
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -29,7 +32,7 @@ export const AuthProvider = ({ children }) => {
         email: res.data.user.email,
         isAdmin: res.data.user.isAdmin,
         address: res.data.user.address || null, // ✅ Add address here
-        avatar: res.data.user.avatar || null, // ✅ Add avatar field
+        avatar: res.data.user.avatar || defualtUserLogo, // ✅ Add avatar field
         token,
       };
 
@@ -59,6 +62,7 @@ export const AuthProvider = ({ children }) => {
           email: res.data.user.email,
           isAdmin: res.data.user.isAdmin,
           address: res.data.user.address || null, // ✅ Add address here
+          avatar: res.data.user.avatar || defualtUserLogo, // ✅ Add avatar field
           token,
         };
 
@@ -87,6 +91,7 @@ export const AuthProvider = ({ children }) => {
           email: res.data.user.email,
           isAdmin: res.data.user.isAdmin,
           address: res.data.user.address || null, // ✅ Add address here
+          avatar: res.data.user.avatar || defualtUserLogo, // ✅ Add avatar field
           token,
         };
 
@@ -118,23 +123,50 @@ export const AuthProvider = ({ children }) => {
 
   // 📌 Upload new avatar image
   const updateAvatar = async (file) => {
-  try {
-    const formData = new FormData();
-    formData.append("avatar", file);
+    try {
+      const formData = new FormData();
+      formData.append("avatar", file);
 
-    const res = await axios.put("/auth/update-avatar", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
+      const res = await axios.put("/auth/update-avatar", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      Swal.fire(res.data.message);
+      const updatedAvatar = res.data.avatar;
+      const updatedUser = { ...user, avatar: updatedAvatar };
+      setUser(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+    } catch (error) {
+      console.error("Avatar upload failed:", error.response?.data?.message || error.message);
+      throw new Error("Avatar upload failed");
+    }
+  };
+
+
+const handleDeleteAvatar = async () => {
+  try {
+    const res = await axios.delete("/auth/delete-avatar", {
+      headers: {
+        Authorization: `Bearer ${user?.token}`,
+      },
     });
-    Swal.fire(res.data.message);
-    const updatedAvatar = res.data.avatar;
-    const updatedUser = { ...user, avatar: updatedAvatar };
-    setUser(updatedUser);
-    localStorage.setItem("user", JSON.stringify(updatedUser));
+
+    const updatedUser = res.data.user;
+ // Update localStorage and context
+    const newUser = {
+      ...user,
+      avatar: updatedUser.avatar, // make sure backend returns avatar
+    };
+    // ✅ Update context and localStorage
+    setUser(newUser);
+    localStorage.setItem("user", JSON.stringify(newUser));
+    toast.success("Avatar removed successfully");
+    return updatedUser.avatar
   } catch (error) {
-    console.error("Avatar upload failed:", error.response?.data?.message || error.message);
-    throw new Error("Avatar upload failed");
+    console.error("❌ Delete avatar error:", error.response?.data || error.message);
+    toast.error("Failed to remove avatar");
   }
 };
+
 
 
   const saveAddress = async (addressData) => {
@@ -176,7 +208,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, signup, login, logout, saveAddress, deleteAddress, updateAvatar, updateProfile, loading }}>
+    <AuthContext.Provider value={{ user, signup, login, logout, saveAddress, deleteAddress, updateAvatar, handleDeleteAvatar, updateProfile, loading }}>
       {!loading && children}
     </AuthContext.Provider>
   );

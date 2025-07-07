@@ -149,11 +149,14 @@ const Home = () => {
           From sizzling street food to gourmet meals, Yumigo brings you 3000+ dishes across multiple cuisines.
         </p>
         <Link
-          to="/menu"
-          className="mt-2 inline-block px-6 py-3 rounded-xl font-bold bg-black text-white hover:bg-opacity-80 transition"
-        >
-          Explore Menu
-        </Link>
+  to="/menu"
+  className="mt-2 inline-block px-6 py-3 rounded-xl font-bold bg-black text-white 
+             hover:bg-opacity-80 transition 
+             dark:border dark:border-[#D4AF37]"
+>
+  Explore Menu
+</Link>
+
       </section>
 
     </div>

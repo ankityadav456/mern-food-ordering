@@ -180,6 +180,27 @@ export const updateUserAvatar = async (req, res) => {
   }
 };
 
+export const deleteAvatar = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Set a default avatar image (you can change this)
+     const defaultAvatar = "/uploads/avatars/default-avatar.png";
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { avatar: defaultAvatar },
+      { new: true }
+    );
+
+    res.json({ message: "Avatar deleted", user: updatedUser });
+  } catch (error) {
+    console.error("Delete avatar error:", error);
+    res.status(500).json({ message: "Failed to delete avatar" });
+  }
+};
+
+
 // Update Address
 export const updateAddress = async (req, res) => {
   try {

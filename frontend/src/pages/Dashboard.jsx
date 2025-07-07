@@ -4,7 +4,6 @@ import { ShoppingCart, List, ChefHat, History } from "lucide-react";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import axiosInstance from "../utils/axiosInstance";
-
 // All imports remain the same
 
 const Dashboard = () => {
@@ -57,7 +56,7 @@ const Dashboard = () => {
         </div>
 
         {/* Incomplete profile warning */}
-        {!user?.address && (
+        {!user?.address.mobileNumber && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

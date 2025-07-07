@@ -3,11 +3,16 @@ import { useAuth } from "../context/AuthContext";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import defualtUserLogo from "../assets/Images/profile.png";
+import { useTheme } from "../context/ThemeContext";
+
 const ProfilePage = () => {
-  const { user, updateProfile, updateAvatar } = useAuth();
+  const { user, updateProfile, updateAvatar, handleDeleteAvatar } = useAuth();
+  const { theme } = useTheme();
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
   const [avatarPreview, setAvatarPreview] = useState(
     user?.avatar ? `${backendUrl}${user.avatar}` : "/default-avatar.png"
   );
@@ -29,7 +34,6 @@ const ProfilePage = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     if (name in formData.address) {
       setFormData((prev) => ({
         ...prev,
@@ -40,30 +44,30 @@ const ProfilePage = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await updateProfile(formData);
-      toast.success("Profile updated successfully!");
-    } catch (err) {
-      toast.error("Profile update failed.");
-    }
-  };
-
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     const previewURL = URL.createObjectURL(file);
     setAvatarPreview(previewURL);
-
-    try {
-      await updateAvatar(file);
-      toast.success("Avatar updated!");
-    } catch (err) {
-      toast.error("Avatar upload failed.");
-    }
+    await updateAvatar(file);
   };
+
+  const handleDeleteAvatarBtn = async () => {
+    const response = await handleDeleteAvatar();
+    const newAvatarUrl = `${backendUrl}${response}`;
+    setAvatarPreview(newAvatarUrl);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await updateProfile(formData);
+    } catch (err) {}
+  };
+
+  const isDefaultAvatar = (avatarUrl) =>
+    avatarUrl.includes("default-avatar.png") || avatarUrl.includes("/uploads/avatars/default-avatar.png");
 
   return (
     <motion.div
@@ -75,21 +79,51 @@ const ProfilePage = () => {
         Manage Your <span className="text-[#D4AF37]">Profile</span>
       </h2>
 
-      {/* Avatar Upload */}
+      {/* Avatar Section */}
       <motion.div
         className="flex items-center justify-center gap-6 mb-12 flex-col sm:flex-row"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <img
-          src={avatarPreview}
-          alt="avatar"
-          className="w-24 h-24 rounded-full object-cover border-4 border-[#D4AF37] shadow-md"
-        />
+        <div className="relative">
+          <img
+            src={avatarPreview}
+            alt="avatar"
+            className="w-24 h-24 rounded-full object-cover border-4 border-[#D4AF37] shadow-md"
+          />
+
+          {!isDefaultAvatar(avatarPreview) && (
+            <button
+              onClick={handleDeleteAvatarBtn}
+              title="Delete Avatar"
+              className={`absolute -top-2 -right-2 w-7 h-7 flex items-center justify-center rounded-full transition-all duration-300 shadow-md
+                ${theme === "dark"
+                  ? "bg-gradient-to-br from-red-700 to-red-800 hover:shadow-red-500"
+                  : "bg-gradient-to-br from-red-400 to-red-600 hover:shadow-red-400"}
+              `}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="white"
+                className="w-4 h-4"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+        </div>
+
         <div>
           <button
             onClick={() => fileInputRef.current.click()}
-            className="bg-[#D4AF37] text-black font-semibold px-5 py-2 rounded-full hover:bg-[#B22222] hover:text-white transition"
+            className={`font-semibold px-5 py-2 rounded-full shadow-md transition duration-300
+              ${theme === "dark"
+                ? "bg-[#D4AF37] text-black hover:bg-[#8B0000] hover:text-white"
+                : "bg-[#D4AF37] text-black hover:bg-[#8B0000] hover:text-white"}
+            `}
           >
             Change Avatar
           </button>
@@ -112,14 +146,14 @@ const ProfilePage = () => {
         transition={{ delay: 0.1 }}
       >
         {[
-          { label: "Full Name", name: "name", value: formData.name },
-          { label: "Mobile", name: "mobileNumber", value: formData.address.mobileNumber },
-          { label: "Full Name (Address)", name: "fullName", value: formData.address.fullName },
-          { label: "Room / Flat No", name: "roomNumber", value: formData.address.roomNumber },
-          { label: "Street", name: "street", value: formData.address.street },
-          { label: "City", name: "city", value: formData.address.city },
-          { label: "State", name: "state", value: formData.address.state },
-          { label: "Pincode", name: "pincode", value: formData.address.pincode },
+          { label: "Full Name", name: "name", value: formData.name, placeholder: "Enter your name" },
+          { label: "Mobile", name: "mobileNumber", value: formData.address.mobileNumber, placeholder: "Enter your mobile" },
+          { label: "Full Name (Address)", name: "fullName", value: formData.address.fullName, placeholder: "Enter full name for delivery" },
+          { label: "Room / Flat No", name: "roomNumber", value: formData.address.roomNumber, placeholder: "Enter room number" },
+          { label: "Street", name: "street", value: formData.address.street, placeholder: "Enter street name" },
+          { label: "City", name: "city", value: formData.address.city, placeholder: "Enter city" },
+          { label: "State", name: "state", value: formData.address.state, placeholder: "Enter state" },
+          { label: "Pincode", name: "pincode", value: formData.address.pincode, placeholder: "Enter pincode" },
         ].map((field, index) => (
           <div key={index} className="flex flex-col">
             <label className="text-sm font-medium mb-1">{field.label}</label>
@@ -128,20 +162,30 @@ const ProfilePage = () => {
               name={field.name}
               value={field.value}
               onChange={handleChange}
+              placeholder={field.placeholder}
               className="w-full px-4 py-2 border border-gray-300 dark:border-[#2A2A2A] rounded-lg bg-white dark:bg-[#121212] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#D4AF37] transition"
             />
           </div>
         ))}
 
-        {/* Buttons */}
         <div className="sm:col-span-2 flex flex-col sm:flex-row justify-between items-center gap-4 mt-6">
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate(-1)}
             type="button"
-            className="w-full sm:w-auto text-sm font-semibold text-[#D4AF37] hover:text-white border border-[#D4AF37] hover:bg-[#B22222] px-6 py-2 rounded-full transition"
+            className="w-full sm:w-auto flex items-center gap-2 bg-[#D4AF37] text-black font-bold px-6 py-3 rounded-xl hover:bg-[#8B0000] hover:text-white transition-all"
           >
-            ← Back
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="w-5 h-5"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            Back
           </motion.button>
 
           <motion.button
@@ -153,7 +197,6 @@ const ProfilePage = () => {
           </motion.button>
         </div>
       </motion.form>
-
     </motion.div>
   );
 };

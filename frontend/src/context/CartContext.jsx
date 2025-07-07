@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import axios from "../utils/axiosInstance"; // ✅ Your custom Axios instance
+import axios from "../utils/axiosInstance";
 import { useAuth } from "./AuthContext";
 import { toast } from "react-hot-toast";
 
@@ -16,21 +16,18 @@ export const CartProvider = ({ children }) => {
     }
   }, [user]);
 
-
   // ✅ Fetch Cart Items
   const fetchCartItems = async () => {
     try {
-
       const res = await axios.get("/cart", {
         headers: {
           Authorization: `Bearer ${user?.token}`,
         },
       });
-
-      setCartItems(res.data); // ✅ Your backend returns array, not { cart: [] }
+      setCartItems(res.data);
     } catch (error) {
       console.error("❌ Failed to fetch cart:", error.response?.data || error.message);
-      toast.error("Failed to load cart");
+      toast.error("Failed to load cart", { duration: 1500 });
     }
   };
 
@@ -46,12 +43,11 @@ export const CartProvider = ({ children }) => {
           },
         }
       );
-      
-      toast.success(`${foodItem.name} added to cart`);
+      toast.success(`${foodItem.name} added to cart`, { duration: 1000 });
       fetchCartItems();
     } catch (error) {
       console.error("❌ Add to cart error:", error.response?.data || error.message);
-      toast.error("Failed to add to cart");
+      toast.error("Failed to add to cart", { duration: 1000 });
     }
   };
 
@@ -59,15 +55,15 @@ export const CartProvider = ({ children }) => {
   const removeFromCart = async (foodId) => {
     try {
       await axios.delete(`/cart/${foodId}`, {
-        headers: {
+        headers: {  
           Authorization: `Bearer ${user?.token}`,
         },
       });
-      // toast.success("Item removed from cart");
+      toast.success("Item removed from cart", { duration: 1000 });
       fetchCartItems();
     } catch (error) {
       console.error("❌ Remove from cart error:", error.response?.data || error.message);
-      toast.error("Failed to remove item");
+      toast.error("Failed to remove item", { duration: 1000 });
     }
   };
 
@@ -83,11 +79,11 @@ export const CartProvider = ({ children }) => {
           },
         }
       );
-      toast.success("Quantity updated");
+      toast.success("Quantity updated", { duration: 1000 });
       fetchCartItems();
     } catch (error) {
       console.error("❌ Update quantity error:", error.response?.data || error.message);
-      toast.error("Failed to update quantity");
+      toast.error("Failed to update quantity", { duration: 1000 });
     }
   };
 
@@ -99,17 +95,20 @@ export const CartProvider = ({ children }) => {
           Authorization: `Bearer ${user?.token}`,
         },
       });
-      // toast.success("Cart cleared");
       setCartItems([]);
+      toast.success("Cart cleared", { duration: 1000 });
     } catch (error) {
       console.error("❌ Clear cart error:", error.response?.data || error.message);
-      toast.error("Failed to clear cart");
+      toast.error("Failed to clear cart", { duration: 1000 });
     }
   };
 
-  // Calculate total price
+  // ✅ Total Price Calculator
   const getTotalPrice = () => {
-    return cartItems.reduce((total, item) => total + item.foodId.price * item.quantity, 0);
+    return cartItems.reduce(
+      (total, item) => total + item.foodId.price * item.quantity,
+      0
+    );
   };
 
   return (
@@ -121,7 +120,7 @@ export const CartProvider = ({ children }) => {
         removeFromCart,
         updateItemQuantity,
         clearCart,
-        getTotalPrice, // Provide getTotalPrice function
+        getTotalPrice,
       }}
     >
       {children}

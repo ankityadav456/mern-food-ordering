@@ -6,6 +6,7 @@ import Loader from "../components/Loader";
 import { motion, AnimatePresence } from "framer-motion";
 import toast, { Toaster } from "react-hot-toast";
 import { useTheme } from "../context/ThemeContext"; // Make sure you have this setup
+import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
   const {
@@ -20,7 +21,7 @@ const Cart = () => {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [filter, setFilter] = useState("All");
-
+ const navigate = useNavigate();
   useEffect(() => {
     const loadCart = async () => {
       await fetchCartItems();
@@ -41,9 +42,9 @@ const Cart = () => {
     try {
       setActionLoading(true);
       await removeFromCart(id);
-      toast.success("Item removed from cart");
+      // toast.success("Item removed from cart");
     } catch {
-      toast.error("Failed to remove item");
+      // toast.error("Failed to remove item");
     } finally {
       setActionLoading(false);
     }
@@ -61,9 +62,9 @@ const Cart = () => {
     try {
       setActionLoading(true);
       await clearCart();
-      toast.success("Cart cleared");
+      // toast.success("Cart cleared");
     } catch {
-      toast.error("Failed to clear cart");
+      // toast.error("Failed to clear cart");
     } finally {
       setActionLoading(false);
     }
@@ -88,7 +89,7 @@ const Cart = () => {
 
   return (
     <div className="min-h-screen px-8 py-5  bg-[#FAF9F6] text-black dark:bg-[#0d0d0d] dark:text-white transition-colors duration-300">
-      <Toaster position="top-right" />
+      {/* <Toaster position="top-right" /> */}
       <h2 className="text-3xl font-bold mb-4 pb-2 border-b border-[#D4AF37] text-center">
         Your Cart 🛒{" "}
         <span className="text-xl text-[#D4AF37]">({totalItems} items)</span>
@@ -186,12 +187,12 @@ const Cart = () => {
 
               <div className="mt-4 sm:mt-0 flex space-x-4">
            
-                  <Link
+                  <button onClick={() => navigate(-1)}  type="button"
               to="/"
               className="px-5 py-2 bg-gray-200 dark:bg-[#2A2A2A] text-black dark:text-white rounded-full hover:bg-[#B22222] transition"
             >
               Back
-            </Link>
+            </button>
                 <button
                   onClick={handleClearCart}
                   className="px-5 py-2 bg-gray-200 dark:bg-[#2A2A2A] text-black dark:text-white rounded-full hover:bg-[#B22222] transition"

@@ -114,7 +114,7 @@ const Navbar = ({ isCollapsed, toggleSidebar, isSidebarVisible, isDrawerMode, is
             <div ref={userMenuRef} className="relative group">
               <button onClick={() => setUserMenuOpen(!userMenuOpen)} className="focus:outline-none p-[2px] rounded-full bg-gradient-to-tr from-[#D4AF37] via-[#B22222] to-[#D4AF37] hover:scale-105 transition">
                 <div className={`${theme === "dark" ? "bg-[#0d0d0d]" : "bg-white"} p-[2px] rounded-full`}>
-                  <img src={avatarUrl} alt="User Avatar" className="h-10 w-10 rounded-full object-cover" />
+                  <img src={avatarUrl} alt="User Avatar" className={` h-10 w-10 rounded-full object-cover`} />
                 </div>
               </button>
               {userMenuOpen && (

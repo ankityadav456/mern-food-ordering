@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import { useFood } from "../context/FoodContext";
 import { motion, AnimatePresence } from "framer-motion";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import { SearchContext } from "../context/SearchContext";
 import { ChevronDownIcon, XMarkIcon } from "@heroicons/react/20/solid";
@@ -16,9 +16,7 @@ import biryani from "../assets/Images/biryani.png";
 import All from "../assets/Images/allimage.jpg";
 
 const MenuPage = () => {
-  const {
-    updateItemQuantity,
-  } = useCart();
+  const { updateItemQuantity } = useCart();
   const [loading, setLoading] = useState(false);
   const { foodItems } = useFood();
   const { searchQuery } = useContext(SearchContext);
@@ -33,6 +31,8 @@ const MenuPage = () => {
   const [quantity, setQuantity] = useState(0);
   const [showFilterModal, setShowFilterModal] = useState(false);
 
+  const didInitialRender = useRef(false);
+
   const categories = [
     { name: "All", image: All },
     { name: "Pizza", image: pizza },
@@ -42,85 +42,58 @@ const MenuPage = () => {
     { name: "Chicken", image: chicken },
   ];
 
-  useEffect(() => {
-    if (searchQuery.trim() !== "") {
-      const result = foodItems.filter((item) =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      setFilteredFoods(result);
-    } else {
-      filterFoods(selectedCategory, priceLimit);
-    }
-  }, [searchQuery, foodItems, sortOrder, priceLimit, selectedCategory]);
-
-  useEffect(() => {
-    if (quickViewItem) {
-      setQuantity(getItemQuantity(quickViewItem._id) || 0);
-    }
-  }, [quickViewItem]);
-
-  const handleClearFilters = () => {
-    setSortOrder(""); // Reset sorting
-    setPriceLimit(1000); // Or your default max price
-  };
-
-  const renderStars = (rating) => {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      if (rating >= i) {
-        stars.push(<FaStar key={i} className="text-yellow-400" />);
-      } else if (rating >= i - 0.5) {
-        stars.push(<FaStarHalfAlt key={i} className="text-yellow-400" />);
-      } else {
-        stars.push(<FaRegStar key={i} className="text-yellow-400" />);
-      }
-    }
-    return <div className="flex items-center gap-1 mt-1">{stars}</div>;
-  };
-
-  const filterFoods = (category, priceCap = priceLimit) => {
+  const applyFilters = () => {
     setLoading(true);
     setTimeout(() => {
-      let result =
-        category === "All"
-          ? foodItems
-          : foodItems.filter((item) => item.category === category);
-      result = result.filter((item) => item.price <= priceCap);
+      let result = [...foodItems];
+
+      if (selectedCategory !== "All") {
+        result = result.filter((item) => item.category === selectedCategory);
+      }
+
+      result = result.filter((item) => item.price <= priceLimit);
+
       if (sortOrder === "asc") result.sort((a, b) => a.price - b.price);
       if (sortOrder === "desc") result.sort((a, b) => b.price - a.price);
+
       setFilteredFoods(result);
       setLoading(false);
     }, 400);
   };
 
-  const handleAddToCart = async (food) => {
-    try {
-      await addToCart(food);
-      setQuickViewItem(null);
-      // setQuantity(1);
-      // toast.success(`${food.name} added to cart!`);
-    } catch (error) {
-      toast.error("Failed to add item to cart");
+  // Debounced search effect
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      if (searchQuery.trim() !== "") {
+        const result = foodItems.filter((item) =>
+          item.name.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+        setFilteredFoods(result);
+      } else {
+        // Avoid double trigger on initial load
+        if (didInitialRender.current) {
+          applyFilters();
+        } else {
+          didInitialRender.current = true;
+        }
+      }
+    }, 300);
+
+    return () => clearTimeout(delayDebounce);
+  }, [searchQuery, foodItems, selectedCategory, priceLimit, sortOrder]);
+
+  useEffect(() => {
+    if (quickViewItem) {
+      setQuantity(getItemQuantity(quickViewItem._id) || 0);
     }
-  };
-  const handleQuantityChange = async (id, quantity) => {
-    if (quantity < 1) return;
-    await updateItemQuantity(id, quantity);
-    setQuickViewItem(null);
-    // setQuantity(1);
+  }, [quickViewItem, cartItems]);
 
-  };
-
-
-  const handleSortChange = (value) => {
-    setSortOrder(value);
-    filterFoods(selectedCategory, priceLimit);
-  };
-
-  const handlePriceChange = (e) => {
-    const value = parseInt(e.target.value);
-    setPriceLimit(value);
-    filterFoods(selectedCategory, value);
+  const handleSortChange = (value) => setSortOrder(value);
+  const handlePriceChange = (e) => setPriceLimit(parseInt(e.target.value));
+  const handleCategoryChange = (cat) => setSelectedCategory(cat);
+  const handleClearFilters = () => {
+    setSortOrder("");
+    setPriceLimit(1000);
   };
 
   const getItemQuantity = (id) => {
@@ -128,83 +101,99 @@ const MenuPage = () => {
     return item ? item.quantity : 0;
   };
 
+  const handleAddToCart = async (food) => {
+    try {
+      await addToCart(food);
+      setQuickViewItem(null);
+    } catch (error) {
+      console.error("Cart Error", error);
+    }
+  };
+
+  const handleQuantityChange = async (id, qty) => {
+    if (qty < 1) return;
+    await updateItemQuantity(id, qty);
+    setQuickViewItem(null);
+  };
+
+  const renderStars = (rating) => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      if (rating >= i) stars.push(<FaStar key={i} className="text-yellow-400" />);
+      else if (rating >= i - 0.5) stars.push(<FaStarHalfAlt key={i} className="text-yellow-400" />);
+      else stars.push(<FaRegStar key={i} className="text-yellow-400" />);
+    }
+    return <div className="flex items-center gap-1 mt-1">{stars}</div>;
+  };
+
   return (
-       <div className="py-6 max-w-6xl mx-auto text-gray-900 dark:text-white">
-    {/* // <div className={`min-h-screen p-4 pt-8 relative transition-colors duration-300 ${theme === "dark" ? "bg-[#0d0d0d] text-white" : "bg-[#FAF9F6] text-black"}`}> */}
-      <Toaster position="top-right" />
+    <div className="py-6 max-w-6xl mx-auto text-gray-900 dark:text-white">
       {loading && <Loader />}
 
-      {/* Filter Section */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className={`rounded-2xl shadow-xl p-6 mx-2 md:mx-6 border transition-all ${theme === "dark" ? "bg-gradient-to-br from-[#0d0d0d] via-[#1A1A1A] to-[#0d0d0d] border-[#2A2A2A]" : "bg-gray-100 border-gray-300"}`}
+        className={`rounded-2xl shadow-xl p-6 mx-2 md:mx-6 border transition-all ${
+          theme === "dark"
+            ? "bg-gradient-to-br from-[#0d0d0d] via-[#1A1A1A] to-[#0d0d0d] border-[#2A2A2A]"
+            : "bg-gray-100 border-gray-300"
+        }`}
       >
         <h2 className="text-3xl font-bold text-center text-[#D4AF37]">Menu</h2>
         <div className="text-sm text-center mt-2">
-          Showing: <span className="text-[#FFD700] font-bold">{selectedCategory}</span>, Sort:{" "}
+          Showing:{" "}
+          <span className="text-[#FFD700] font-bold">{selectedCategory}</span>, Sort:{" "}
           <span className="text-[#FFD700] font-bold">{sortOrder || "Default"}</span>, Max Price:{" "}
           <span className="text-[#FFD700] font-bold">₹{priceLimit}</span>
         </div>
 
-        {/* Category Chips */}
         <div className="mt-6 px-4 overflow-x-auto scrollbar-hide flex gap-6 py-2">
           {categories.map((category, index) => (
             <div
               key={index}
-              onClick={() => {
-                setSelectedCategory(category.name);
-                filterFoods(category.name);
-              }}
+              onClick={() => handleCategoryChange(category.name)}
               className="flex flex-col items-center cursor-pointer group"
             >
-              <div className={`w-24 h-24 rounded-full overflow-hidden shadow-md transition-all duration-300 ${selectedCategory === category.name ? "ring-4 ring-[#FFD700] scale-105" : "bg-white"}`}>
+              <div
+                className={`w-24 h-24 rounded-full overflow-hidden shadow-md transition-all duration-300 ${
+                  selectedCategory === category.name
+                    ? "ring-4 ring-[#FFD700] scale-105"
+                    : "bg-white"
+                }`}
+              >
                 <img
                   src={category.image}
                   alt={category.name}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
               </div>
-              <p className={`mt-2 text-sm font-semibold text-center transition-colors duration-300 ${selectedCategory === category.name ? "text-[#FFD700]" : "text-gray-800 dark:text-white"}`}>
+              <p
+                className={`mt-2 text-sm font-semibold text-center transition-colors duration-300 ${
+                  selectedCategory === category.name
+                    ? "text-[#FFD700]"
+                    : "text-gray-800 dark:text-white"
+                }`}
+              >
                 {category.name}
               </p>
             </div>
           ))}
         </div>
-
-        {/* Sorting & Filtering Controls for Desktop */}
-        {/* <div className="hidden md:grid mt-6 grid-cols-1 md:grid-cols-3 gap-6 items-center">
-          <div className="flex items-center gap-3">
-            <label className="text-lg text-[#FFD700] font-extrabold">Sort By:</label>
-            <div className="relative w-full">
-              <select
-                value={sortOrder}
-                onChange={(e) => handleSortChange(e.target.value)}
-                className={`w-full appearance-none px-4 py-2 pr-10 rounded-lg border focus:outline-none cursor-pointer ${theme === "dark" ? "bg-[#111] border-[#FFD700] text-white" : "bg-white border-gray-400 text-black"}`}
-              >
-                <option value="">Default</option>
-                <option value="asc">Price: Low → High</option>
-                <option value="desc">Price: High → Low</option>
-              </select>
-              <ChevronDownIcon className="w-5 h-5 absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 pointer-events-none dark:text-white" />
-            </div>
-          </div>
-
-          <div className="flex flex-col items-center">
-            <label className="text-lg text-[#FFD700] font-extrabold mb-2">Max Price: ₹{priceLimit}</label>
-            <input type="range" min="50" max="500" step="50" value={priceLimit} onChange={handlePriceChange} className="w-full accent-[#FFD700] bg-transparent" />
-          </div>
-        </div> */}
       </motion.div>
 
-      {/* Food Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6">
         {filteredFoods.length > 0 ? (
           filteredFoods.map((item) => (
             <motion.div
               key={item._id}
-              className={`relative border rounded-xl shadow-md transition-all duration-300 ${getItemQuantity(item._id) > 0 ? "border-[#FFD700] shadow-[#FFD700]/40" : theme === "dark" ? "bg-[#121212] border-[#D4AF37]/10 hover:shadow-[#FFD700]/30" : "bg-white border-gray-200 hover:shadow-lg"}`}
+              className={`relative border rounded-xl shadow-md transition-all duration-300 ${
+                getItemQuantity(item._id) > 0
+                  ? "border-[#FFD700] shadow-[#FFD700]/40"
+                  : theme === "dark"
+                  ? "bg-[#121212] border-[#D4AF37]/10 hover:shadow-[#FFD700]/30"
+                  : "bg-white border-gray-200 hover:shadow-lg"
+              }`}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
             >
@@ -213,19 +202,50 @@ const MenuPage = () => {
                   {getItemQuantity(item._id)}
                 </div>
               )}
-              <img src={item.image} alt={item.name} className="p-3 w-full h-44 object-cover rounded-md mb-3" />
+              <img
+                src={item.image}
+                alt={item.name}
+                className="p-3 w-full h-44 object-cover rounded-md mb-3"
+              />
               <div className="p-3">
                 <h3 className="text-lg font-bold text-[#FFD700] truncate">{item.name}</h3>
-                <p className={`text-md font-semibold ${theme === "dark" ? "text-white" : "text-black"}`}>₹{item.price.toLocaleString("en-IN")}</p>
-                <p className={`text-xs mt-1 font-semibold ${item.category === "Vegetarian" ? "text-green-500" : item.category === "Non-Vegetarian" ? "text-red-500" : "text-gray-500"}`}>{item.category}</p>
+                <p
+                  className={`text-md font-semibold ${
+                    theme === "dark" ? "text-white" : "text-black"
+                  }`}
+                >
+                  ₹{item.price.toLocaleString("en-IN")}
+                </p>
+                <p
+                  className={`text-xs mt-1 font-semibold ${
+                    item.category === "Vegetarian"
+                      ? "text-green-500"
+                      : item.category === "Non-Vegetarian"
+                      ? "text-red-500"
+                      : "text-gray-500"
+                  }`}
+                >
+                  {item.category}
+                </p>
                 {renderStars(item.rating || 4.5)}
-                <p className="text-xs text-gray-500 mt-1">⏱ {item.deliveryTime || "25-35 mins"}</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  ⏱ {item.deliveryTime || "25-35 mins"}
+                </p>
                 <div className="flex gap-2 mt-3">
-                  <button onClick={() => setQuickViewItem(item)} className="flex-1 py-2 rounded-lg bg-gray-600 text-white font-semibold hover:bg-gray-700">Quick View</button>
+                  <button
+                    onClick={() => setQuickViewItem(item)}
+                    className="flex-1 py-2 rounded-lg bg-gray-600 text-white font-semibold hover:bg-gray-700"
+                  >
+                    Quick View
+                  </button>
                   <button
                     disabled={getItemQuantity(item._id) > 0}
                     onClick={() => handleAddToCart(item)}
-                    className={`flex-1 py-2 rounded-lg font-semibold hover:opacity-90 ${getItemQuantity(item._id) ? "bg-gray-400 cursor-not-allowed text-white" : "bg-gradient-to-r from-[#FFD700] to-[#8B0000] text-black"}`}
+                    className={`flex-1 py-2 rounded-lg font-semibold hover:opacity-90 ${
+                      getItemQuantity(item._id)
+                        ? "bg-gray-400 cursor-not-allowed text-white"
+                        : "bg-gradient-to-r from-[#FFD700] to-[#8B0000] text-black"
+                    }`}
                   >
                     {getItemQuantity(item._id) > 0 ? "In Cart" : "Add to Cart"}
                   </button>
@@ -234,27 +254,13 @@ const MenuPage = () => {
             </motion.div>
           ))
         ) : (
-          !loading && <p className="text-center col-span-full text-gray-500">No food items found.</p>
+          !loading && (
+            <p className="text-center col-span-full text-gray-500">No food items found.</p>
+          )
         )}
       </div>
 
-      {/* Filter Floating Button (Mobile) */}
-      <button
-        className="fixed bottom-6 right-6 z-50 bg-[#FFD700] text-black rounded-full p-4 shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-300 group"
-        onClick={() => setShowFilterModal(true)}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-          className="w-6 h-6 opacity-80 group-hover:opacity-100 transition-opacity duration-300"
-        >
-          <path d="M3 5a1 1 0 011-1h16a1 1 0 01.8 1.6l-5.8 7.73V19a1 1 0 01-1.447.894l-4-2A1 1 0 019 17v-4.67L3.2 6.6A1 1 0 013 5z" />
-        </svg>
-      </button>
-
-
-      <AnimatePresence>
+       <AnimatePresence>
         {showFilterModal && (
           <motion.div
             className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center px-4"

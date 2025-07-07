@@ -201,3 +201,31 @@ body {
         @apply bg-[#B8860B] dark:bg-[#FFD700] dark:text-black;
     }
 }
+
+.toast-dark-progress::before,
+.toast-light-progress::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  animation: toast-progress 1.5s linear forwards;
+}
+
+.toast-dark-progress::before {
+  background: linear-gradient(to right, #FFD700, #B8860B); /* Gold gradient */
+}
+
+.toast-light-progress::before {
+  background: linear-gradient(to right, #DC2626, #FACC15); /* Red to Yellow */
+}
+
+@keyframes toast-progress {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
