@@ -89,7 +89,6 @@ const Cart = () => {
 
   return (
     <div className="min-h-screen px-8 py-5  bg-[#FAF9F6] text-black dark:bg-[#0d0d0d] dark:text-white transition-colors duration-300">
-      {/* <Toaster position="top-right" /> */}
       <h2 className="text-3xl font-bold mb-4 pb-2 border-b border-[#D4AF37] text-center">
         Your Cart 🛒{" "}
         <span className="text-xl text-[#D4AF37]">({totalItems} items)</span>

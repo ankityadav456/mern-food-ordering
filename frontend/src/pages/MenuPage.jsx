@@ -30,6 +30,8 @@ const MenuPage = () => {
   const [quickViewItem, setQuickViewItem] = useState(null);
   const [quantity, setQuantity] = useState(0);
   const [showFilterModal, setShowFilterModal] = useState(false);
+  const [addLoadingId, setAddLoadingId] = useState(null);
+
 
   const didInitialRender = useRef(false);
 
@@ -61,7 +63,6 @@ const MenuPage = () => {
     }, 400);
   };
 
-  // Debounced search effect
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
       if (searchQuery.trim() !== "") {
@@ -70,7 +71,6 @@ const MenuPage = () => {
         );
         setFilteredFoods(result);
       } else {
-        // Avoid double trigger on initial load
         if (didInitialRender.current) {
           applyFilters();
         } else {
@@ -78,9 +78,12 @@ const MenuPage = () => {
         }
       }
     }, 300);
-
     return () => clearTimeout(delayDebounce);
   }, [searchQuery, foodItems, selectedCategory, priceLimit, sortOrder]);
+
+  useEffect(() => {
+    applyFilters(); // Initial Load
+  }, []);
 
   useEffect(() => {
     if (quickViewItem) {
@@ -101,14 +104,23 @@ const MenuPage = () => {
     return item ? item.quantity : 0;
   };
 
+
+
   const handleAddToCart = async (food) => {
+    if (addLoadingId) return; // Prevent if already loading
+    // setAddLoadingId(food._id);
+
     try {
       await addToCart(food);
       setQuickViewItem(null);
     } catch (error) {
       console.error("Cart Error", error);
+      toast.error("Failed to add item to cart.");
+    } finally {
+      setAddLoadingId(null); // Clear loading after operation
     }
   };
+
 
   const handleQuantityChange = async (id, qty) => {
     if (qty < 1) return;
@@ -134,11 +146,10 @@ const MenuPage = () => {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className={`rounded-2xl shadow-xl p-6 mx-2 md:mx-6 border transition-all ${
-          theme === "dark"
+        className={`rounded-2xl shadow-xl p-6 mx-2 md:mx-0 border transition-all ${theme === "dark"
             ? "bg-gradient-to-br from-[#0d0d0d] via-[#1A1A1A] to-[#0d0d0d] border-[#2A2A2A]"
             : "bg-gray-100 border-gray-300"
-        }`}
+          }`}
       >
         <h2 className="text-3xl font-bold text-center text-[#D4AF37]">Menu</h2>
         <div className="text-sm text-center mt-2">
@@ -156,11 +167,10 @@ const MenuPage = () => {
               className="flex flex-col items-center cursor-pointer group"
             >
               <div
-                className={`w-24 h-24 rounded-full overflow-hidden shadow-md transition-all duration-300 ${
-                  selectedCategory === category.name
+                className={`w-24 h-24 rounded-full overflow-hidden shadow-md transition-all duration-300 ${selectedCategory === category.name
                     ? "ring-4 ring-[#FFD700] scale-105"
                     : "bg-white"
-                }`}
+                  }`}
               >
                 <img
                   src={category.image}
@@ -169,11 +179,10 @@ const MenuPage = () => {
                 />
               </div>
               <p
-                className={`mt-2 text-sm font-semibold text-center transition-colors duration-300 ${
-                  selectedCategory === category.name
+                className={`mt-2 text-sm font-semibold text-center transition-colors duration-300 ${selectedCategory === category.name
                     ? "text-[#FFD700]"
                     : "text-gray-800 dark:text-white"
-                }`}
+                  }`}
               >
                 {category.name}
               </p>
@@ -182,18 +191,17 @@ const MenuPage = () => {
         </div>
       </motion.div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 py-6 px-5 md:px-1">
         {filteredFoods.length > 0 ? (
           filteredFoods.map((item) => (
             <motion.div
               key={item._id}
-              className={`relative border rounded-xl shadow-md transition-all duration-300 ${
-                getItemQuantity(item._id) > 0
+              className={`relative border rounded-xl shadow-md transition-all duration-300 ${getItemQuantity(item._id) > 0
                   ? "border-[#FFD700] shadow-[#FFD700]/40"
                   : theme === "dark"
-                  ? "bg-[#121212] border-[#D4AF37]/10 hover:shadow-[#FFD700]/30"
-                  : "bg-white border-gray-200 hover:shadow-lg"
-              }`}
+                    ? "bg-[#121212] border-[#D4AF37]/10 hover:shadow-[#FFD700]/30"
+                    : "bg-white border-gray-200 hover:shadow-lg"
+                }`}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
             >
@@ -210,20 +218,18 @@ const MenuPage = () => {
               <div className="p-3">
                 <h3 className="text-lg font-bold text-[#FFD700] truncate">{item.name}</h3>
                 <p
-                  className={`text-md font-semibold ${
-                    theme === "dark" ? "text-white" : "text-black"
-                  }`}
+                  className={`text-md font-semibold ${theme === "dark" ? "text-white" : "text-black"
+                    }`}
                 >
                   ₹{item.price.toLocaleString("en-IN")}
                 </p>
                 <p
-                  className={`text-xs mt-1 font-semibold ${
-                    item.category === "Vegetarian"
+                  className={`text-xs mt-1 font-semibold ${item.category === "Vegetarian"
                       ? "text-green-500"
                       : item.category === "Non-Vegetarian"
-                      ? "text-red-500"
-                      : "text-gray-500"
-                  }`}
+                        ? "text-red-500"
+                        : "text-gray-500"
+                    }`}
                 >
                   {item.category}
                 </p>
@@ -239,16 +245,18 @@ const MenuPage = () => {
                     Quick View
                   </button>
                   <button
-                    disabled={getItemQuantity(item._id) > 0}
+                    disabled={getItemQuantity(item._id) > 0 || addLoadingId === item._id}
                     onClick={() => handleAddToCart(item)}
-                    className={`flex-1 py-2 rounded-lg font-semibold hover:opacity-90 ${
-                      getItemQuantity(item._id)
+                    className={`flex-1 py-2 rounded-lg font-semibold flex items-center justify-center hover:opacity-90 ${getItemQuantity(item._id) || addLoadingId === item._id
                         ? "bg-gray-400 cursor-not-allowed text-white"
                         : "bg-gradient-to-r from-[#FFD700] to-[#8B0000] text-black"
-                    }`}
+                      }`}
                   >
-                    {getItemQuantity(item._id) > 0 ? "In Cart" : "Add to Cart"}
+                    {addLoadingId === item._id ? (
+                      <span className="loader w-4 h-4 border-2 border-t-transparent border-white rounded-full animate-spin"></span>
+                    ) : getItemQuantity(item._id) > 0 ? "In Cart" : "Add to Cart"}
                   </button>
+
                 </div>
               </div>
             </motion.div>
@@ -260,7 +268,7 @@ const MenuPage = () => {
         )}
       </div>
 
-       <AnimatePresence>
+      <AnimatePresence>
         {showFilterModal && (
           <motion.div
             className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center px-4"

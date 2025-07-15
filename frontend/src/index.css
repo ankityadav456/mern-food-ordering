@@ -229,3 +229,12 @@ body {
     width: 0%;
   }
 }
+
+@keyframes shrinkBar {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}

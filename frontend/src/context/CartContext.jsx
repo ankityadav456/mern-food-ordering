@@ -27,7 +27,7 @@ export const CartProvider = ({ children }) => {
       setCartItems(res.data);
     } catch (error) {
       console.error("❌ Failed to fetch cart:", error.response?.data || error.message);
-      toast.error("Failed to load cart", { duration: 1500 });
+      toast.error("Failed to load cart");
     }
   };
 
@@ -43,11 +43,11 @@ export const CartProvider = ({ children }) => {
           },
         }
       );
-      toast.success(`${foodItem.name} added to cart`, { duration: 1000 });
+      toast.success(`${foodItem.name} added to cart`);
       fetchCartItems();
     } catch (error) {
       console.error("❌ Add to cart error:", error.response?.data || error.message);
-      toast.error("Failed to add to cart", { duration: 1000 });
+      toast.error("Failed to add to cart");
     }
   };
 
@@ -59,11 +59,11 @@ export const CartProvider = ({ children }) => {
           Authorization: `Bearer ${user?.token}`,
         },
       });
-      toast.success("Item removed from cart", { duration: 1000 });
+      toast.success("Item removed from cart");
       fetchCartItems();
     } catch (error) {
       console.error("❌ Remove from cart error:", error.response?.data || error.message);
-      toast.error("Failed to remove item", { duration: 1000 });
+      toast.error("Failed to remove item");
     }
   };
 
@@ -79,11 +79,11 @@ export const CartProvider = ({ children }) => {
           },
         }
       );
-      toast.success("Quantity updated", { duration: 1000 });
+      toast.success("Quantity updated");
       fetchCartItems();
     } catch (error) {
       console.error("❌ Update quantity error:", error.response?.data || error.message);
-      toast.error("Failed to update quantity", { duration: 1000 });
+      toast.error("Failed to update quantity");
     }
   };
 
@@ -96,10 +96,10 @@ export const CartProvider = ({ children }) => {
         },
       });
       setCartItems([]);
-      toast.success("Cart cleared", { duration: 1000 });
+      toast.success("Cart cleared");
     } catch (error) {
       console.error("❌ Clear cart error:", error.response?.data || error.message);
-      toast.error("Failed to clear cart", { duration: 1000 });
+      toast.error("Failed to clear cart");
     }
   };
 

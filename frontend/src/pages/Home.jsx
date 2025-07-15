@@ -121,8 +121,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Offers Section */}
-      <section className={`${isDark ? "bg-[#1a1a1a]" : "bg-yellow-50"} py-12`}>
+      {/* <section className={`${isDark ? "bg-[#1a1a1a]" : "bg-yellow-50"} py-12`}>
         <div className="max-w-6xl mx-auto px-4 grid md:grid-cols-3 gap-6">
           <motion.div whileHover={{ scale: 1.05 }} className="bg-gradient-to-tr from-yellow-400 to-yellow-200 rounded-xl p-6 text-center shadow-md">
             <h3 className="text-xl font-bold mb-2">Buy 2 Get 1 Free</h3>
@@ -138,10 +137,9 @@ const Home = () => {
             <p>Wraps & tacos combo</p>
           </motion.div>
         </div>
-      </section>
+      </section> */}
 
-      {/* Explore & CTA */}
-      <section className="py-12 text-center rounded-xl" style={{ backgroundColor: isDark ? "#111" : bgGold, color: isDark ? gold : "#111" }}>
+      <section className="py-12 mx-10  text-center rounded-xl" style={{ backgroundColor: isDark ? "#111" : bgGold, color: isDark ? gold : "#111" }}>
         <h2 className="text-3xl font-bold mb-4">
           Discover a World of Flavors — Explore Our Curated Food Categories!
         </h2>
