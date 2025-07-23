@@ -32,7 +32,6 @@ const MenuPage = () => {
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [addLoadingId, setAddLoadingId] = useState(null);
 
-
   const didInitialRender = useRef(false);
 
   const categories = [
@@ -48,33 +47,33 @@ const MenuPage = () => {
     setLoading(true);
     setTimeout(() => {
       let result = [...foodItems];
-
       if (selectedCategory !== "All") {
         result = result.filter((item) => item.category === selectedCategory);
       }
-
       result = result.filter((item) => item.price <= priceLimit);
-
       if (sortOrder === "asc") result.sort((a, b) => a.price - b.price);
       if (sortOrder === "desc") result.sort((a, b) => b.price - a.price);
-
       setFilteredFoods(result);
       setLoading(false);
-    }, 400);
+    }, 100);
   };
 
   useEffect(() => {
+    setLoading(true);
     const delayDebounce = setTimeout(() => {
+      setLoading(true);
       if (searchQuery.trim() !== "") {
         const result = foodItems.filter((item) =>
           item.name.toLowerCase().includes(searchQuery.toLowerCase())
         );
         setFilteredFoods(result);
+        setLoading(false);
       } else {
         if (didInitialRender.current) {
           applyFilters();
         } else {
           didInitialRender.current = true;
+          setLoading(false);
         }
       }
     }, 300);
@@ -82,7 +81,7 @@ const MenuPage = () => {
   }, [searchQuery, foodItems, selectedCategory, priceLimit, sortOrder]);
 
   useEffect(() => {
-    applyFilters(); // Initial Load
+    applyFilters();
   }, []);
 
   useEffect(() => {
@@ -97,6 +96,7 @@ const MenuPage = () => {
   const handleClearFilters = () => {
     setSortOrder("");
     setPriceLimit(1000);
+    applyFilters();
   };
 
   const getItemQuantity = (id) => {
@@ -104,28 +104,29 @@ const MenuPage = () => {
     return item ? item.quantity : 0;
   };
 
-
-
   const handleAddToCart = async (food) => {
-    if (addLoadingId) return; // Prevent if already loading
-    // setAddLoadingId(food._id);
-
+    if (addLoadingId) return;
+    setAddLoadingId(food._id);
+    // setLoading(true);
     try {
       await addToCart(food);
       setQuickViewItem(null);
     } catch (error) {
       console.error("Cart Error", error);
+      setAddLoadingId(null);
       toast.error("Failed to add item to cart.");
     } finally {
-      setAddLoadingId(null); // Clear loading after operation
+      setAddLoadingId(null);
+      // setLoading(false);
     }
   };
 
-
   const handleQuantityChange = async (id, qty) => {
     if (qty < 1) return;
+    setLoading(true);
     await updateItemQuantity(id, qty);
     setQuickViewItem(null);
+    setLoading(false);
   };
 
   const renderStars = (rating) => {
@@ -139,7 +140,7 @@ const MenuPage = () => {
   };
 
   return (
-    <div className="py-6 max-w-6xl mx-auto text-gray-900 dark:text-white">
+    <div className="py-6 max-w-7xl mx-auto text-gray-900 dark:text-white">
       {loading && <Loader />}
 
       <motion.div
@@ -147,8 +148,8 @@ const MenuPage = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         className={`rounded-2xl shadow-xl p-6 mx-2 md:mx-0 border transition-all ${theme === "dark"
-            ? "bg-gradient-to-br from-[#0d0d0d] via-[#1A1A1A] to-[#0d0d0d] border-[#2A2A2A]"
-            : "bg-gray-100 border-gray-300"
+          ? "bg-gradient-to-br from-[#0d0d0d] via-[#1A1A1A] to-[#0d0d0d] border-[#2A2A2A]"
+          : "bg-gray-100 border-gray-300"
           }`}
       >
         <h2 className="text-3xl font-bold text-center text-[#D4AF37]">Menu</h2>
@@ -168,8 +169,8 @@ const MenuPage = () => {
             >
               <div
                 className={`w-24 h-24 rounded-full overflow-hidden shadow-md transition-all duration-300 ${selectedCategory === category.name
-                    ? "ring-4 ring-[#FFD700] scale-105"
-                    : "bg-white"
+                  ? "ring-4 ring-[#FFD700] scale-105"
+                  : "bg-white"
                   }`}
               >
                 <img
@@ -180,8 +181,8 @@ const MenuPage = () => {
               </div>
               <p
                 className={`mt-2 text-sm font-semibold text-center transition-colors duration-300 ${selectedCategory === category.name
-                    ? "text-[#FFD700]"
-                    : "text-gray-800 dark:text-white"
+                  ? "text-[#FFD700]"
+                  : "text-gray-800 dark:text-white"
                   }`}
               >
                 {category.name}
@@ -197,10 +198,10 @@ const MenuPage = () => {
             <motion.div
               key={item._id}
               className={`relative border rounded-xl shadow-md transition-all duration-300 ${getItemQuantity(item._id) > 0
-                  ? "border-[#FFD700] shadow-[#FFD700]/40"
-                  : theme === "dark"
-                    ? "bg-[#121212] border-[#D4AF37]/10 hover:shadow-[#FFD700]/30"
-                    : "bg-white border-gray-200 hover:shadow-lg"
+                ? "border-[#FFD700] shadow-[#FFD700]/40"
+                : theme === "dark"
+                  ? "bg-[#121212] border-[#D4AF37]/10 hover:shadow-[#FFD700]/30"
+                  : "bg-white border-gray-200 hover:shadow-sm"
                 }`}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
@@ -225,10 +226,10 @@ const MenuPage = () => {
                 </p>
                 <p
                   className={`text-xs mt-1 font-semibold ${item.category === "Vegetarian"
-                      ? "text-green-500"
-                      : item.category === "Non-Vegetarian"
-                        ? "text-red-500"
-                        : "text-gray-500"
+                    ? "text-green-500"
+                    : item.category === "Non-Vegetarian"
+                      ? "text-red-500"
+                      : "text-gray-500"
                     }`}
                 >
                   {item.category}
@@ -248,8 +249,8 @@ const MenuPage = () => {
                     disabled={getItemQuantity(item._id) > 0 || addLoadingId === item._id}
                     onClick={() => handleAddToCart(item)}
                     className={`flex-1 py-2 rounded-lg font-semibold flex items-center justify-center hover:opacity-90 ${getItemQuantity(item._id) || addLoadingId === item._id
-                        ? "bg-gray-400 cursor-not-allowed text-white"
-                        : "bg-gradient-to-r from-[#FFD700] to-[#8B0000] text-black"
+                      ? "bg-gray-400 cursor-not-allowed text-white"
+                      : "bg-gradient-to-r from-[#FFD700] to-[#8B0000] text-black"
                       }`}
                   >
                     {addLoadingId === item._id ? (

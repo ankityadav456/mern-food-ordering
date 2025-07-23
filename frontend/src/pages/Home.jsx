@@ -4,25 +4,19 @@ import { Link } from "react-router-dom";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Replace with your actual images
 import promo1 from "../assets/Images/PB1.png";
 import promo2 from "../assets/Images/PB2.png";
 import promo3 from "../assets/Images/PB3.png";
+
 const banners = [
-  "https://images.unsplash.com/photo-1600891964599-f61ba0e24092?auto=format&fit=crop&w=1920&q=80", // Salad & grill
-  "https://images.unsplash.com/photo-1551218808-94e220e084d2?auto=format&fit=crop&w=1920&q=80", // Pizza top view
-  promo1,promo2,promo3
+  "https://images.unsplash.com/photo-1600891964599-f61ba0e24092?auto=format&fit=crop&w=1920&q=80",
+  "https://images.unsplash.com/photo-1551218808-94e220e084d2?auto=format&fit=crop&w=1920&q=80",
+  promo1, promo2, promo3
 ];
-
-
-// const banners = [promo1, promo2, promo3];
 
 const Home = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
-  const gold = "#B8860B";
-  const red = "#D72638";
-  const bgGold = "#eac54969";
 
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -40,8 +34,8 @@ const Home = () => {
   }, []);
 
   return (
-    <div className={`${isDark ? "bg-[#0d0d0d] text-white" : "bg-[#FAF9F6] text-black"} pt-4`}>
-      {/* Modern Animated Banner Slider */}
+    <div className={`${isDark ? "bg-background-dark text-text-dark" : "bg-background-light text-text-light"} pt-4`}>
+      {/* Animated Banner */}
       <div className="relative w-full max-w-6xl mx-auto h-[200px] md:h-[300px] lg:h-[350px] overflow-hidden rounded-2xl">
         <AnimatePresence mode="wait">
           <motion.div
@@ -60,7 +54,7 @@ const Home = () => {
           </motion.div>
         </AnimatePresence>
 
-        {/* Slide Indicators */}
+        {/* Indicators */}
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
           {banners.map((_, idx) => (
             <button
@@ -71,7 +65,7 @@ const Home = () => {
           ))}
         </div>
 
-        {/* Navigation Buttons */}
+        {/* Prev/Next */}
         <button
           onClick={prevSlide}
           className="absolute top-1/2 left-4 -translate-y-1/2 bg-black/60 text-white p-2 md:p-3 rounded-full z-10 hover:scale-110 transition"
@@ -86,77 +80,51 @@ const Home = () => {
         </button>
       </div>
 
-
-      {/* How We Serve */}
+      {/* How Yumigo Serves You */}
       <section className="py-12 text-center">
-        <h2 className="text-3xl font-bold mb-10" style={{ color: red }}>How Yumigo Serves You</h2>
+        <h2 className="text-3xl font-bold mb-10 text-secondary-light dark:text-secondary-dark">How Yumigo Serves You</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className={`${isDark ? "bg-[#1a1a1a]" : "bg-gray-100"} p-6 rounded-xl shadow-xl`}
-          >
-            <h4 className="text-xl font-semibold mb-2" style={{ color: gold }}>Automated Packaging</h4>
-            <p className="text-sm">100% sealed and hygienic packaging for freshness.</p>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            className={`${isDark ? "bg-[#1a1a1a]" : "bg-gray-100"} p-6 rounded-xl shadow-xl`}
-          >
-            <h4 className="text-xl font-semibold mb-2" style={{ color: gold }}>Packed with Love</h4>
-            <p className="text-sm">Every order is handled with utmost care and love.</p>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9 }}
-            className={`${isDark ? "bg-[#1a1a1a]" : "bg-gray-100"} p-6 rounded-xl shadow-xl`}
-          >
-            <h4 className="text-xl font-semibold mb-2" style={{ color: gold }}>Served Hot</h4>
-            <p className="text-sm">Delivered piping hot within 30 minutes!</p>
-          </motion.div>
+          {[
+            { title: "Automated Packaging", text: "100% sealed and hygienic packaging for freshness." },
+            { title: "Packed with Love", text: "Every order is handled with utmost care and love." },
+            { title: "Served Hot", text: "Delivered piping hot within 30 minutes!" },
+          ].map((item, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 + i * 0.2 }}
+              className={`${isDark ? "bg-surface-dark" : "bg-surface-light"} p-6 rounded-xl shadow-xl`}
+            >
+              <h4 className="text-xl font-semibold mb-2 text-primary-light dark:text-primary-dark">{item.title}</h4>
+              <p className="text-sm">{item.text}</p>
+            </motion.div>
+          ))}
         </div>
       </section>
 
-      {/* <section className={`${isDark ? "bg-[#1a1a1a]" : "bg-yellow-50"} py-12`}>
-        <div className="max-w-6xl mx-auto px-4 grid md:grid-cols-3 gap-6">
-          <motion.div whileHover={{ scale: 1.05 }} className="bg-gradient-to-tr from-yellow-400 to-yellow-200 rounded-xl p-6 text-center shadow-md">
-            <h3 className="text-xl font-bold mb-2">Buy 2 Get 1 Free</h3>
-            <p className="mb-2">Exclusive pizza deal</p>
-            <span className="font-bold text-2xl">₹28</span>
-          </motion.div>
-          <motion.div whileHover={{ scale: 1.05 }} className="bg-gradient-to-tr from-red-300 to-red-100 rounded-xl p-6 text-center shadow-md">
-            <h3 className="text-xl font-bold mb-2">Save 20%</h3>
-            <p>Spicy combos only</p>
-          </motion.div>
-          <motion.div whileHover={{ scale: 1.05 }} className="bg-gradient-to-tr from-orange-300 to-orange-100 rounded-xl p-6 text-center shadow-md">
-            <h3 className="text-xl font-bold mb-2">₹12 Off</h3>
-            <p>Wraps & tacos combo</p>
-          </motion.div>
-        </div>
-      </section> */}
-
-      <section className="py-12 mx-10  text-center rounded-xl" style={{ backgroundColor: isDark ? "#111" : bgGold, color: isDark ? gold : "#111" }}>
+      {/* Explore Section */}
+      <section
+        className="py-12 mx-4 md:mx-10 text-center rounded-xl"
+        style={{
+          backgroundColor: isDark ? "#111" : "#FFF3CD",
+          color: isDark ? "#FF7043" : "#1E1E1E",
+        }}
+      >
         <h2 className="text-3xl font-bold mb-4">
           Discover a World of Flavors — Explore Our Curated Food Categories!
         </h2>
-        <p className="text-lg mb-6 font-medium">
+        <p className="text-lg mb-6 font-medium px-3">
           From sizzling street food to gourmet meals, Yumigo brings you 3000+ dishes across multiple cuisines.
         </p>
         <Link
-  to="/menu"
-  className="mt-2 inline-block px-6 py-3 rounded-xl font-bold bg-black text-white 
-             hover:bg-opacity-80 transition 
-             dark:border dark:border-[#D4AF37]"
->
-  Explore Menu
-</Link>
-
+          to="/menu"
+          className="mt-2 inline-block px-6 py-3 rounded-xl font-bold bg-primary-light dark:bg-primary-dark text-white 
+                     hover:bg-opacity-90 transition"
+        >
+          Explore Menu
+        </Link>
       </section>
-
     </div>
   );
 };

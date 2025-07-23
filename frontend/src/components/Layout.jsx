@@ -34,7 +34,7 @@ const Layout = () => {
       />
 
       {/* Main Content */}
-      <div className="pt-16 px-4 pb-4">
+      <div className="pt-16 px-4 pb-4 dark:bg-background-dark bg-background-light">
         <Outlet />
       </div>
     <div>

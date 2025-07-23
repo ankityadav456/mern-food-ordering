@@ -1,4 +1,3 @@
-// Updated Navbar Component with Enhanced UI and Responsive Toggle
 import { useEffect, useState, useRef, useContext } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "../context/CartContext";
@@ -32,7 +31,7 @@ const Navbar = ({ isDrawerMode, isZoomed, onNavigate }) => {
   const userMenuRef = useRef(null);
   const navigate = useNavigate();
   const avatarUrl = user?.avatar ? `${import.meta.env.VITE_BACKEND_URL}${user.avatar}` : "";
-
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
@@ -54,6 +53,23 @@ const Navbar = ({ isDrawerMode, isZoomed, onNavigate }) => {
   const textColor = theme === "dark" ? "text-white" : "text-[#333]";
   const gold = theme === "dark" ? "#D4AF37" : "#B8860B";
 
+  // const glowStyle = theme === "dark" ? {
+  //   boxShadow: "0 0 8px rgba(212, 175, 55, 0.3)",
+  // } : {
+  //   boxShadow: "0 0 4px rgba(184, 134, 11, 0.2)",
+  // };
+
+  //   const handleSearchSubmit = (e) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+  //   onSubmit(searchQuery);
+  //   setTimeout(() => setLoading(false), 1000); // Simulate loading
+  // };
+
+  const handleClear = () => {
+    setSearchQuery("");
+  };
+
   const glowStyle = theme === "dark" ? {
     boxShadow: "0 0 8px rgba(212, 175, 55, 0.3)",
   } : {
@@ -73,8 +89,8 @@ const Navbar = ({ isDrawerMode, isZoomed, onNavigate }) => {
       onClick={() => { navigate(to); setNavMenuOpen(false); }}
       className={`flex items-center space-x-2 p-3 py-2 rounded-lg transition border ${borderColor} ${isActive(to)
         ? theme === "dark"
-          ? "bg-[#D4AF37] text-black font-semibold"
-          : "bg-[#B8860B] text-white font-semibold"
+          ? "bg-[#edc337] text-black font-semibold"
+          : "bg-[#d9ac3a] text-white font-semibold"
         : theme === "dark"
           ? "bg-[#1A1A1A] text-white hover:bg-[#D4AF37] hover:text-black"
           : "bg-white text-black hover:bg-[#B8860B] hover:text-white"}`}
@@ -103,7 +119,7 @@ const Navbar = ({ isDrawerMode, isZoomed, onNavigate }) => {
           <motion.img
             src={logo}
             alt="Yumigo Logo"
-            className="h-10 w-10 rounded-full hidden sm:block"
+            className="h-12 w-12 rounded-full hidden md:block"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.4 }}
@@ -111,19 +127,41 @@ const Navbar = ({ isDrawerMode, isZoomed, onNavigate }) => {
         </div>
 
         {/* Search */}
-        <form onSubmit={handleSearchSubmit} className="flex-1 mx-4 min-w-0">
-          <div className="relative w-full">
-            <input
-              type="text"
-              placeholder="Search food items..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={`w-full px-3 py-2.5 pr-10 rounded-full border text-sm md:text-base focus:outline-none focus:ring-2 transition ${theme === "dark" ? "bg-[#1A1A1A] text-white border-[#D4AF37] placeholder-gray-400 focus:ring-[#D4AF37]" : "bg-white text-black border-[#D4AF37] placeholder-gray-500 focus:ring-[#D4AF37]"}`}
-              style={glowStyle}
+         <form onSubmit={handleSearchSubmit} className="flex-1 mx-4 min-w-0">
+      <div className="relative w-full">
+        <input
+          type="text"
+          placeholder="Search food items..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className={`w-full py-2.5 pr-12 pl-12 rounded-full border text-sm md:text-base focus:outline-none focus:ring-2 transition
+            ${theme === "dark"
+              ? "bg-[#1A1A1A] text-white border-[#FFB300] placeholder-gray-400 focus:ring-[#FF5722]"
+              : "bg-white text-black border-[#FFB300] placeholder-gray-500 focus:ring-[#FF5722]"}`}
+          style={glowStyle}
+        />
+
+        {/* Search Icon */}
+        <Search
+          size={18}
+          className="absolute left-4 top-1/2 transform -translate-y-1/2"
+          style={{ color: "#FFB300" }}
+        />
+
+        {/* Right-side Icons: Loader or Clear */}
+        {loading ? (
+          <Loader2 className="animate-spin absolute right-4 top-1/2 transform -translate-y-1/2 text-[#FF5722]" size={18} />
+        ) : (
+          searchQuery.length > 0 && (
+            <X
+              className="cursor-pointer absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-red-500"
+              size={18}
+              onClick={handleClear}
             />
-            <Search size={18} className="absolute right-3 top-3" style={{ color: gold }} />
-          </div>
-        </form>
+          )
+        )}
+      </div>
+    </form>
 
         {/* Large screen navigation */}
         <div className="hidden lg:flex items-center space-x-4 ml-auto">

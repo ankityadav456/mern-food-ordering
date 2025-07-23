@@ -238,3 +238,7 @@ body {
     width: 0%;
   }
 }
+
+body {
+  @apply font-sans;
+}
