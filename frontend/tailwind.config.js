@@ -16,33 +16,37 @@ export default {
           '0%': { transform: 'translateY(20px)', opacity: 0 },
           '100%': { transform: 'translateY(0)', opacity: 1 },
         },
+        spinReverse: {
+          from: { transform: 'rotate(0deg)' },
+          to: { transform: 'rotate(-360deg)' }, // Reverse direction
+        },
       },
       animation: {
         fadeIn: 'fadeIn 0.6s ease-out',
         slideUp: 'slideUp 0.4s ease-out forwards',
+        spinSlow: 'spin 1.5s linear infinite',
+        spinSlowReverse: 'spinReverse 1.5s linear infinite',
+      },
+      transformOrigin: {
+        center: 'center',
       },
       colors: {
-        // 🍽 Primary (buttons, highlights)
         primary: {
           light: '#FF5722',
           dark: '#FF7043',
         },
-        // 🌟 Secondary (headings, stars)
         secondary: {
           light: '#FFC107',
           dark: '#FFD54F',
         },
-        // 🧱 Backgrounds
         background: {
           light: '#FAFAFA',
           dark: '#121212',
         },
-        // 🧊 Surfaces (cards, modals)
         surface: {
           light: '#FFFFFF',
           dark: '#1E1E1E',
         },
-        // 📝 Text
         text: {
           light: '#1E1E1E',
           dark: '#FFFFFF',
@@ -54,4 +58,4 @@ export default {
     },
   },
   plugins: [],
-}
+};

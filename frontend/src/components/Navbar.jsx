@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useContext } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "../context/CartContext";
+import GlobalSearch from './GlobalSearch'
 import { useAuth } from "../context/AuthContext";
 import {
   Menu,
@@ -53,53 +54,62 @@ const Navbar = ({ isDrawerMode, isZoomed, onNavigate }) => {
   const textColor = theme === "dark" ? "text-white" : "text-[#333]";
   const gold = theme === "dark" ? "#D4AF37" : "#B8860B";
 
-  // const glowStyle = theme === "dark" ? {
-  //   boxShadow: "0 0 8px rgba(212, 175, 55, 0.3)",
-  // } : {
-  //   boxShadow: "0 0 4px rgba(184, 134, 11, 0.2)",
-  // };
-
-  //   const handleSearchSubmit = (e) => {
-  //   e.preventDefault();
-  //   setLoading(true);
-  //   onSubmit(searchQuery);
-  //   setTimeout(() => setLoading(false), 1000); // Simulate loading
-  // };
-
   const handleClear = () => {
     setSearchQuery("");
   };
 
   const glowStyle = theme === "dark" ? {
-    boxShadow: "0 0 8px rgba(212, 175, 55, 0.3)",
+    boxShadow: "",
   } : {
     boxShadow: "0 0 4px rgba(184, 134, 11, 0.2)",
   };
 
   // const isActive = (path) => location.pathname === path || location.pathname.startsWith(path);
   const isActive = (path) => {
-  if (path === "/") return location.pathname === "/";
-  return location.pathname.startsWith(path);
-};
+    if (path === "/") return location.pathname === "/";
+    return location.pathname.startsWith(path);
+  };
 
   const navButton = (to, icon, label) => (
     <motion.button
       whileTap={{ scale: 0.95 }}
       whileHover={{ scale: 1.05 }}
-      onClick={() => { navigate(to); setNavMenuOpen(false); }}
-      className={`flex items-center space-x-2 p-3 py-2 rounded-lg transition border ${borderColor} ${isActive(to)
-        ? theme === "dark"
-          ? "bg-[#edc337] text-black font-semibold"
-          : "bg-[#d9ac3a] text-white font-semibold"
-        : theme === "dark"
-          ? "bg-[#1A1A1A] text-white hover:bg-[#D4AF37] hover:text-black"
-          : "bg-white text-black hover:bg-[#B8860B] hover:text-white"}`}
+      onClick={() => {
+        navigate(to);
+        setNavMenuOpen(false);
+      }}
+      className={`relative flex items-center gap-2 px-5 py-2 rounded-full font-medium text-sm md:text-base transition-all duration-300 ease-in-out ring-1 ring-inset
+    ${isActive(to)
+          ? theme === "dark"
+            ? "bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black"
+            : "bg-gradient-to-r from-[#FFB300] to-[#FF8C00] text-white"
+          : theme === "dark"
+            ? "bg-[#1A1A1A] text-white ring-[#333] hover:bg-gradient-to-r hover:from-[#D4AF37] hover:to-[#FFB300] hover:text-black hover:shadow-[0_0_10px_rgba(212,175,55,0.3)]"
+            : "bg-white text-black ring-[#D4AF37] hover:bg-gradient-to-r hover:from-[#FFD54F] hover:to-[#FFB74D] hover:text-black hover:shadow-[0_0_10px_rgba(255,193,7,0.3)]"
+        }`}
       style={glowStyle}
     >
-      {icon}
-      <span>{label}</span>
+      <motion.span
+        initial={{ opacity: 0, x: -6 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.3, delay: 0.05 }}
+        className="flex items-center justify-center"
+      >
+        {icon}
+      </motion.span>
+      <motion.span
+        initial={{ opacity: 0, y: 4 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+        className="whitespace-nowrap"
+      >
+        {label}
+      </motion.span>
     </motion.button>
+
   );
+
+
 
   return (
     <nav className={`fixed top-0 right-0 z-50 h-18 ${bgColor} border-b ${borderColor} transition-all duration-300 left-0 shadow-md`}>
@@ -127,63 +137,54 @@ const Navbar = ({ isDrawerMode, isZoomed, onNavigate }) => {
         </div>
 
         {/* Search */}
-         <form onSubmit={handleSearchSubmit} className="flex-1 mx-4 min-w-0">
-      <div className="relative w-full">
-        <input
-          type="text"
-          placeholder="Search food items..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className={`w-full py-2.5 pr-12 pl-12 rounded-full border text-sm md:text-base focus:outline-none focus:ring-2 transition
-            ${theme === "dark"
-              ? "bg-[#1A1A1A] text-white border-[#FFB300] placeholder-gray-400 focus:ring-[#FF5722]"
-              : "bg-white text-black border-[#FFB300] placeholder-gray-500 focus:ring-[#FF5722]"}`}
-          style={glowStyle}
-        />
-
-        {/* Search Icon */}
-        <Search
-          size={18}
-          className="absolute left-4 top-1/2 transform -translate-y-1/2"
-          style={{ color: "#FFB300" }}
-        />
-
-        {/* Right-side Icons: Loader or Clear */}
-        {loading ? (
-          <Loader2 className="animate-spin absolute right-4 top-1/2 transform -translate-y-1/2 text-[#FF5722]" size={18} />
-        ) : (
-          searchQuery.length > 0 && (
-            <X
-              className="cursor-pointer absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-red-500"
-              size={18}
-              onClick={handleClear}
-            />
-          )
-        )}
-      </div>
-    </form>
+        <form onSubmit={handleSearchSubmit} className="flex-1 mx-4 min-w-0">
+          <div className="relative w-full">
+            <GlobalSearch query={searchQuery} setQuery={setSearchQuery} theme={theme} />
+          </div>
+        </form>
 
         {/* Large screen navigation */}
-        <div className="hidden lg:flex items-center space-x-4 ml-auto">
+        <div className="hidden lg:flex items-center gap-4 ml-auto">
           {navButton("/", <Home size={20} />, "Home")}
           {navButton("/menu", <Menu size={20} />, "Menu")}
           {user && navButton("/dashboard", <LayoutDashboard size={20} />, "Dashboard")}
+
           <motion.button
-            whileTap={{ scale: 0.95 }}
-            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.92 }}
+            whileHover={{ scale: 1, rotate: 5 }}
             onClick={toggleTheme}
-            className={`p-2 rounded-full border ${borderColor} transition`}
-            style={{ backgroundColor: theme === "dark" ? "#1A1A1A" : "#fff", color: gold, ...glowStyle }}
+            className={`relative group p-2.5 rounded-full transition border ${borderColor} shadow-xl`}
+            style={{
+              backgroundColor: theme === "dark" ? "#1A1A1A" : "#fff",
+              color: gold,
+              ...glowStyle,
+              boxShadow: theme === "dark"
+                ? "0 4px 12px rgba(255, 87, 34, 0.3)"
+                : "0 4px 12px rgba(0, 0, 0, 0.1)"
+            }}
           >
-            {theme === "dark" ? <Sun size={24} /> : <Moon size={24} />}
+            <motion.div
+              key={theme}
+              initial={{ rotate: 180, opacity: 0 }}
+              animate={{ rotate: 0, opacity: 1 }}
+              transition={{
+                type: "spring",
+                stiffness: 80, // lower stiffness = slower, more springy
+                damping: 14     // higher damping = less bounce
+              }}
+            >
+              {theme === "dark" ? <Sun size={22} /> : <Moon size={22} />}
+            </motion.div>
           </motion.button>
+
         </div>
+
 
         {/* Actions */}
         <div className="flex items-center space-x-4 ml-auto lg:ml-0">
           <Link to="/cart" className="relative">
             <motion.div whileHover={{ scale: 1.1 }} className={`p-2 rounded-full border ${borderColor}`} style={{ backgroundColor: theme === "dark" ? "#1A1A1A" : "#fff", ...glowStyle }}>
-              <ShoppingCart size={24} style={{ color: gold }} />
+              <ShoppingCart size={22} style={{ color: gold }} />
             </motion.div>
             {cartItems?.length > 0 && (
               <span className="absolute -top-1 -right-1 text-xs bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center">
@@ -239,37 +240,63 @@ const Navbar = ({ isDrawerMode, isZoomed, onNavigate }) => {
       <AnimatePresence>
         {navMenuOpen && (
           <motion.div
-            initial={{ x: '100%' }}
+            initial={{ x: "100%" }}
             animate={{ x: 0 }}
-            exit={{ x: '100%' }}
+            exit={{ x: "100%" }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className={`fixed top-0 right-0 w-72 h-full p-5 ${bgColor} border-l ${borderColor} shadow-2xl z-50 lg:hidden`}
-            style={{ backdropFilter: 'blur(8px)', ...glowStyle }}
+            style={{ backdropFilter: "blur(10px)", ...glowStyle }}
           >
-            <div className="flex justify-between items-center mb-6">
-              <img src={logo} alt="Yumigo Logo" className="h-10 w-10 rounded-full" />
-              <button onClick={() => setNavMenuOpen(false)} className="text-red-600 hover:text-red-400 transition">
+            {/* Header with logo and close button */}
+            <div className="flex justify-between items-center mb-8">
+              <div className="flex items-center gap-3">
+                <img
+                  src={logo}
+                  alt="Yumigo Logo"
+                  className="h-10 w-10 rounded-full border border-orange-500"
+                />
+                <span className={`font-semibold text-lg tracking-wide ${textColor}`}>
+                  Yumigo
+                </span>
+              </div>
+              <button
+                onClick={() => setNavMenuOpen(false)}
+                className="text-red-600 hover:text-red-400 transition"
+              >
                 <X size={28} />
               </button>
             </div>
 
-            <div className="flex flex-col space-y-4">
+            {/* Navigation Links */}
+            <div className="flex flex-col gap-4">
               {navButton("/", <Home size={20} />, "Home")}
               {navButton("/menu", <Menu size={20} />, "Menu")}
               {user && navButton("/dashboard", <LayoutDashboard size={20} />, "Dashboard")}
+            </div>
+
+            {/* Theme Toggle */}
+            <div className="mt-10">
               <motion.button
                 whileTap={{ scale: 0.95 }}
-                whileHover={{ scale: 1.1 }}
+                whileHover={{ scale: 1.05 }}
                 onClick={toggleTheme}
-                className={`w-14 mt-4 p-4 rounded-full border ${borderColor} transition`}
-                style={{ backgroundColor: theme === "dark" ? "#1A1A1A" : "#fff", color: gold, ...glowStyle }}
+                className={`flex items-center justify-center gap-3 w-full py-3 rounded-xl border ${borderColor} shadow-md transition duration-300`}
+                style={{
+                  backgroundColor: theme === "dark" ? "#1E1E1E" : "#FFF",
+                  color: gold,
+                  ...glowStyle,
+                }}
               >
-                {theme === "dark" ? <Sun size={24} /> : <Moon size={24} />}
+                {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+                <span className="text-sm font-medium">
+                  {theme === "dark" ? "Light Mode" : "Dark Mode"}
+                </span>
               </motion.button>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
     </nav>
   );
 };

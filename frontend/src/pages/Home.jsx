@@ -36,23 +36,18 @@ const Home = () => {
   return (
     <div className={`${isDark ? "bg-background-dark text-text-dark" : "bg-background-light text-text-light"} pt-4`}>
       {/* Animated Banner */}
-      <div className="relative w-full max-w-6xl mx-auto h-[200px] md:h-[300px] lg:h-[350px] overflow-hidden rounded-2xl">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentSlide}
-            initial={{ opacity: 0, scale: 1.05 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.8 }}
-            className="absolute inset-0 w-full h-full mt-4"
-          >
-            <img
-              src={banners[currentSlide]}
-              alt={`Slide ${currentSlide + 1}`}
-              className="w-full h-full object-cover rounded-2xl"
-            />
-          </motion.div>
-        </AnimatePresence>
+      <div className="relative w-full max-w-6xl mx-auto aspect-[16/9] overflow-hidden rounded-2xl shadow-lg">
+  <motion.img
+    key={currentSlide}
+    src={banners[currentSlide]}
+    alt={`Slide ${currentSlide + 1}`}
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ duration: 0.5 }}
+    className="w-full h-full object-cover rounded-2xl"
+    style={{ objectPosition: "center",aspectRatio: "16/9" }}
+  />
+
 
         {/* Indicators */}
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
@@ -119,7 +114,7 @@ const Home = () => {
         </p>
         <Link
           to="/menu"
-          className="mt-2 inline-block px-6 py-3 rounded-xl font-bold bg-primary-light dark:bg-primary-dark text-white 
+          className="mt-2 inline-block px-6 py-3 rounded-xl font-medium bg-primary-light dark:bg-primary-dark text-white 
                      hover:bg-opacity-90 transition"
         >
           Explore Menu
