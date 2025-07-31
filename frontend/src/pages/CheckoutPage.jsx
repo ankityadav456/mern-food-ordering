@@ -6,7 +6,7 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const CheckoutPage = () => {
   return (
-    <div className="min-h-screen bg-white text-black dark:bg-black dark:text-white">
+    <div className="min-h-scree text-black dark:text-white">
       <Elements stripe={stripePromise}>
         <CheckoutForm />
       </Elements>

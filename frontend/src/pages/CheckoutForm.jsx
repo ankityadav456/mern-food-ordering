@@ -83,63 +83,63 @@ const CheckoutForm = () => {
   }, [cartItems, getTotalPrice]);
 
   const handlePlaceOrder = async () => {
-  if (!stripe || !elements || !clientSecret || cartItems.length === 0 || !selectedAddress) {
-    setErrorMessage("Please fill all required details.");
-    return;
-  }
-
-  // Validate address fields
-  const { fullName, mobileNumber, roomNumber, street, city, state, pincode } = selectedAddress;
-  if (!fullName || !mobileNumber || !roomNumber || !street || !city || !state || !pincode) {
-    setErrorMessage("Please complete all address fields.");
-    return;
-  }
-
-  setLoading(true);
-  setErrorMessage(null);
-
-  try {
-    const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-      payment_method: {
-        card: elements.getElement(CardElement),
-      },
-    });
-
-    if (error) {
-      setErrorMessage("Payment failed. Please check your card details or try again.");
-      console.error(error);
-      setLoading(false);
+    if (!stripe || !elements || !clientSecret || cartItems.length === 0 || !selectedAddress) {
+      setErrorMessage("Please fill all required details.");
       return;
     }
 
-    if (paymentIntent.status === "succeeded") {
-      // Save the order
-     await axios.post("/orders", {
-  items: cartItems.map((item) => ({
-    foodId: item.foodId._id,
-    quantity: item.quantity,
-    name: item.foodId.name,
-    price: item.foodId.price,
-  })),
-  totalAmount: getTotalPrice(),
-  deliveryAddress: selectedAddress, // 🔥 Change this to match backend
-});
-
-
-      clearCart();
-      setClientSecret(null); // 🔴 IMPORTANT: reset to prevent re-use
-      navigate("/order-success");
-    } else {
-      setErrorMessage("Unexpected payment status. Please try again.");
-      console.error("Unexpected PaymentIntent status:", paymentIntent.status);
+    // Validate address fields
+    const { fullName, mobileNumber, roomNumber, street, city, state, pincode } = selectedAddress;
+    if (!fullName || !mobileNumber || !roomNumber || !street || !city || !state || !pincode) {
+      setErrorMessage("Please complete all address fields.");
+      return;
     }
-  } catch (err) {
-    setErrorMessage("An error occurred while processing your order. Please try again.");
-    console.error("Order error", err);
-  } finally {
-    setLoading(false);
-  }
-};
+
+    setLoading(true);
+    setErrorMessage(null);
+
+    try {
+      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: elements.getElement(CardElement),
+        },
+      });
+
+      if (error) {
+        setErrorMessage("Payment failed. Please check your card details or try again.");
+        console.error(error);
+        setLoading(false);
+        return;
+      }
+
+      if (paymentIntent.status === "succeeded") {
+        // Save the order
+        await axios.post("/orders", {
+          items: cartItems.map((item) => ({
+            foodId: item.foodId._id,
+            quantity: item.quantity,
+            name: item.foodId.name,
+            price: item.foodId.price,
+          })),
+          totalAmount: getTotalPrice(),
+          deliveryAddress: selectedAddress, // 🔥 Change this to match backend
+        });
+
+
+        clearCart();
+        setClientSecret(null); // 🔴 IMPORTANT: reset to prevent re-use
+        navigate("/order-success");
+      } else {
+        setErrorMessage("Unexpected payment status. Please try again.");
+        console.error("Unexpected PaymentIntent status:", paymentIntent.status);
+      }
+    } catch (err) {
+      setErrorMessage("An error occurred while processing your order. Please try again.");
+      console.error("Order error", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   const handleAddressAdded = (address) => {
@@ -158,7 +158,7 @@ const CheckoutForm = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 rounded-2xl shadow-2xl border m-10 mx-12 bg-white border-gray-200 text-black dark:bg-[#111] dark:border-[#FFD700]/30 dark:text-white">
+    <div className="max-w-6xl mx-auto p-6 rounded-2xl shadow-2xl border m-10 mx-12 bg-white border-gray-200 text-black dark:bg-[#111] dark:border-[#FFD700]/30 dark:text-white">
       <h2 className="text-3xl font-bold text-[#B22222] dark:text-[#FFD700] mb-6">Checkout</h2>
 
       {cartItems.length > 0 ? (

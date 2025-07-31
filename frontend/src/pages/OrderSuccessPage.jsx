@@ -18,7 +18,7 @@ const OrderSuccessPage = () => {
   const descriptionColor = theme === "dark" ? "text-white" : "text-gray-700";
 
   return (
-    <div className={`min-h-screen flex items-center justify-center py-10 ${bgColor} ${textColor}`}>
+    <div className={`min-h-screen flex items-center justify-center py-10 ${textColor}`}>
       <motion.div
         className={`max-w-2xl w-full ${cardBg} ${cardTextColor} p-8 rounded-2xl shadow-2xl border ${theme === "dark" ? "border-[#FFD700]/30" : "border-gray-300"}`}
         initial={{ opacity: 0, y: -50 }}

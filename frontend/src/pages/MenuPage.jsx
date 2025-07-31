@@ -31,7 +31,7 @@ const MenuPage = () => {
   const [quantity, setQuantity] = useState(0);
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [addLoadingId, setAddLoadingId] = useState(null);
-
+  const [modalLoading, setModalLoading] = useState(false);
   const didInitialRender = useRef(false);
 
   const categories = [
@@ -96,7 +96,9 @@ const MenuPage = () => {
   const handleClearFilters = () => {
     setSortOrder("");
     setPriceLimit(1000);
+    setSelectedCategory("All");
     applyFilters();
+    setShowFilterModal(false)
   };
 
   const getItemQuantity = (id) => {
@@ -104,20 +106,22 @@ const MenuPage = () => {
     return item ? item.quantity : 0;
   };
 
-  const handleAddToCart = async (food) => {
-    if (addLoadingId) return;
-    setAddLoadingId(food._id);
-    // setLoading(true);
+  const handleAddToCart = async (food, fromModal = false) => {
+    if (!fromModal && addLoadingId) return;
+    if (fromModal && modalLoading) return;
+
+    if (fromModal) setModalLoading(true);
+    else setAddLoadingId(food._id);
+
     try {
       await addToCart(food);
       setQuickViewItem(null);
     } catch (error) {
       console.error("Cart Error", error);
-      setAddLoadingId(null);
       toast.error("Failed to add item to cart.");
     } finally {
-      setAddLoadingId(null);
-      // setLoading(false);
+      if (fromModal) setModalLoading(false);
+      else setAddLoadingId(null);
     }
   };
 
@@ -196,16 +200,17 @@ const MenuPage = () => {
         {filteredFoods.length > 0 ? (
           filteredFoods.map((item) => (
             <motion.div
-              key={item._id}
-              className={`relative border rounded-xl shadow-md transition-all duration-300 ${getItemQuantity(item._id) > 0
-                ? "border-[#FFD700] shadow-[#FFD700]/40"
-                : theme === "dark"
-                  ? "bg-[#121212] border-[#D4AF37]/10 hover:shadow-[#FFD700]/30"
-                  : "bg-white border-gray-200 hover:shadow-sm"
-                }`}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-            >
+  key={item._id}
+  whileHover={{ scale: 1.03 }}
+  whileTap={{ scale: 0.97 }}
+  className={`relative rounded-2xl border transition-all duration-300 ease-in-out
+    ${getItemQuantity(item._id) > 0
+      ? "border-[#FFD700] shadow-md shadow-[#FFD700]/30"
+      : theme === "dark"
+        ? "bg-[#1A1A1A] border-[#333] hover:border-[#FFD700] hover:shadow-lg hover:shadow-[#FFD700]/20"
+        : "bg-white border-gray-200 hover:border-[#FF9800] hover:shadow-md hover:shadow-orange-200"
+    }
+  `}>
               {getItemQuantity(item._id) > 0 && (
                 <div className="absolute top-2 right-2 bg-[#FFD700] text-black text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-md">
                   {getItemQuantity(item._id)}
@@ -261,12 +266,14 @@ const MenuPage = () => {
                 </div>
               </div>
             </motion.div>
+
           ))
         ) : (
           !loading && (
             <p className="text-center col-span-full text-gray-500">No food items found.</p>
           )
         )}
+
       </div>
 
       <AnimatePresence>
@@ -409,16 +416,46 @@ const MenuPage = () => {
 
               {/* Add to Cart */}
               <button
-                onClick={() => quantity > 1 ? handleQuantityChange(quickViewItem._id, quantity) : handleAddToCart(quickViewItem)}
-                className="mt-4 w-full py-2 rounded-lg bg-gradient-to-r from-[#FFD700] to-[#8B0000] text-black font-bold hover:opacity-90"
+                onClick={() =>
+                  quantity > 0
+                    ? handleQuantityChange(quickViewItem._id, quantity)
+                    : handleAddToCart(quickViewItem, true)
+                }
+                disabled={modalLoading}
+                className="mt-4 w-full py-2 rounded-lg bg-gradient-to-r from-[#FFD700] to-[#8B0000] text-black font-bold hover:opacity-90 flex items-center justify-center"
               >
-                {quantity > 1 ? `Update Quantity to ${quantity}` : "Add to Cart"}
+                {modalLoading ? (
+                  <span className="loader w-4 h-4 border-2 border-t-transparent border-black rounded-full animate-spin"></span>
+                ) : quantity > 0 ? `Update Quantity to ${quantity}` : "Add to Cart"}
               </button>
+
 
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
+      <button
+        onClick={() => setShowFilterModal(true)}
+        aria-label="Open Filters"
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-gradient-to-r from-[#FFB300] to-[#FF5722] text-white dark:from-[#FFA000] dark:to-[#FF7043] font-semibold px-5 py-3 rounded-full shadow-lg hover:scale-105 transition-transform duration-300 focus:outline-none focus:ring-2 focus:ring-orange-300 dark:focus:ring-orange-600"
+      >
+        {/* SVG Filter Icon */}
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={2}
+          stroke="currentColor"
+          className="w-5 h-5"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L15 13.414V19a1 1 0 01-1.447.894l-4-2A1 1 0 019 17v-3.586L3.293 6.707A1 1 0 013 6V4z"
+          />
+        </svg>
+        Filter
+      </button>
     </div>
   );
 };

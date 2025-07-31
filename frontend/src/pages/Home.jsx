@@ -5,13 +5,12 @@ import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 
 import promo1 from "../assets/Images/PB1.png";
-import promo2 from "../assets/Images/PB2.png";
+import promo2 from "../assets/Images/PB4.png";
 import promo3 from "../assets/Images/PB3.png";
 
 const banners = [
   "https://images.unsplash.com/photo-1600891964599-f61ba0e24092?auto=format&fit=crop&w=1920&q=80",
-  "https://images.unsplash.com/photo-1551218808-94e220e084d2?auto=format&fit=crop&w=1920&q=80",
-  promo1, promo2, promo3
+  promo1,promo2, promo3
 ];
 
 const Home = () => {
@@ -34,19 +33,19 @@ const Home = () => {
   }, []);
 
   return (
-    <div className={`${isDark ? "bg-background-dark text-text-dark" : "bg-background-light text-text-light"} pt-4`}>
+    <div className={`${isDark ? "text-text-dark" : "text-text-light"} pt-4`}>
       {/* Animated Banner */}
       <div className="relative w-full max-w-6xl mx-auto aspect-[16/9] overflow-hidden rounded-2xl shadow-lg">
-  <motion.img
-    key={currentSlide}
-    src={banners[currentSlide]}
-    alt={`Slide ${currentSlide + 1}`}
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    transition={{ duration: 0.5 }}
-    className="w-full h-full object-cover rounded-2xl"
-    style={{ objectPosition: "center",aspectRatio: "16/9" }}
-  />
+        <motion.img
+          key={currentSlide}
+          src={banners[currentSlide]}
+          alt={`Slide ${currentSlide + 1}`}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="w-full h-full object-cover rounded-2xl"
+          style={{ objectPosition: "center", aspectRatio: "16/9" }}
+        />
 
 
         {/* Indicators */}

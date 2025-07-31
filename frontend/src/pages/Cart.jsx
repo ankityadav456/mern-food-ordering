@@ -1,12 +1,13 @@
 import { useCart } from "../context/CartContext";
-import { Trash2, Plus, Minus } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Trash2, Plus, Minus, ArrowLeft, CreditCard, Tag, ShoppingCart } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Loader from "../components/Loader";
 import { motion, AnimatePresence } from "framer-motion";
-import toast, { Toaster } from "react-hot-toast";
-import { useTheme } from "../context/ThemeContext"; // Make sure you have this setup
-import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import { useTheme } from "../context/ThemeContext";
+import Lottie from "lottie-react";
+import emptyCartAnim from "../assets/lottieIJson/Empty red.json";
 
 const Cart = () => {
   const {
@@ -17,11 +18,13 @@ const Cart = () => {
     clearCart,
   } = useCart();
 
-  const { theme } = useTheme(); // light | dark
+  const { theme } = useTheme();
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
-  const [filter, setFilter] = useState("All");
- const navigate = useNavigate();
+  const [coupon, setCoupon] = useState("");
+
+  const navigate = useNavigate();
+
   useEffect(() => {
     const loadCart = async () => {
       await fetchCartItems();
@@ -35,19 +38,11 @@ const Cart = () => {
     0
   );
 
-  const totalItems = cartItems.length;
-
   const handleRemove = async (id) => {
-    if (!window.confirm("Are you sure you want to remove this item?")) return;
-    try {
-      setActionLoading(true);
-      await removeFromCart(id);
-      // toast.success("Item removed from cart");
-    } catch {
-      // toast.error("Failed to remove item");
-    } finally {
-      setActionLoading(false);
-    }
+    if (!window.confirm("Remove this item?")) return;
+    setActionLoading(true);
+    await removeFromCart(id);
+    setActionLoading(false);
   };
 
   const handleQuantityChange = async (id, quantity) => {
@@ -58,26 +53,25 @@ const Cart = () => {
   };
 
   const handleClearCart = async () => {
-    if (!window.confirm("Clear the entire cart?")) return;
-    try {
-      setActionLoading(true);
-      await clearCart();
-      // toast.success("Cart cleared");
-    } catch {
-      // toast.error("Failed to clear cart");
-    } finally {
-      setActionLoading(false);
+    if (!window.confirm("Clear the cart?")) return;
+    setActionLoading(true);
+    await clearCart();
+    setActionLoading(false);
+  };
+
+  const handleApplyCoupon = () => {
+    if (coupon.trim()) {
+      toast.success("Coupon applied!");
+      setCoupon("");
+    } else {
+      toast.error("Enter a valid code");
     }
   };
 
-  const filteredItems = (cartItems || []).filter((item) => {
-    if (filter === "All") return true;
-    return item.foodId.category?.toLowerCase() === filter.toLowerCase();
+  const estimatedTime = new Date(Date.now() + 30 * 60 * 1000).toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
   });
-
-  const backhandle = () => {
-    
-  }
 
   if (loading) {
     return (
@@ -88,126 +82,150 @@ const Cart = () => {
   }
 
   return (
-    <div className="min-h-screen px-8 py-5  bg-[#FAF9F6] text-black dark:bg-[#0d0d0d] dark:text-white transition-colors duration-300">
-      <h2 className="text-3xl font-bold mb-4 pb-2 border-b border-[#D4AF37] text-center">
-        Your Cart 🛒{" "}
-        <span className="text-xl text-[#D4AF37]">({totalItems} items)</span>
+    <div className="min-h-screen px-4 sm:px-8 py-6 bg-[#FAFAFA] dark:bg-[#121212] text-black dark:text-white">
+      <h2 className="text-3xl font-bold mb-6 text-center border-b border-[#FFD54F] pb-3">
+        Your Cart 🛒
+        <span className="text-xl text-[#FFD54F] ml-2">
+          ({cartItems.length} items)
+        </span>
       </h2>
 
       <AnimatePresence>
-        {(!filteredItems || filteredItems.length === 0) ? (
+        {cartItems.length === 0 ? (
           <motion.div
             key="empty"
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="text-center py-24"
+            exit={{ opacity: 0, y: 30 }}
+            className="text-center py-20"
           >
-            <p className="text-2xl font-semibold text-[#D4AF37] mb-4">
-              No items found in this category!
-            </p>
+            <Lottie animationData={emptyCartAnim} className="h-60 mx-auto mb-6" />
+            <p className="text-xl font-semibold text-[#FFD54F] mb-4">Your cart is empty!</p>
             <Link
               to="/menu"
-              className="inline-block px-6 py-2 bg-red-600 dark:bg-[#B22222] text-white rounded-full hover:bg-[#D4AF37] hover:text-black transition"
+              className="inline-flex items-center gap-2 px-6 py-2 bg-[#FF5722] text-white rounded-full hover:bg-[#FFD54F] hover:text-black transition"
             >
-              Explore Menu
+              <ShoppingCart size={18} /> Explore Menu
             </Link>
           </motion.div>
         ) : (
           <motion.div
-            key="cart"
+            key="filled"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4 }}
-            className="space-y-6"
+            className="flex flex-col lg:flex-row gap-8"
           >
-            {filteredItems.map((item) => (
-              <motion.div
-                layout
-                key={item.foodId._id}
-                className="flex flex-col sm:flex-row justify-between items-center border border-gray-300 dark:border-[#2A2A2A] bg-white/70 dark:bg-[#1A1A1A]/60 backdrop-blur-md rounded-2xl p-4 shadow-lg transition hover:shadow-[#FFD700]/20"
-              >
-                <div className="flex items-center gap-4 w-full sm:w-auto">
-                  <img
-                    src={item.foodId.image}
-                    alt={item.foodId.name}
-                    className="h-20 w-20 object-cover rounded-lg border border-[#D4AF37]"
-                  />
-                  <div>
-                    <h3 className="text-lg font-semibold text-[#D4AF37]">
-                      {item.foodId.name}
-                    </h3>
-                    <p className="text-sm text-gray-700 dark:text-gray-400">
-                      ₹{item.foodId.price.toLocaleString("en-IN")}
-                    </p>
+            {/* Cart Items Section */}
+            <div className="flex-1 space-y-6">
+              {cartItems.map((item) => (
+                <motion.div
+                  layout
+                  key={item.foodId._id}
+                  className="flex flex-col sm:flex-row justify-between items-center border border-gray-300 dark:border-[#2A2A2A] bg-white/80 dark:bg-[#1E1E1E] backdrop-blur-md rounded-xl p-4 shadow-md"
+                >
+                  <div className="flex items-center gap-4 w-full sm:w-auto">
+                    <img
+                      src={item.foodId.image}
+                      alt={item.foodId.name}
+                      className="h-20 w-20 object-cover rounded-lg border border-[#FFD54F]"
+                    />
+                    <div>
+                      <h3 className="text-lg font-semibold text-[#FF5722]">{item.foodId.name}</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        ₹{item.foodId.price.toLocaleString("en-IN")}
+                      </p>
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex items-center gap-4 mt-4 sm:mt-0">
-                  <button
-                    onClick={() =>
-                      handleQuantityChange(item.foodId._id, item.quantity - 1)
-                    }
-                    className="p-2 rounded-full bg-gray-200 dark:bg-[#2A2A2A] hover:bg-red-600 transition"
-                    disabled={actionLoading}
-                  >
-                    <Minus size={16} />
-                  </button>
-                  <span className="px-3 text-lg">{item.quantity}</span>
-                  <button
-                    onClick={() =>
-                      handleQuantityChange(item.foodId._id, item.quantity + 1)
-                    }
-                    className="p-2 rounded-full bg-gray-200 dark:bg-[#2A2A2A] hover:bg-[#FFD700] transition"
-                    disabled={actionLoading}
-                  >
-                    <Plus size={16} />
-                  </button>
-                  <button
-                    onClick={() => handleRemove(item.foodId._id)}
-                    className="p-2 rounded-full bg-gray-200 dark:bg-[#2A2A2A] text-red-500 hover:bg-[#B22222] hover:text-white transition"
-                    disabled={actionLoading}
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </div>
-              </motion.div>
-            ))}
+                  <div className="flex items-center gap-4 mt-4 sm:mt-0">
+                    <button
+                      onClick={() => handleQuantityChange(item.foodId._id, item.quantity - 1)}
+                      className="p-2 rounded-full bg-gray-200 dark:bg-[#2A2A2A] hover:bg-red-600 transition"
+                      disabled={actionLoading}
+                    >
+                      <Minus size={16} />
+                    </button>
+                    <span className="px-3 text-lg">{item.quantity}</span>
+                    <button
+                      onClick={() => handleQuantityChange(item.foodId._id, item.quantity + 1)}
+                      className="p-2 rounded-full bg-gray-200 dark:bg-[#2A2A2A] hover:bg-[#FFD54F] transition"
+                      disabled={actionLoading}
+                    >
+                      <Plus size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleRemove(item.foodId._id)}
+                      className="p-2 rounded-full bg-gray-200 dark:bg-[#2A2A2A] text-red-500 hover:bg-[#B22222] hover:text-white transition"
+                      disabled={actionLoading}
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
 
-            {/* Cart Summary */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex flex-col sm:flex-row justify-between items-center mt-8 border-t border-gray-300 dark:border-[#2A2A2A] pt-6"
-            >
-              <p className="text-2xl font-bold text-[#FFD700]">
-                Total: ₹{totalPrice.toLocaleString("en-IN")}
-              </p>
+                </motion.div>
 
-              <div className="mt-4 sm:mt-0 flex space-x-4">
-           
-                  <button onClick={() => navigate(-1)}  type="button"
-              to="/"
-              className="px-5 py-2 bg-gray-200 dark:bg-[#2A2A2A] text-black dark:text-white rounded-full hover:bg-[#B22222] transition"
-            >
-              Back
-            </button>
+              ))}
+              <div className="flex flex-wrap gap-4">
+                <Link to="/"
+                  className="flex items-center gap-2 px-5 py-2 bg-gray-200 dark:bg-[#2A2A2A] text-black dark:text-white rounded-full hover:bg-[#B22222] hover:text-white transition"
+                >
+                  <ArrowLeft size={18} /> Back
+                </Link>
+
                 <button
                   onClick={handleClearCart}
-                  className="px-5 py-2 bg-gray-200 dark:bg-[#2A2A2A] text-black dark:text-white rounded-full hover:bg-[#B22222] transition"
+                  className="flex items-center gap-2 px-5 py-2 bg-gray-200 dark:bg-[#2A2A2A] text-black dark:text-white rounded-full hover:bg-[#B22222] hover:text-white transition"
                   disabled={actionLoading}
                 >
-                  Clear Cart
+                  <Trash2 size={18} /> Clear Cart
                 </button>
+              </div>
+
+            </div>
+
+            {/* Right Side Summary */}
+            <div className="w-full md:w-1/3 h-full bg-white dark:bg-[#1E1E1E] border border-gray-300 dark:border-[#2A2A2A] rounded-xl p-6 shadow-md space-y-6">
+              <div className="text-center lg:text-left space-y-1">
+                <p className="text-2xl font-bold text-[#FF5722]">
+                  Total: ₹{totalPrice.toLocaleString("en-IN")}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  🚚 Estimated delivery by{" "}
+                  <span className="text-[#FFD54F] font-medium">{estimatedTime}</span>
+                </p>
+              </div>
+
+              {/* Coupon Code */}
+              <div className="flex items-center">
+                <input
+                  type="text"
+                  value={coupon}
+                  onChange={(e) => setCoupon(e.target.value)}
+                  placeholder="Coupon code"
+                  className="flex-1 px-4 py-2 rounded-l-full border border-gray-300 dark:border-[#2A2A2A] dark:bg-[#1A1A1A]"
+                />
+                <button
+                  onClick={handleApplyCoupon}
+                  className="px-4 py-2 bg-[#FFD54F] text-black rounded-r-full flex items-center gap-1 hover:opacity-90 transition"
+                >
+                  <Tag size={16} /> Apply
+                </button>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col gap-3">
+
+
                 <Link
                   to="/checkout"
                   onClick={() => toast.success("Proceeding to checkout...")}
-                  className="px-5 py-2 bg-gradient-to-r from-[#FFD700] to-[#8B0000] text-black font-semibold rounded-full hover:opacity-90 transition"
+                  className="flex items-center justify-center gap-2 px-5 py-2 bg-gradient-to-r from-[#FFD54F] to-[#FF5722] text-black font-semibold rounded-full hover:opacity-90 transition"
                 >
-                  Checkout
+                  <CreditCard size={18} /> Checkout
                 </Link>
               </div>
-            </motion.div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

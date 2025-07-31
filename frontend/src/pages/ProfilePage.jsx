@@ -7,11 +7,13 @@ import defualtUserLogo from "../assets/Images/profile.png";
 import { useTheme } from "../context/ThemeContext";
 
 const ProfilePage = () => {
+
   const { user, updateProfile, updateAvatar, handleDeleteAvatar } = useAuth();
   const { theme } = useTheme();
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  const [isSaving, setIsSaving] = useState(false);
 
   const [avatarPreview, setAvatarPreview] = useState(
     user?.avatar ? `${backendUrl}${user.avatar}` : "/default-avatar.png"
@@ -61,9 +63,16 @@ const ProfilePage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSaving(true);
     try {
-      await updateProfile(formData);
-    } catch (err) {}
+      // your save logic
+      await updateProfile(formData); // example async function
+      toast.success("Profile updated successfully!");
+    } catch (error) {
+      toast.error("Failed to update profile.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const isDefaultAvatar = (avatarUrl) =>
@@ -71,7 +80,7 @@ const ProfilePage = () => {
 
   return (
     <motion.div
-      className="max-w-5xl mx-auto px-4 py-12 text-black dark:text-white"
+      className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
@@ -96,37 +105,39 @@ const ProfilePage = () => {
             <button
               onClick={handleDeleteAvatarBtn}
               title="Delete Avatar"
-              className={`absolute -top-2 -right-2 w-7 h-7 flex items-center justify-center rounded-full transition-all duration-300 shadow-md
-                ${theme === "dark"
-                  ? "bg-gradient-to-br from-red-700 to-red-800 hover:shadow-red-500"
-                  : "bg-gradient-to-br from-red-400 to-red-600 hover:shadow-red-400"}
-              `}
+              className={`absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 border 
+    ${theme === "dark"
+                  ? "bg-gradient-to-br from-red-700 to-red-900 border-red-800 hover:shadow-md hover:shadow-red-500/40"
+                  : "bg-gradient-to-br from-red-400 to-red-600 border-red-500 hover:shadow-md hover:shadow-red-400/40"}
+  `}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
-                strokeWidth={2}
+                strokeWidth={2.2}
                 stroke="white"
                 className="w-4 h-4"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
+
           )}
         </div>
 
         <div>
           <button
             onClick={() => fileInputRef.current.click()}
-            className={`font-semibold px-5 py-2 rounded-full shadow-md transition duration-300
-              ${theme === "dark"
-                ? "bg-[#D4AF37] text-black hover:bg-[#8B0000] hover:text-white"
-                : "bg-[#D4AF37] text-black hover:bg-[#8B0000] hover:text-white"}
-            `}
+            className={`px-6 py-2 rounded-full font-semibold text-sm tracking-wide transition-all duration-300 shadow-md
+    ${theme === "dark"
+                ? "bg-[#D4AF37] text-black hover:bg-[#FFD700] hover:shadow-yellow-400/50"
+                : "bg-[#D4AF37] text-black hover:bg-[#FFCE00] hover:shadow-yellow-300/50"}
+  `}
           >
             Change Avatar
           </button>
+
           <input
             type="file"
             accept="image/*"
@@ -173,7 +184,7 @@ const ProfilePage = () => {
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate(-1)}
             type="button"
-            className="w-full sm:w-auto flex items-center gap-2 bg-[#D4AF37] text-black font-bold px-6 py-3 rounded-xl hover:bg-[#8B0000] hover:text-white transition-all"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#D4AF37] text-black font-semibold text-sm sm:text-base px-6 py-3 rounded-xl hover:bg-[#8B0000] hover:text-white transition-all"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -191,10 +202,51 @@ const ProfilePage = () => {
           <motion.button
             whileTap={{ scale: 0.95 }}
             type="submit"
-            className="w-full sm:w-auto bg-[#D4AF37] text-black font-bold text-lg px-6 py-3 rounded-xl hover:bg-[#B22222] hover:text-white transition-all"
+            disabled={isSaving}
+            className={`w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm sm:text-base transition-all duration-300
+    ${isSaving
+                ? "bg-gray-400 text-white cursor-not-allowed"
+                : "bg-[#D4AF37] text-black hover:bg-[#B22222] hover:text-white"}
+  `}
           >
-            Save Changes
+            {isSaving ? (
+              <svg
+                className="animate-spin h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4l4-4-4-4v4a8 8 0 00-8 8z"
+                ></path>
+              </svg>
+            ) : (
+              <>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  className="w-5 h-5"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                Save Changes
+              </>
+            )}
           </motion.button>
+
         </div>
       </motion.form>
     </motion.div>

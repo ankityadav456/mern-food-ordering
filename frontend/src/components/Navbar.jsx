@@ -21,7 +21,7 @@ import { useTheme } from "../context/ThemeContext";
 import logo from "../assets/Images/AppLogo.png";
 import { motion, AnimatePresence } from "framer-motion";
 
-const Navbar = ({ isDrawerMode, isZoomed, onNavigate }) => {
+const Navbar = ({ isDrawerMode, onNavigate }) => {
   const { searchQuery, setSearchQuery } = useContext(SearchContext);
   const { user, logout } = useAuth();
   const { cartItems } = useCart();
