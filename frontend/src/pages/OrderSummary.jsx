@@ -43,7 +43,7 @@ const OrderSummary = () => {
   const noDataColor = theme === "dark" ? "text-gray-400" : "text-gray-600";
 
   return (
-    <div className={`min-h-screen ${bgColor} ${textColor} p-6 md:p-10`}>
+    <div className={`min-h-screen ${textColor} p-6 md:p-10`}>
       <motion.h2
         className="text-3xl font-bold mb-8 text-center text-[#FFD700]"
         initial={{ opacity: 0, y: -20 }}
@@ -56,7 +56,7 @@ const OrderSummary = () => {
       {orders.length === 0 ? (
         <div className={`text-center ${noDataColor} text-lg`}>No orders found.</div>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto rounded-xl">
           <motion.table
             className={`min-w-full ${tableBg} ${borderColor} border rounded-xl overflow-hidden shadow-lg`}
             initial={{ opacity: 0 }}

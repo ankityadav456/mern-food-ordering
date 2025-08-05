@@ -158,9 +158,7 @@ const Navbar = ({ isDrawerMode, onNavigate }) => {
               backgroundColor: theme === "dark" ? "#1A1A1A" : "#fff",
               color: gold,
               ...glowStyle,
-              boxShadow: theme === "dark"
-                ? "0 4px 12px rgba(255, 87, 34, 0.3)"
-                : "0 4px 12px rgba(0, 0, 0, 0.1)"
+              
             }}
           >
             <motion.div

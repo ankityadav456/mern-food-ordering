@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import { useTheme } from "../context/ThemeContext";
 import Lottie from "lottie-react";
 import emptyCartAnim from "../assets/lottieIJson/Empty red.json";
+import shoppingCartAnim from "../assets/lottieIJson/shopping cart.json";
 
 const Cart = () => {
   const {
@@ -82,13 +83,15 @@ const Cart = () => {
   }
 
   return (
-    <div className="min-h-screen px-4 sm:px-8 py-6 bg-[#FAFAFA] dark:bg-[#121212] text-black dark:text-white">
-      <h2 className="text-3xl font-bold mb-6 text-center border-b border-[#FFD54F] pb-3">
-        Your Cart 🛒
+    <div className="min-h-screen px-4 sm:px-8 py-6 text-black dark:text-white">
+      <h2 className="text-3xl font-bold mb-6 text-center border-b border-[#FFD54F] pb-3 flex items-center justify-center gap-2">
+        <Lottie animationData={shoppingCartAnim} className="h-13 w-16" loop autoplay />
+        Your Cart
         <span className="text-xl text-[#FFD54F] ml-2">
           ({cartItems.length} items)
         </span>
       </h2>
+
 
       <AnimatePresence>
         {cartItems.length === 0 ? (
@@ -185,7 +188,7 @@ const Cart = () => {
             </div>
 
             {/* Right Side Summary */}
-            <div className="w-full md:w-1/3 h-full bg-white dark:bg-[#1E1E1E] border border-gray-300 dark:border-[#2A2A2A] rounded-xl p-6 shadow-md space-y-6">
+            <div className="w-full lg:w-1/3 h-full bg-white dark:bg-[#1E1E1E] border border-gray-300 dark:border-[#2A2A2A] rounded-xl p-6 shadow-md space-y-6">
               <div className="text-center lg:text-left space-y-1">
                 <p className="text-2xl font-bold text-[#FF5722]">
                   Total: ₹{totalPrice.toLocaleString("en-IN")}
@@ -197,21 +200,22 @@ const Cart = () => {
               </div>
 
               {/* Coupon Code */}
-              <div className="flex items-center">
+              <div className="flex items-center gap-2 w-full">
                 <input
                   type="text"
                   value={coupon}
                   onChange={(e) => setCoupon(e.target.value)}
                   placeholder="Coupon code"
-                  className="flex-1 px-4 py-2 rounded-l-full border border-gray-300 dark:border-[#2A2A2A] dark:bg-[#1A1A1A]"
+                  className="w-[60%] md:w-full flex-grow min-w-0 px-4 py-2 rounded-full border border-gray-300 dark:border-[#2A2A2A] dark:bg-[#1A1A1A]"
                 />
                 <button
                   onClick={handleApplyCoupon}
-                  className="px-4 py-2 bg-[#FFD54F] text-black rounded-r-full flex items-center gap-1 hover:opacity-90 transition"
+                  className="px-4 py-2 bg-[#FFD54F] text-black rounded-full flex items-center gap-1 hover:opacity-90 transition whitespace-nowrap"
                 >
                   <Tag size={16} /> Apply
                 </button>
               </div>
+
 
               {/* Action Buttons */}
               <div className="flex flex-col gap-3">
