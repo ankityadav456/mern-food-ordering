@@ -114,7 +114,7 @@ const Home = () => {
             <motion.div
               key={i}
               data-aos="fade-up"
-              data-aos-delay={i * 100}
+              data-aos-delay={i * 10}
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 + i * 0.2 }}
@@ -132,7 +132,6 @@ const Home = () => {
         className={`py-12 px-6 md:px-10 mb-3 text-center mx-auto max-w-6xl rounded-xl transition-all ${
           isDark ? "bg-[#181818] text-[#FF7043]" : "bg-[#FFF3CD] text-[#1E1E1E]"
         }`}
-        data-aos="fade-up"
       >
          
         <h2 className="text-3xl font-bold mb-4">

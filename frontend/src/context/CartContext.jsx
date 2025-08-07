@@ -8,10 +8,10 @@ const CartContext = createContext();
 export const CartProvider = ({ children }) => {
   const [loading, setLoading] = useState(true); // ✅ New
   const [cartItems, setCartItems] = useState([]);
-  const { user } = useAuth();
+  const { user, token } = useAuth();
 
   useEffect(() => {
-    if (user?.token) {
+    if (token) {
       axios.defaults.headers.common["Authorization"] = `Bearer ${user.token}`;
       fetchCartItems();
     }else{
@@ -25,7 +25,7 @@ export const CartProvider = ({ children }) => {
       setLoading(true);
       const res = await axios.get("/cart", {
         headers: {
-          Authorization: `Bearer ${user?.token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
       setCartItems(res.data);
@@ -66,7 +66,7 @@ export const CartProvider = ({ children }) => {
       { foodId: foodItem._id },
       {
         headers: {
-          Authorization: `Bearer ${user?.token}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -88,7 +88,7 @@ export const CartProvider = ({ children }) => {
   try {
     await axios.delete(`/cart/${foodId}`, {
       headers: {
-        Authorization: `Bearer ${user?.token}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     toast.success("Item removed from cart");
@@ -114,7 +114,7 @@ const updateItemQuantity = async (foodId, quantity) => {
       { quantity },
       {
         headers: {
-          Authorization: `Bearer ${user?.token}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -133,7 +133,7 @@ const updateItemQuantity = async (foodId, quantity) => {
     try {
       await axios.delete("/cart", {
         headers: {
-          Authorization: `Bearer ${user?.token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
       setCartItems([]);

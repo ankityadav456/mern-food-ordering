@@ -13,7 +13,7 @@ export default function AdminFoodPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedFood, setSelectedFood] = useState(null);
 
-  const categories = ["Pizza", "Burger", "Dessert", "Vegetarian", "Non-Vegetarian"];
+  const categories = ["Pizza", "Burger", "Chinese", "Chicken", "Biryani"];
 
   if (!user?.isAdmin) {
     return (

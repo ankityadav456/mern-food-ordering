@@ -92,7 +92,6 @@ const Cart = () => {
         </span>
       </h2>
 
-
       <AnimatePresence>
         {cartItems.length === 0 ? (
           <motion.div
@@ -165,26 +164,8 @@ const Cart = () => {
                       <Trash2 size={18} />
                     </button>
                   </div>
-
                 </motion.div>
-
               ))}
-              <div className="flex flex-wrap gap-4">
-                <Link to="/"
-                  className="flex items-center gap-2 px-5 py-2 bg-gray-200 dark:bg-[#2A2A2A] text-black dark:text-white rounded-full hover:bg-[#B22222] hover:text-white transition"
-                >
-                  <ArrowLeft size={18} /> Back
-                </Link>
-
-                <button
-                  onClick={handleClearCart}
-                  className="flex items-center gap-2 px-5 py-2 bg-gray-200 dark:bg-[#2A2A2A] text-black dark:text-white rounded-full hover:bg-[#B22222] hover:text-white transition"
-                  disabled={actionLoading}
-                >
-                  <Trash2 size={18} /> Clear Cart
-                </button>
-              </div>
-
             </div>
 
             {/* Right Side Summary */}
@@ -216,11 +197,8 @@ const Cart = () => {
                 </button>
               </div>
 
-
               {/* Action Buttons */}
               <div className="flex flex-col gap-3">
-
-
                 <Link
                   to="/checkout"
                   onClick={() => toast.success("Proceeding to checkout...")}
@@ -228,6 +206,24 @@ const Cart = () => {
                 >
                   <CreditCard size={18} /> Checkout
                 </Link>
+
+                {/* Back and Clear Cart Buttons */}
+                <div className="flex flex-wrap gap-3">
+                  <Link
+                    to="/"
+                    className="flex items-center justify-center gap-2 px-5 py-2 bg-gray-200 dark:bg-[#2A2A2A] text-black dark:text-white rounded-full hover:bg-[#B22222] hover:text-white transition w-full"
+                  >
+                    <ArrowLeft size={18} /> Back
+                  </Link>
+
+                  <button
+                    onClick={handleClearCart}
+                    className="flex items-center justify-center gap-2 px-5 py-2 bg-gray-200 dark:bg-[#2A2A2A] text-black dark:text-white rounded-full hover:bg-[#B22222] hover:text-white transition w-full"
+                    disabled={actionLoading}
+                  >
+                    <Trash2 size={18} /> Clear Cart
+                  </button>
+                </div>
               </div>
             </div>
           </motion.div>
