@@ -1,44 +1,31 @@
+// context/AuthContext.jsx
 import { createContext, useContext, useState, useEffect } from "react";
 import axios from "../utils/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import defualtUserLogo from "../assets/Images/profile.png";
 import { toast } from "react-hot-toast";
-import { jwtDecode } from "jwt-decode";
-
+import defaultUserLogo from "../assets/Images/profile.png";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")) || null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const token = localStorage.getItem("token");
-
+  // 📌 On mount — check token and fetch user
   useEffect(() => {
+    const token = localStorage.getItem("token");
     if (token) {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      try {
-        const decoded = jwtDecode(token);
-        setUser((prev) => ({
-          ...prev,
-          _id: decoded.id,
-          name: decoded.name,
-          email: decoded.email,
-          isAdmin: decoded.isAdmin,
-        }));
-        fetchUser(); // Optional: update with full data (address, avatar)
-      } catch (err) {
-        console.error("Invalid token", err);
-        logout();
-      }
+      fetchUser(token);
     } else {
       setLoading(false);
     }
-  }, [token]);
+  }, []);
 
-  const fetchUser = async () => {
+  // 📌 Fetch logged-in user from backend
+  const fetchUser = async (token) => {
     try {
       const res = await axios.get("/auth/me");
       const userData = {
@@ -47,151 +34,158 @@ export const AuthProvider = ({ children }) => {
         email: res.data.user.email,
         isAdmin: res.data.user.isAdmin,
         address: res.data.user.address || null,
-        avatar: res.data.user.avatar || defualtUserLogo,
+        avatar: res.data.user.avatar || defaultUserLogo,
+        token, // ✅ keep token inside user
       };
-      setUser((prev) => ({ ...prev, ...userData }));
+      setUser(userData);
+      localStorage.setItem("user", JSON.stringify(userData));
     } catch (error) {
       console.error("Fetch User Failed:", error.response?.data?.message || error.message);
-      logout(); // auto logout on error
+      logout(false); // don't redirect on silent fail
     } finally {
       setLoading(false);
     }
   };
 
-  const setTokenAndFetchUser = (token) => {
-    localStorage.setItem("token", token);
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    try {
-      const decoded = jwtDecode(token);
-      setUser({
-        _id: decoded.id,
-        name: decoded.name,
-        email: decoded.email,
-        isAdmin: decoded.isAdmin,
-        avatar: defualtUserLogo,
-      });
-    } catch (err) {
-      console.error("Token decode error", err);
-    }
-    fetchUser();
-  };
-
+  // 📌 Signup
   const signup = async (name, email, password) => {
     try {
       const res = await axios.post("/auth/register", { name, email, password });
       if (res.data.token) {
-        setTokenAndFetchUser(res.data.token);
+        setAuthData(res.data.user, res.data.token);
         navigate("/");
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Signup failed");
-      throw new Error("Signup failed");
+      throw new Error(error.response?.data?.message || "Signup failed");
     }
   };
 
+  // 📌 Login
   const login = async (email, password) => {
     try {
       const res = await axios.post("/auth/login", { email, password });
       if (res.data.token) {
-        setTokenAndFetchUser(res.data.token);
+        setAuthData(res.data.user, res.data.token);
         navigate("/");
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Login failed");
-      throw new Error("Login failed");
+      throw new Error(error.response?.data?.message || "Login failed");
     }
   };
 
+  // 📌 Save token + user in one go
+  const setAuthData = (userObj, token) => {
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    localStorage.setItem("token", token);
+    const userData = {
+      _id: userObj._id,
+      name: userObj.name,
+      email: userObj.email,
+      isAdmin: userObj.isAdmin,
+      address: userObj.address || null,
+      avatar: userObj.avatar || defaultUserLogo,
+      token,
+    };
+    setUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData));
+  };
+
+  // 📌 Update profile
   const updateProfile = async (formData) => {
     try {
       const res = await axios.put("/auth/update-profile", formData);
       Swal.fire(res.data.message);
-      const updatedUser = res.data.updatedUser;
-      setUser((prev) => ({ ...prev, ...updatedUser }));
+      const newUser = { ...user, ...res.data.updatedUser };
+      setUser(newUser);
+      localStorage.setItem("user", JSON.stringify(newUser));
     } catch (error) {
-      toast.error(error.response?.data?.message || "Profile update failed");
+      throw new Error("Profile update failed");
     }
   };
 
+  // 📌 Update avatar (merge headers so token stays)
   const updateAvatar = async (file) => {
     try {
       const formData = new FormData();
       formData.append("avatar", file);
-
       const res = await axios.put("/auth/update-avatar", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-
       Swal.fire(res.data.message);
-      const updatedAvatar = res.data.avatar;
-      setUser((prev) => ({ ...prev, avatar: updatedAvatar }));
+      const updatedUser = { ...user, avatar: res.data.avatar };
+      setUser(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
     } catch (error) {
-      toast.error(error.response?.data?.message || "Avatar upload failed");
+      throw new Error("Avatar upload failed");
     }
   };
 
+  // 📌 Delete avatar (fallback to token in user)
   const handleDeleteAvatar = async () => {
     try {
-      const res = await axios.delete("/auth/delete-avatar");
-      const updatedUser = res.data.user;
-
-      setUser((prev) => ({
-        ...prev,
-        avatar: updatedUser.avatar || defualtUserLogo,
-      }));
-
+      const res = await axios.delete("/auth/delete-avatar", {
+        headers: { Authorization: `Bearer ${user?.token}` },
+      });
+      const updatedUser = { ...user, avatar: res.data.user.avatar };
+      setUser(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
       toast.success("Avatar removed successfully");
-      return updatedUser.avatar;
-    } catch (error) {
-      console.error("❌ Delete avatar error:", error.response?.data || error.message);
+      return res.data.user.avatar;
+    } catch {
       toast.error("Failed to remove avatar");
     }
   };
 
+  // 📌 Save address
   const saveAddress = async (addressData) => {
     try {
       const res = await axios.put("/auth/save-address", addressData);
       if (res.data.success) {
-        setUser((prev) => ({ ...prev, address: res.data.address }));
+        const updatedUser = { ...user, address: res.data.address };
+        setUser(updatedUser);
+        localStorage.setItem("user", JSON.stringify(updatedUser));
         return res.data.address;
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Save Address Failed");
-      throw new Error("Save Address Failed");
+      throw new Error(error.response?.data?.message || "Save Address Failed");
     }
   };
 
+  // 📌 Delete address
   const deleteAddress = async () => {
     try {
       const res = await axios.delete("/auth/delete-address");
       if (res.data.success) {
-        setUser((prev) => ({ ...prev, address: null }));
+        const updatedUser = { ...user, address: null };
+        setUser(updatedUser);
+        localStorage.setItem("user", JSON.stringify(updatedUser));
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Delete Address Failed");
+      throw new Error(error.response?.data?.message || "Delete Address Failed");
     }
   };
 
-  const logout = () => {
+  // 📌 Logout
+  const logout = (redirect = true) => {
     setUser(null);
     localStorage.removeItem("token");
-    axios.defaults.headers.common["Authorization"] = "";
-    navigate("/login");
+    localStorage.removeItem("user");
+    delete axios.defaults.headers.common["Authorization"];
+    if (redirect) navigate("/login");
   };
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        token,
         signup,
         login,
         logout,
-        saveAddress,
-        deleteAddress,
+        updateProfile,
         updateAvatar,
         handleDeleteAvatar,
-        updateProfile,
+        saveAddress,
+        deleteAddress,
         loading,
       }}
     >
