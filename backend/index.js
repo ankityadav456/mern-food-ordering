@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser"; // ✅ NEW
 import mongoose from "mongoose";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -19,15 +20,24 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Middleware
-app.use(cors());
+// ====== Middleware ======
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+app.use(cookieParser()); // ✅ NEW
+
+// ✅ Allow frontend with credentials (cookies)
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL, // dynamic from .env
+    credentials: true,
+  })
+);
 
 // Static for serving uploaded avatars
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Routes
+// ====== Routes ======
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/food", foodRoutes);
@@ -35,7 +45,12 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/orders", orderRoutes);
 
-// MongoDB Connection
+// ====== Test Route ======
+app.get("/", (req, res) => {
+  res.send("Server is running ✅");
+});
+
+// ====== MongoDB Connection ======
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB Connected"))
@@ -44,6 +59,6 @@ mongoose
     process.exit(1);
   });
 
-// Server Start
+// ====== Server Start ======
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

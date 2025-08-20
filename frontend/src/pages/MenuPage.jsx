@@ -102,7 +102,7 @@ const MenuPage = () => {
   };
 
   const getItemQuantity = (id) => {
-    const item = cartItems.find((ci) => ci.foodId._id === id);
+    const item = Array.isArray(cartItems) ? cartItems.find((ci) => ci.foodId._id === id) : 0;
     return item ? item.quantity : 0;
   };
 

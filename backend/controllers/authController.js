@@ -4,7 +4,6 @@ import path from "path";
 import fs from "fs";
 import User from "../models/User.js";
 
-// Generate JWT Token
 const generateToken = (userId) => {
   if (!process.env.JWT_SECRET) {
     console.error("Missing JWT_SECRET in environment variables");
@@ -13,11 +12,38 @@ const generateToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
 };
 
-// Register User
+const sendTokenResponse = (res, user, message) => {
+  const token = generateToken(user._id);
+  if (!token) {
+    return res.status(500).json({ message: "Token generation failed" });
+  }
+
+  // Set cookie
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production", // HTTPS in production
+    sameSite: "strict",
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  });
+
+  res.status(200).json({
+    success: true,
+    message,
+    user: {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      address: user.address || null,
+      avatar: user.avatar || null,
+    },
+    token, // still returning for mobile app compatibility
+  });
+};
+
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
-
     if (!name || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
@@ -28,40 +54,20 @@ export const registerUser = async (req, res) => {
     }
 
     const user = await User.create({ name, email, password });
-
     if (!user) {
       return res.status(400).json({ message: "Invalid user data" });
     }
 
-    const token = generateToken(user._id);
-    if (!token) {
-      return res.status(500).json({ message: "Token generation failed" });
-    }
-
-    res.status(201).json({
-      success: true,
-      message: "User registered successfully",
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        isAdmin: user.isAdmin,
-        address: user.address || null,
-        avatar: user.avatar || null,
-      },
-      token,
-    });
+    sendTokenResponse(res, user, "User registered successfully");
   } catch (error) {
     console.error("Error in registerUser:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-// Login User
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-
     if (!email || !password) {
       return res.status(400).json({ message: "Both email and password are required" });
     }
@@ -76,31 +82,18 @@ export const loginUser = async (req, res) => {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    const token = generateToken(user._id);
-    if (!token) {
-      return res.status(500).json({ message: "Token generation failed" });
-    }
-
-    res.json({
-      success: true,
-      message: "Login successful",
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        isAdmin: user.isAdmin,
-        address: user.address || null,
-        avatar: user.avatar || null,
-      },
-      token,
-    });
+    sendTokenResponse(res, user, "Login successful");
   } catch (error) {
     console.error("Error in loginUser:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-// Get User Profile
+export const logoutUser = (req, res) => {
+  res.clearCookie("token");
+  res.status(200).json({ success: true, message: "Logged out successfully" });
+};
+
 export const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
@@ -125,12 +118,10 @@ export const getUserProfile = async (req, res) => {
   }
 };
 
-// Update Profile
 export const updateUserProfile = async (req, res) => {
   try {
-    const { userId, name, mobile, address } = req.body;
-
-    const user = await User.findById(userId);
+    const { name, mobile, address } = req.body;
+    const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
     user.name = name || user.name;
@@ -158,19 +149,20 @@ export const updateUserProfile = async (req, res) => {
   }
 };
 
-// Update Avatar
 export const updateUserAvatar = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ message: "User not found" });
-    // console.log(user)
+
     if (req.file) {
       const avatarPath = `/uploads/avatars/${req.file.filename}`;
       user.avatar = avatarPath;
       await user.save();
-      res.json({ success: true,
-         message: "Avatar updated successfully",
-         avatar: avatarPath });
+      res.json({
+        success: true,
+        message: "Avatar updated successfully",
+        avatar: avatarPath,
+      });
     } else {
       res.status(400).json({ message: "No file uploaded" });
     }
@@ -183,9 +175,7 @@ export const updateUserAvatar = async (req, res) => {
 export const deleteAvatar = async (req, res) => {
   try {
     const userId = req.user.id;
-
-    // Set a default avatar image (you can change this)
-     const defaultAvatar = "/uploads/avatars/default-avatar.png";
+    const defaultAvatar = "/uploads/avatars/default-avatar.png";
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
@@ -200,8 +190,6 @@ export const deleteAvatar = async (req, res) => {
   }
 };
 
-
-// Update Address
 export const updateAddress = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -223,7 +211,6 @@ export const updateAddress = async (req, res) => {
   }
 };
 
-// Delete Address
 export const deleteAddress = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);

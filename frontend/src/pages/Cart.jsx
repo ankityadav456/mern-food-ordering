@@ -17,6 +17,7 @@ const Cart = () => {
     removeFromCart,
     updateItemQuantity,
     clearCart,
+    getTotalPrice
   } = useCart();
 
   const { theme } = useTheme();
@@ -32,12 +33,12 @@ const Cart = () => {
       setLoading(false);
     };
     loadCart();
-  }, []);
+  }, []); 
 
-  const totalPrice = (cartItems || []).reduce(
-    (acc, item) => acc + item.foodId.price * item.quantity,
-    0
-  );
+const totalPrice = Array.isArray(cartItems)
+  ? cartItems.reduce((acc, item) => acc + item.foodId.price * item.quantity, 0)
+  : 0;
+
 
   const handleRemove = async (id) => {
     if (!window.confirm("Remove this item?")) return;
@@ -120,7 +121,8 @@ const Cart = () => {
           >
             {/* Cart Items Section */}
             <div className="flex-1 space-y-6">
-              {cartItems.map((item) => (
+              {Array.isArray(cartItems) && cartItems.map((item) => (
+
                 <motion.div
                   layout
                   key={item.foodId._id}
