@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ShoppingCart, List, ChefHat, History } from "lucide-react";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { User } from "lucide-react";
 import axiosInstance from "../utils/axiosInstance";
 // All imports remain the same
 
@@ -212,18 +213,18 @@ const Dashboard = () => {
 
         {/* Manage Profile CTA */}
         <motion.div
-          className="mt-12 text-center"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.6 }}
-        >
-          <Link
-            to="/profile"
-            className="inline-block bg-[#D4AF37] text-black font-semibold px-6 py-3 rounded-xl hover:bg-[#B22222] hover:text-white transition-all"
-          >
-            Manage Profile
-          </Link>
-        </motion.div>
+  className="mt-12 text-center"
+  initial={{ opacity: 0, scale: 0.9 }}
+  animate={{ opacity: 1, scale: 1 }}
+  transition={{ delay: 0.6 }}
+>
+  <Link
+    to="/profile"
+    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#FF5722] to-[#FFD54F] text-white font-semibold rounded-full shadow-md hover:scale-105 hover:shadow-lg transition-transform"
+  >
+    <User size={18} /> Manage Profile
+  </Link>
+</motion.div>
       </motion.div>
     </div>
   );

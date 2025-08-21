@@ -5,6 +5,8 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import defualtUserLogo from "../assets/Images/profile.png";
 import { useTheme } from "../context/ThemeContext";
+import { Upload } from "lucide-react";
+
 
 const ProfilePage = () => {
 
@@ -128,15 +130,11 @@ const ProfilePage = () => {
 
         <div>
           <button
-            onClick={() => fileInputRef.current.click()}
-            className={`px-6 py-2 rounded-full font-semibold text-sm tracking-wide transition-all duration-300 shadow-md
-    ${theme === "dark"
-                ? "bg-[#D4AF37] text-black hover:bg-[#FFD700] hover:shadow-yellow-400/50"
-                : "bg-[#D4AF37] text-black hover:bg-[#FFCE00] hover:shadow-yellow-300/50"}
-  `}
-          >
-            Change Avatar
-          </button>
+  onClick={() => fileInputRef.current.click()}
+  className="inline-flex items-center gap-2 px-6 py-2 rounded-full font-semibold text-sm tracking-wide shadow-md bg-gradient-to-r from-[#FF5722] to-[#FFD54F] text-white transition-transform duration-300 hover:scale-105 hover:shadow-lg"
+>
+  <Upload size={16} /> Change Avatar
+</button>
 
           <input
             type="file"

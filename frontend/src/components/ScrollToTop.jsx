@@ -11,7 +11,7 @@ const ScrollToTop = () => {
 
   useEffect(() => {
     gsap.to(window, {
-      duration: 1,
+      duration: 0.3,
       scrollTo: { y: 0 },
       ease: "power3.out",
     });

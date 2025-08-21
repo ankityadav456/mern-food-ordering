@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useTheme } from "../context/ThemeContext";
 import { Link } from "react-router-dom";
+import { ShoppingCart } from "lucide-react";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { motion } from "framer-motion";
 import AOS from "aos";
@@ -141,11 +142,12 @@ const Home = () => {
           From sizzling street food to gourmet meals, Yumigo brings you 3000+ dishes across multiple cuisines.
         </p>
         <Link
-          to="/menu"
-          className="mt-2 inline-block px-6 py-3 rounded-xl font-medium bg-primary-light dark:bg-primary-dark text-white hover:bg-opacity-90 transition"
-        >
-          Explore Menu
-        </Link>
+  to="/menu"
+  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#FF5722] to-[#FFD54F] text-white font-semibold rounded-full shadow-md hover:scale-105 hover:shadow-lg transition-transform"
+>
+  <ShoppingCart size={18} /> Explore Menu
+</Link>
+
       </section>
     </div>
   );

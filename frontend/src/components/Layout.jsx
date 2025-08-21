@@ -31,7 +31,7 @@ const Layout = () => {
       />
 
       {/* Main Content */}
-      <main className="pt-16 px-4 pb-4 transition-colors duration-300">
+      <main className="pt-16 mt-1 px-4 pb-4">
         <Outlet />
       </main>
 
