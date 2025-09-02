@@ -14,6 +14,7 @@ import chinese from "../assets/Images/Chinese-Food-Download-Free-PNG.png";
 import chicken from "../assets/Images/chicken.png";
 import biryani from "../assets/Images/biryani.png";
 import All from "../assets/Images/allimage.jpg";
+import { Eye, ShoppingCart } from "lucide-react";
 
 const MenuPage = () => {
   const { updateItemQuantity } = useCart();
@@ -156,13 +157,26 @@ const MenuPage = () => {
           : "bg-gray-100 border-gray-300"
           }`}
       >
-        <h2 className="text-3xl font-bold text-center text-[#D4AF37]">Menu</h2>
-        <div className="text-sm text-center mt-2">
-          Showing:{" "}
-          <span className="text-[#FFD700] font-bold">{selectedCategory}</span>, Sort:{" "}
-          <span className="text-[#FFD700] font-bold">{sortOrder || "Default"}</span>, Max Price:{" "}
-          <span className="text-[#FFD700] font-bold">₹{priceLimit}</span>
-        </div>
+      <h2
+  className="text-3xl font-bold text-center 
+             text-primary-light dark:text-primary-dark"
+>
+  Menu
+</h2>
+
+<div className="text-sm text-center mt-2 text-text-light dark:text-text-dark">
+  Showing:{" "}
+  <span className="font-bold text-primary-light dark:text-primary-dark">
+    {selectedCategory}
+  </span>, Sort:{" "}
+  <span className="font-bold text-primary-light dark:text-primary-dark">
+    {sortOrder || "Default"}
+  </span>, Max Price:{" "}
+  <span className="font-bold text-primary-light dark:text-primary-dark">
+    ₹{priceLimit}
+  </span>
+</div>
+
 
         <div className="mt-6 px-4 overflow-x-auto scrollbar-hide flex gap-6 py-2">
           {categories.map((category, index) => (
@@ -219,7 +233,7 @@ const MenuPage = () => {
               <img
                 src={item.image}
                 alt={item.name}
-                className="p-3 w-full h-44 object-cover rounded-md mb-3"
+                className="p-3 w-full h-44 object-cover rounded-md pb-0"
               />
               <div className="p-3">
                 <h3 className="text-lg font-bold text-[#FFD700] truncate">{item.name}</h3>
@@ -244,24 +258,33 @@ const MenuPage = () => {
                   ⏱ {item.deliveryTime || "25-35 mins"}
                 </p>
                 <div className="flex gap-2 mt-3">
-                  <button
-                    onClick={() => setQuickViewItem(item)}
-                    className="flex-1 py-2 rounded-lg bg-gray-600 text-white font-semibold hover:bg-gray-700"
-                  >
-                    Quick View
-                  </button>
-                  <button
-                    disabled={getItemQuantity(item._id) > 0 || addLoadingId === item._id}
-                    onClick={() => handleAddToCart(item)}
-                    className={`flex-1 py-2 rounded-lg font-semibold flex items-center justify-center hover:opacity-90 ${getItemQuantity(item._id) || addLoadingId === item._id
-                      ? "bg-gray-400 cursor-not-allowed text-white"
-                      : "bg-gradient-to-r from-[#FFD700] to-[#8B0000] text-black"
-                      }`}
-                  >
-                    {addLoadingId === item._id ? (
-                      <span className="loader w-4 h-4 border-2 border-t-transparent border-white rounded-full animate-spin"></span>
-                    ) : getItemQuantity(item._id) > 0 ? "In Cart" : "Add to Cart"}
-                  </button>
+                      <button
+            onClick={() => setQuickViewItem(item)}
+            className={`flex-1 py-2 rounded-lg font-semibold transition-all duration-300
+              ${theme === "dark"
+                ? "bg-gray-700 text-white hover:bg-gray-600"
+                : "bg-gray-100 text-black hover:bg-gray-200"
+              }`}
+          >
+            Quick View
+          </button>
+
+          {/* Add to Cart Button */}
+          <button
+            disabled={getItemQuantity(item._id) > 0 || addLoadingId === item._id}
+            onClick={() => handleAddToCart(item)}
+            className={`flex-1 py-2 rounded-lg font-semibold flex items-center justify-center transition-all duration-300
+              ${getItemQuantity(item._id) || addLoadingId === item._id
+                ? "bg-gray-400 cursor-not-allowed text-white"
+                : theme === "dark"
+                  ? "bg-gradient-to-r from-[#FF5722] to-[#FFD54F] text-black hover:opacity-90"
+                  : "bg-gradient-to-r from-[#FF5722] to-[#FFC107] text-white hover:opacity-90"
+              }`}
+          >
+            {addLoadingId === item._id ? (
+              <span className="loader w-4 h-4 border-2 border-t-transparent border-white rounded-full animate-spin"></span>
+            ) : getItemQuantity(item._id) > 0 ? "In Cart" : "Add to Cart"}
+          </button>
 
                 </div>
               </div>
@@ -389,7 +412,7 @@ const MenuPage = () => {
 
               {/* Details */}
               <h3 className="text-xl font-bold text-[#FFD700]">{quickViewItem.name}</h3>
-              <p className="text-sm mt-1 text-gray-400">{quickViewItem.description || "No description available."}</p>
+              <p className="text-sm mt-1 text-gray-400">{quickViewItem.description || ""}</p>
               <p className="text-lg font-semibold mt-2">₹{quickViewItem.price}</p>
               <div className="mt-2">{renderStars(quickViewItem.rating || 4.5)}</div>
               <p className="text-sm mt-1 text-gray-500">⏱ {quickViewItem.deliveryTime || "25-35 mins"}</p>
@@ -422,7 +445,9 @@ const MenuPage = () => {
                     : handleAddToCart(quickViewItem, true)
                 }
                 disabled={modalLoading}
-                className="mt-4 w-full py-2 rounded-lg bg-gradient-to-r from-[#FFD700] to-[#8B0000] text-black font-bold hover:opacity-90 flex items-center justify-center"
+                className={`mt-4 w-full py-2 rounded-lg ${theme === "dark"
+                  ? "bg-gradient-to-r from-[#FF5722] to-[#FFD54F] text-black hover:opacity-90"
+                  : "bg-gradient-to-r from-[#FF5722] to-[#FFC107] text-white hover:opacity-90"} text-black font-bold hover:opacity-90 flex items-center justify-center`}
               >
                 {modalLoading ? (
                   <span className="loader w-4 h-4 border-2 border-t-transparent border-black rounded-full animate-spin"></span>

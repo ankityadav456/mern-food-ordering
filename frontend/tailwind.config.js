@@ -4,7 +4,7 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}"
   ],
-  darkMode: 'class', // Keep 'class' for manual toggling; system preference handled in code
+  darkMode: 'class',
   theme: {
     extend: {
       fontFamily: {
@@ -33,13 +33,14 @@ export default {
           subtleLight: '#666666', // Subtle Light text
           subtleDark: '#CCCCCC',  // Subtle Dark text
         },
-        gold: '#D4AF37', // For premium accents (e.g., ratings, highlights)
+        gold: '#D4AF37',
       },
       animation: {
         fadeIn: 'fadeIn 0.6s ease-out',
         slideUp: 'slideUp 0.4s ease-out forwards',
         spinSlow: 'spin 1.5s linear infinite',
         spinSlowReverse: 'spinReverse 1.5s linear infinite',
+        shimmer: 'shimmer 6s linear infinite', // ✅ Added shimmer
       },
       keyframes: {
         fadeIn: {
@@ -53,6 +54,10 @@ export default {
         spinReverse: {
           from: { transform: 'rotate(0deg)' },
           to: { transform: 'rotate(-360deg)' },
+        },
+        shimmer: { // ✅ Added shimmer keyframes
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
         },
       },
       transformOrigin: {

@@ -2,7 +2,7 @@ import { useTheme } from "../context/ThemeContext";
 import {
   FaFacebookF,
   FaInstagram,
-  FaUserCircle,
+  FaTwitter,
   FaPhoneAlt,
   FaEnvelope,
   FaMapMarkerAlt,
@@ -14,52 +14,56 @@ const Footer = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
-  const bgMain = isDark ? "bg-[#0d0d0d]" : "bg-[#fefefe]";
+  const bgMain = isDark ? "bg-[#121212]" : "bg-[#FAFAFA]";
   const textMain = isDark ? "text-gray-300" : "text-gray-700";
-  const goldText = isDark ? "text-[#D4AF37]" : "text-[#B8860B]";
-  const iconBg = isDark ? "bg-gray-800/60 backdrop-blur-sm" : "bg-gray-100/80 backdrop-blur-sm";
-  const hoverGold = isDark ? "hover:text-[#D4AF37]" : "hover:text-[#B8860B]";
+  const goldText = isDark ? "text-[#FFB300]" : "text-[#FF5722]"; // amber/orange accent
+  const iconBg = isDark ? "bg-[#1E1E1E]" : "bg-gray-100";
+  const hoverGold = isDark ? "hover:text-[#FFB300]" : "hover:text-[#FF5722]";
   const borderColor = isDark ? "border-gray-800" : "border-gray-300";
-  const bottomBg = isDark ? "bg-[#111111]/90 backdrop-blur-sm" : "bg-[#f9f9f9]/90 backdrop-blur-sm";
+  const bottomBg = isDark ? "bg-[#1A1A1A]/90 backdrop-blur-lg" : "bg-[#ffffff]/70 backdrop-blur-lg";
 
-  const iconVariant = {
-    hidden: { opacity: 0, y: 10 },
+  const fadeUp = {
+    hidden: { opacity: 0, y: 30 },
     visible: (i) => ({
       opacity: 1,
       y: 0,
-      transition: {
-        delay: i * 0.1,
-        duration: 0.4,
-        ease: "easeOut",
-      },
+      transition: { delay: i * 0.2, duration: 0.6, ease: "easeOut" },
     }),
   };
 
   return (
-    <footer className={`relative z-10 ${bgMain} ${textMain}`}>
-      {/* Blurry Top Border */}
-      <div className="absolute top-0 left-0 w-full h-1 backdrop-blur-sm border-t border-white/10 z-10" />
+    <footer className={`relative z-10 overflow-hidden ${textMain}`}>
+      {/* Animated gradient line on top */}
+      <div className="absolute top-0 left-0 w-full h-[1px]  opacity-50
+      bg-gradient-to-r from-[#FF5722] via-[#FFD54F] to-[#FF5722] 
+       bg-[length:200%_100%] bg-left animate-shimmer"/>
 
-      <div className="max-w-7xl mx-auto px-4 py-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12">
+      <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-14 relative">
         {/* Brand & Social */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          initial="hidden"
+          whileInView="visible"
+          variants={fadeUp}
+          custom={0}
         >
-          <h2 className={`text-3xl font-bold tracking-wide ${goldText}`}>Yumigo</h2>
+          <h2
+            className={`text-4xl font-extrabold tracking-wide bg-gradient-to-r from-[#FF5722] to-[#FFD54F] bg-clip-text text-transparent`}
+          >
+            Yumigo
+          </h2>
           <p className="mt-4 text-sm leading-relaxed max-w-sm">
-            Premium food, passionately prepared and quickly delivered. A taste of luxury at your doorstep.
+            Premium food, passionately prepared and quickly delivered. A{" "}
+            <span className={goldText}>luxury taste</span> at your doorstep.
           </p>
-          <div className="flex gap-3 mt-6">
-            {[FaFacebookF, FaInstagram, FaUserCircle].map((Icon, i) => (
+          <div className="flex gap-4 mt-6">
+            {[FaFacebookF, FaInstagram, FaTwitter].map((Icon, i) => (
               <motion.span
                 key={i}
-                className={`p-2 rounded-full ${iconBg} ${hoverGold} cursor-pointer transition-all hover:scale-110`}
+                className={`p-3 rounded-full ${iconBg} ${hoverGold} cursor-pointer shadow-md transition-transform`}
                 custom={i}
-                variants={iconVariant}
-                initial="hidden"
-                animate="visible"
+                variants={fadeUp}
+                whileHover={{ scale: 1.2, rotate: 5 }}
+                whileTap={{ scale: 0.9 }}
               >
                 <Icon size={18} />
               </motion.span>
@@ -69,12 +73,13 @@ const Footer = () => {
 
         {/* Contact Info */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
+          initial="hidden"
+          whileInView="visible"
+          variants={fadeUp}
+          custom={1}
         >
-          <h3 className={`text-xl font-semibold mb-4 ${goldText}`}>Contact Info</h3>
-          <ul className="space-y-3 text-sm">
+          <h3 className={`text-xl font-semibold mb-5 ${goldText}`}>Contact Info</h3>
+          <ul className="space-y-4 text-sm">
             <li className="flex items-center gap-3">
               <FaPhoneAlt className={goldText} /> +91 1234567890
             </li>
@@ -90,43 +95,52 @@ const Footer = () => {
 
         {/* Quick Links */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.6 }}
+          initial="hidden"
+          whileInView="visible"
+          variants={fadeUp}
+          custom={2}
         >
-          <h3 className={`text-xl font-semibold mb-4 ${goldText}`}>Quick Links</h3>
-          <ul className="space-y-3 text-sm">
+          <h3 className={`text-xl font-semibold mb-5 ${goldText}`}>Quick Links</h3>
+          <ul className="space-y-4 text-sm">
             {["Our Menu", "About Us", "Reviews", "FAQ", "Contact"].map((link, i) => (
-              <li
+              <motion.li
                 key={i}
-                className={`cursor-pointer transition-all hover:translate-x-1 ${hoverGold}`}
+                className={`relative cursor-pointer transition-all ${hoverGold}`}
+                whileHover={{ x: 6 }}
               >
                 {link}
-              </li>
+                <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-gradient-to-r from-[#FF5722] to-[#FFD54F] transition-all duration-300 group-hover:w-full"></span>
+              </motion.li>
             ))}
           </ul>
         </motion.div>
       </div>
 
-      {/* Bottom Bar */}
+      {/* Bottom Info */}
       <motion.div
-        className={`${bottomBg} text-sm ${isDark ? "text-white" : "text-gray-800"} py-3 px-5 flex flex-col sm:flex-row justify-center sm:justify-between items-center gap-2`}
+        className={`${bottomBg} text-sm ${isDark ? "text-gray-200" : "text-gray-800"} py-4 px-6 flex flex-col sm:flex-row justify-center sm:justify-between items-center gap-3`}
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
+        transition={{ duration: 0.8, delay: 0.4 }}
       >
-        <div>🚚 Free delivery on orders over ₹500</div>
-        <div>⏱️ 30 minutes or less</div>
-        <div className="flex items-center gap-1">
-          <FaCheckCircle className="text-white" /> 100% satisfaction guaranteed
-        </div>
+        <motion.div whileHover={{ scale: 1.05 }}>🚚 Free delivery on orders over ₹500</motion.div>
+        <motion.div whileHover={{ scale: 1.05 }}>⏱️ 30 minutes or less</motion.div>
+        <motion.div className="flex items-center gap-1" whileHover={{ scale: 1.05 }}>
+          <FaCheckCircle className="text-green-500" /> 100% satisfaction guaranteed
+        </motion.div>
       </motion.div>
 
       {/* Legal */}
-      <div className={`text-xs py-4 text-center border-t ${borderColor}`}>
-        © {new Date().getFullYear()} <span className={`font-semibold ${goldText}`}>Yumigo</span>. All rights reserved.
-        &nbsp; <span className="text-gray-400">Privacy | Terms | Cookie</span>
+      <div className={`text-xs py-5 text-center border-t ${borderColor}`}>
+        © {new Date().getFullYear()}{" "}
+        <span className={`font-semibold ${goldText}`}>Yumigo</span>. All rights reserved. &nbsp;
+        <span className="opacity-70 hover:opacity-100 cursor-pointer">Privacy</span> |{" "}
+        <span className="opacity-70 hover:opacity-100 cursor-pointer">Terms</span> |{" "}
+        <span className="opacity-70 hover:opacity-100 cursor-pointer">Cookie</span>
       </div>
+
+      {/* Extra Animated Glow */}
+      {/* <div className="absolute -bottom-5 left-3 -translate-x-1/2 w-[300px] h-[300px] bg-gradient-to-r from-[#FF5722]/20 to-[#FFD54F]/20 blur-3xl rounded-full animate-slideUp" /> */}
     </footer>
   );
 };

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, X, Image as ImageIcon, CheckCircle } from "lucide-react";
-
+import { Upload, X, Image as ImageIcon } from "lucide-react";
+import { XCircle, CheckCircle } from "lucide-react";
 const FoodModal = ({ isOpen, onClose, onSubmit, initialData, categories, theme = "light" }) => {
   const [foodData, setFoodData] = useState({
     name: "",
@@ -190,19 +190,28 @@ const FoodModal = ({ isOpen, onClose, onSubmit, initialData, categories, theme =
               className={`sticky bottom-0 z-10 flex justify-end gap-3 px-6 py-4 border-t ${isDark ? "border-gray-800 bg-gray-900" : "border-gray-200 bg-white"} `}
             >
               <button
-                onClick={handleClose}
-                type="button"
-                className={`${btnCancelBg} ${btnCancelHover} text-gray-800 dark:text-gray-200 px-5 py-2 rounded-lg transition`}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSubmit}
-                type="submit"
-                className={`${btnSubmitBg} ${btnSubmitHover} text-white px-5 py-2 rounded-lg shadow-md flex items-center gap-2 transition`}
-              >
-                <CheckCircle size={18} /> {initialData ? "Update" : "Add"}
-              </button>
+  onClick={handleClose}
+  type="button"
+  className={`flex items-center gap-2 px-5 py-2 rounded-lg font-medium transition
+    ${theme === "dark"
+      ? "bg-gray-700 text-gray-200 hover:bg-gray-600"
+      : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+    }`}
+>
+  <XCircle size={18} /> Cancel
+</button>
+
+<button
+  onClick={handleSubmit}
+  type="submit"
+  className={`flex items-center gap-2 px-5 py-2 rounded-lg font-medium shadow-md transition
+    ${theme === "dark"
+      ? "bg-gradient-to-r from-[#FF5722] to-[#FFD54F] text-black hover:opacity-90"
+      : "bg-gradient-to-r from-[#FF5722] to-[#FFC107] text-white hover:opacity-90"
+    }`}
+>
+  <CheckCircle size={18} /> {initialData ? "Update" : "Add"}
+</button>
             </div>
           </motion.div>
         </motion.div>

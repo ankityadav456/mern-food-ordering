@@ -9,7 +9,7 @@ import { useTheme } from "../context/ThemeContext";
 import Lottie from "lottie-react";
 import emptyCartAnim from "../assets/lottieIJson/Empty red.json";
 import shoppingCartAnim from "../assets/lottieIJson/shopping cart.json";
-
+import Swal from "sweetalert2";
 const Cart = () => {
   const { cartItems, fetchCartItems, removeFromCart, updateItemQuantity, clearCart } = useCart();
   const [loading, setLoading] = useState(true);
@@ -34,11 +34,25 @@ const Cart = () => {
   const finalTotal = Math.max(totalPrice - discount, 0); // ensure not negative
 
   const handleRemove = async (id) => {
-    if (!window.confirm("Remove this item?")) return;
-    setActionLoading(true);
-    await removeFromCart(id);
-    setActionLoading(false);
-  };
+  const result = await Swal.fire({
+    title: "Are you sure?",
+    text: "Do you want to remove this item from the cart?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Yes, remove it!",
+    cancelButtonText: "Cancel",
+  });
+
+  if (!result.isConfirmed) return;
+
+  setActionLoading(true);
+  await removeFromCart(id);
+  setActionLoading(false);
+
+  Swal.fire("Removed!", "The item has been removed from your cart.", "success");
+};
 
   const handleQuantityChange = async (id, quantity) => {
     if (quantity < 1) return;

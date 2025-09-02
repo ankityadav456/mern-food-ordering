@@ -1,73 +1,51 @@
-// File: components/FoodCard.jsx
-import React from "react";
 import { motion } from "framer-motion";
-import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
+import { Star, Timer } from "lucide-react";
+import { Button } from "@/components/ui/button"; // ShadCN button
 
-const renderStars = (rating) => {
-  const stars = [];
-  for (let i = 1; i <= 5; i++) {
-    if (rating >= i) stars.push(<FaStar key={i} className="text-yellow-400" />);
-    else if (rating >= i - 0.5)
-      stars.push(<FaStarHalfAlt key={i} className="text-yellow-400" />);
-    else stars.push(<FaRegStar key={i} className="text-yellow-400" />);
-  }
-  return <div className="flex items-center gap-1 mt-1">{stars}</div>;
-};
-
-const FoodCard = ({ item, getItemQuantity, theme, onQuickView, onAddToCart, loading }) => {
-  const inCart = getItemQuantity(item._id) > 0;
-
-  if (loading) {
-    return (
-      <div className="animate-pulse border rounded-xl shadow-md p-3 bg-white dark:bg-[#121212]">
-        <div className="w-full h-44 bg-gray-200 dark:bg-gray-700 rounded-md mb-3"></div>
-        <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-3/4 mb-2"></div>
-        <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-1/3 mb-2"></div>
-        <div className="h-3 bg-gray-300 dark:bg-gray-600 rounded w-1/2 mb-2"></div>
-        <div className="flex gap-1 mt-1">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="w-4 h-4 bg-gray-300 dark:bg-gray-600 rounded"></div>
-          ))}
-        </div>
-        <div className="h-3 bg-gray-300 dark:bg-gray-600 rounded w-2/3 mt-2"></div>
-        <div className="flex gap-2 mt-4">
-          <div className="flex-1 h-10 bg-gray-300 dark:bg-gray-600 rounded"></div>
-          <div className="flex-1 h-10 bg-gray-300 dark:bg-gray-600 rounded"></div>
-        </div>
-      </div>
-    );
-  }
-
+const FoodCard = ({ item, theme, getItemQuantity, addLoadingId, handleAddToCart, setQuickViewItem }) => {
   return (
     <motion.div
       key={item._id}
-      className={`relative border rounded-xl shadow-md transition-all duration-300 ${
-        inCart
-          ? "border-[#FFD700] shadow-[#FFD700]/40"
-          : theme === "dark"
-          ? "bg-[#121212] border-[#D4AF37]/10 hover:shadow-[#FFD700]/30"
-          : "bg-white border-gray-200 hover:shadow-lg"
-      }`}
-      whileHover={{ scale: 1.03 }}
+      whileHover={{ scale: 1.02, y: -4 }}
       whileTap={{ scale: 0.97 }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className={`relative rounded-2xl overflow-hidden shadow-md border transition-all duration-300 flex flex-col
+        ${getItemQuantity(item._id) > 0
+          ? "border-[#FFD54F] shadow-[#FFD54F]/30"
+          : theme === "dark"
+            ? "bg-[#1E1E1E] border-[#2A2A2A] hover:border-[#FF5722] hover:shadow-lg hover:shadow-[#FF5722]/20"
+            : "bg-white border-gray-200 hover:border-[#FF5722] hover:shadow-md hover:shadow-orange-200"
+        }`}
     >
-      {inCart && (
-        <div className="absolute top-2 right-2 bg-[#FFD700] text-black text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-md">
-          {getItemQuantity(item._id)}
-        </div>
-      )}
-      <img
-        src={item.image}
-        alt={item.name}
-        className="p-3 w-full h-44 object-cover rounded-md mb-3"
-      />
-      <div className="p-3">
-        <h3 className="text-lg font-bold text-[#FFD700] truncate">{item.name}</h3>
-        <p
-          className={`text-md font-semibold ${
-            theme === "dark" ? "text-white" : "text-black"
-          }`}
+      {/* Cart Quantity Badge */}
+      {getItemQuantity(item._id) > 0 && (
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          className="absolute top-2 right-2 bg-[#FFD54F] text-black text-xs font-bold rounded-full w-7 h-7 flex items-center justify-center shadow-md"
         >
+          {getItemQuantity(item._id)}
+        </motion.div>
+      )}
+
+      {/* Responsive Image */}
+      <div className="w-full aspect-[4/3] overflow-hidden">
+        <motion.img
+          src={item.image}
+          alt={item.name}
+          whileHover={{ scale: 1.05 }}
+          className="w-full h-full object-cover transition-transform duration-300"
+        />
+      </div>
+
+      {/* Content */}
+      <div className="flex flex-col flex-1 p-4">
+        <h3 className={`text-lg font-bold truncate ${theme === "dark" ? "text-white" : "text-black"}`}>
+          {item.name}
+        </h3>
+        <p className={`text-md font-semibold ${theme === "dark" ? "text-[#FFD54F]" : "text-[#FF5722]"}`}>
           ₹{item.price.toLocaleString("en-IN")}
         </p>
         <p
@@ -81,28 +59,44 @@ const FoodCard = ({ item, getItemQuantity, theme, onQuickView, onAddToCart, load
         >
           {item.category}
         </p>
-        {renderStars(item.rating || 4.5)}
-        <p className="text-xs text-gray-500 mt-1">
-          ⏱ {item.deliveryTime || "25-35 mins"}
-        </p>
-        <div className="flex gap-2 mt-3">
-          <button
-            onClick={() => onQuickView(item)}
-            className="flex-1 py-2 rounded-lg bg-gray-600 text-white font-semibold hover:bg-gray-700"
+
+        {/* Rating & Delivery */}
+        <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
+          <div className="flex items-center gap-1">
+            <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+            <span>{item.rating || 4.5}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Timer className="w-4 h-4 text-orange-400" />
+            <span>{item.deliveryTime || "25-35 mins"}</span>
+          </div>
+        </div>
+
+        {/* Buttons */}
+        <div className="flex gap-2 mt-4">
+          <Button
+            variant={theme === "dark" ? "secondary" : "outline"}
+            className="flex-1 rounded-lg font-semibold"
+            onClick={() => setQuickViewItem(item)}
           >
             Quick View
-          </button>
-          <button
-            disabled={inCart}
-            onClick={() => onAddToCart(item)}
-            className={`flex-1 py-2 rounded-lg font-semibold hover:opacity-90 ${
-              inCart
+          </Button>
+
+          <Button
+            disabled={getItemQuantity(item._id) > 0 || addLoadingId === item._id}
+            onClick={() => handleAddToCart(item)}
+            className={`flex-1 rounded-lg font-semibold flex items-center justify-center transition-all duration-300 ${
+              getItemQuantity(item._id) || addLoadingId === item._id
                 ? "bg-gray-400 cursor-not-allowed text-white"
-                : "bg-gradient-to-r from-[#FFD700] to-[#8B0000] text-black"
+                : theme === "dark"
+                ? "bg-gradient-to-r from-[#FF5722] to-[#FFD54F] text-black hover:opacity-90"
+                : "bg-gradient-to-r from-[#FF5722] to-[#FFC107] text-white hover:opacity-90"
             }`}
           >
-            {inCart ? "In Cart" : "Add to Cart"}
-          </button>
+            {addLoadingId === item._id ? (
+              <span className="loader w-4 h-4 border-2 border-t-transparent border-white rounded-full animate-spin"></span>
+            ) : getItemQuantity(item._id) > 0 ? "In Cart" : "Add to Cart"}
+          </Button>
         </div>
       </div>
     </motion.div>

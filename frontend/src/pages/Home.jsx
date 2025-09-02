@@ -1,153 +1,150 @@
-import React, { useState, useEffect } from "react";
-import { useTheme } from "../context/ThemeContext";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ShoppingCart } from "lucide-react";
-import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { motion } from "framer-motion";
+import { useTheme } from "../context/ThemeContext";
+import { Pizza, Coffee, IceCream, Salad, ShoppingCart } from "lucide-react";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import {
-  Pizza,
-  Drumstick,
-  Salad,
-  IceCream,
-  Coffee,
-  Soup,
-} from "lucide-react"; // Top of file
 
-import promo1 from "../assets/Images/PB1.png";
-import promo2 from "../assets/Images/PB4.png";
-import promo3 from "../assets/Images/PB3.png";
+const categories = [
+  { icon: <Pizza size={32} />, label: "Pizza" },
+  { icon: <Coffee size={32} />, label: "Drinks" },
+  { icon: <IceCream size={32} />, label: "Desserts" },
+  { icon: <Salad size={32} />, label: "Healthy" },
+];
 
-const banners = [
-  "https://images.unsplash.com/photo-1600891964599-f61ba0e24092?auto=format&fit=crop&w=1920&q=80",
-  promo1,
-  promo2,
-  promo3,
+const promos = [
+  {
+    img: "https://images.unsplash.com/photo-1600891964599-f61ba0e24092?w=800",
+    title: "Flat 20% OFF Pizzas",
+    desc: "Cheesy, hot & fresh!",
+  },
+  {
+    img: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800",
+    title: "Buy 1 Get 1 Burgers",
+    desc: "Limited time offer!",
+  },
+  {
+    img: "https://images.unsplash.com/photo-1499028344343-cd173ffc68a9?w=800",
+    title: "Dessert Deals",
+    desc: "Satisfy your sweet tooth 🍩",
+  },
 ];
 
 const features = [
-  {
-    title: "Automated Packaging",
-    text: "100% sealed and hygienic packaging for freshness.",
-  },
-  {
-    title: "Packed with Love",
-    text: "Every order is handled with utmost care and love.",
-  },
-  {
-    title: "Served Hot",
-    text: "Delivered piping hot within 30 minutes!",
-  },
+  { title: "Freshly Cooked", text: "Prepared after you order, never stale." },
+  { title: "Secure Packaging", text: "Sealed, hygienic & spill-proof." },
+  { title: "Super Fast Delivery", text: "Meals at your doorstep in 30 mins." },
 ];
-
 
 const Home = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
-  const [currentSlide, setCurrentSlide] = useState(0);
-
-  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % banners.length);
-  const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + banners.length) % banners.length);
-
   useEffect(() => {
-    AOS.init({ duration: 800, once: true });
-    const timer = setInterval(nextSlide, 6000);
-    return () => clearInterval(timer);
+    AOS.init({ duration: 900, once: true });
   }, []);
 
   return (
-    <div className={`pt-6 ${isDark ? " text-text-dark" : " text-text-light"}`}>
-      {/* Hero Banner */}
-      <div
-        data-aos="fade-up"
-        className="relative w-full max-w-7xl mx-auto h-[200px] sm:h-[260px] md:h-[320px] lg:h-[400px] overflow-hidden rounded-3xl shadow-xl"
-      >
-        <motion.img
-          key={currentSlide}
-          src={banners[currentSlide]}
-          alt={`Slide ${currentSlide + 1}`}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="w-full h-full object-cover"
-        />
+    <div className={`${isDark ? "bg-[#121212]" : "bg-[#FAFAFA]"} overflow-hidden`}>
 
-        {/* Dark overlay */}
-        <div className="absolute inset-0 z-0 rounded-3xl"></div>
+      {/* 🚀 Hero Section */}
+      <section className="relative h-[85vh] flex flex-col justify-center items-center text-center px-6">
+        <div
+  className="
+    absolute inset-0 
+    bg-primary-light dark:bg-primary-dark
+    opacity-20 blur-3xl
+  "
+></div>
 
-        {/* Arrows */}
-        <button
-          onClick={prevSlide}
-          className="absolute top-1/2 left-4 -translate-y-1/2 z-10 bg-black/60 text-white p-2 rounded-full hover:scale-110 transition"
-        >
-          <FaArrowLeft size={14} />
-        </button>
-        <button
-          onClick={nextSlide}
-          className="absolute top-1/2 right-4 -translate-y-1/2 z-10 bg-black/60 text-white p-2 rounded-full hover:scale-110 transition"
-        >
-          <FaArrowRight size={14} />
-        </button>
 
-        {/* Dots */}
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-          {banners.map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => setCurrentSlide(idx)}
-              className={`w-2.5 h-2.5 rounded-full ${
-                currentSlide === idx ? "bg-white" : "bg-white/50"
-              } transition`}
-            />
-          ))}
-        </div>
-      </div>
 
-      {/* How Yumigo Serves You */}
-      <section className="py-12 text-center">
-        <h2 className="text-3xl font-bold mb-10 text-secondary-light dark:text-secondary-dark">
-          How Yumigo Serves You
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto px-4">
-          {features.map((item, i) => (
+        <motion.h1
+  className="text-5xl md:text-6xl font-extrabold relative z-10"
+>
+  Order <span className="bg-gradient-to-r from-primary-light to-secondary-light bg-clip-text text-transparent">Food</span> Instantly
+</motion.h1>
+
+        <p className="mt-6 text-lg max-w-xl text-gray-600 dark:text-gray-300 relative z-10">
+          Cravings don’t wait. Get your favorite meals delivered hot & fresh.
+        </p>
+
+        <Link
+  to="/menu"
+  className="mt-8 px-10 py-4 rounded-full font-bold text-white 
+             bg-gradient-to-r from-primary-light to-secondary-light
+             dark:from-primary-dark dark:to-secondary-dark 
+             shadow-lg hover:shadow-xl hover:scale-110 transition relative z-10"
+>
+  Explore Menu
+</Link>
+
+      </section>
+
+      {/* 🍴 Categories */}
+      <section className="py-16 max-w-6xl mx-auto text-center">
+        <h2 className="text-3xl font-bold mb-12">Browse by Category</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 px-6">
+          {categories.map((cat, i) => (
             <motion.div
               key={i}
-              data-aos="fade-up"
-              data-aos-delay={i * 10}
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 + i * 0.2 }}
-              className={`${isDark ? "bg-surface-dark" : "bg-surface-light"} p-6 rounded-xl shadow-xl`}
+              whileHover={{ scale: 1.05 }}
+              className="p-6 rounded-2xl shadow-lg bg-white dark:bg-[#1E1E1E] flex flex-col items-center gap-4 cursor-pointer"
             >
-              <h4 className="text-xl font-semibold mb-2 text-primary-light dark:text-primary-dark">{item.title}</h4>
-              <p className="text-sm">{item.text}</p>
+              {cat.icon}
+              <span className="font-semibold">{cat.label}</span>
             </motion.div>
           ))}
         </div>
       </section>
 
-      {/* Explore Section */}
-      <section
-        className={`py-12 px-6 md:px-10 mb-3 text-center mx-auto max-w-6xl rounded-xl transition-all ${
-          isDark ? "bg-[#181818] text-[#FF7043]" : "bg-[#FFF3CD] text-[#1E1E1E]"
-        }`}
-      >
-         
-        <h2 className="text-3xl font-bold mb-4">
-          Discover a World of Flavors — Explore Our Curated Food Categories!
-        </h2>
-        <p className="text-lg mb-6 font-medium">
-          From sizzling street food to gourmet meals, Yumigo brings you 3000+ dishes across multiple cuisines.
-        </p>
-        <Link
-  to="/menu"
-  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#FF5722] to-[#FFD54F] text-white font-semibold rounded-full shadow-md hover:scale-105 hover:shadow-lg transition-transform"
->
-  <ShoppingCart size={18} /> Explore Menu
-</Link>
+      {/* 🎉 Promo Carousel */}
+      <section className="py-16 bg-gradient-to-r from-[#FFF8E1] to-[#FFE082] dark:from-[#1E1E1E] dark:to-[#2C2C2C]">
+        <h2 className="text-3xl font-bold text-center mb-12">Deals of the Day</h2>
+        <div className="flex gap-6 overflow-x-auto px-6 snap-x snap-mandatory">
+          {promos.map((promo, i) => (
+            <motion.div
+              key={i}
+              whileHover={{ scale: 1.05 }}
+              className="min-w-[280px] snap-center bg-white dark:bg-[#121212] rounded-2xl shadow-lg overflow-hidden"
+            >
+              <img src={promo.img} alt={promo.title} className="w-full h-40 object-cover" />
+              <div className="p-4 text-center">
+                <h3 className="font-bold text-lg mb-2">{promo.title}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{promo.desc}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
 
+      {/* 🚀 Features */}
+      <section className="py-20 text-center max-w-6xl mx-auto px-6">
+        <h2 className="text-3xl font-bold mb-12">Why Yumigo?</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+          {features.map((f, i) => (
+            <motion.div
+              key={i}
+              whileHover={{ scale: 1.05 }}
+              className="p-8 rounded-2xl shadow-lg bg-white dark:bg-[#181818]"
+            >
+              <h4 className="text-xl font-semibold mb-3 text-[#FF5722]">{f.title}</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-300">{f.text}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="py-20 text-center">
+        <h2 className="text-4xl font-extrabold mb-6">Hungry? Let’s Fix That 🍔</h2>
+        <Link
+          to="/menu"
+          className="px-12 py-5 rounded-full font-bold text-white bg-gradient-to-r from-[#FF5722] to-[#FFD54F] shadow-xl hover:scale-110 transition"
+        >
+          Start Ordering
+        </Link>
       </section>
     </div>
   );
