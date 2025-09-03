@@ -157,25 +157,25 @@ const MenuPage = () => {
           : "bg-gray-100 border-gray-300"
           }`}
       >
-      <h2
-  className="text-3xl font-bold text-center 
+        <h2
+          className="text-3xl font-bold text-center 
              text-primary-light dark:text-primary-dark"
->
-  Menu
-</h2>
+        >
+          Menu
+        </h2>
 
-<div className="text-sm text-center mt-2 text-text-light dark:text-text-dark">
-  Showing:{" "}
-  <span className="font-bold text-primary-light dark:text-primary-dark">
-    {selectedCategory}
-  </span>, Sort:{" "}
-  <span className="font-bold text-primary-light dark:text-primary-dark">
-    {sortOrder || "Default"}
-  </span>, Max Price:{" "}
-  <span className="font-bold text-primary-light dark:text-primary-dark">
-    ₹{priceLimit}
-  </span>
-</div>
+        <div className="text-sm text-center mt-2 text-text-light dark:text-text-dark">
+          Showing:{" "}
+          <span className="font-bold text-primary-light dark:text-primary-dark">
+            {selectedCategory}
+          </span>, Sort:{" "}
+          <span className="font-bold text-primary-light dark:text-primary-dark">
+            {sortOrder || "Default"}
+          </span>, Max Price:{" "}
+          <span className="font-bold text-primary-light dark:text-primary-dark">
+            ₹{priceLimit}
+          </span>
+        </div>
 
 
         <div className="mt-6 px-4 overflow-x-auto scrollbar-hide flex gap-6 py-2">
@@ -214,16 +214,16 @@ const MenuPage = () => {
         {filteredFoods.length > 0 ? (
           filteredFoods.map((item) => (
             <motion.div
-  key={item._id}
-  whileHover={{ scale: 1.03 }}
-  whileTap={{ scale: 0.97 }}
-  className={`relative rounded-2xl border transition-all duration-300 ease-in-out
+              key={item._id}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              className={`relative rounded-2xl border transition-all duration-300 ease-in-out
     ${getItemQuantity(item._id) > 0
-      ? "border-[#FFD700] shadow-md shadow-[#FFD700]/30"
-      : theme === "dark"
-        ? "bg-[#1A1A1A] border-[#333] hover:border-[#FFD700] hover:shadow-lg hover:shadow-[#FFD700]/20"
-        : "bg-white border-gray-200 hover:border-[#FF9800] hover:shadow-md hover:shadow-orange-200"
-    }
+                  ? "border-[#FFD700] shadow-md shadow-[#FFD700]/30"
+                  : theme === "dark"
+                    ? "bg-[#1A1A1A] border-[#333] hover:border-[#FFD700] hover:shadow-lg hover:shadow-[#FFD700]/20"
+                    : "bg-white border-gray-200 hover:border-[#FF9800] hover:shadow-md hover:shadow-orange-200"
+                }
   `}>
               {getItemQuantity(item._id) > 0 && (
                 <div className="absolute top-2 right-2 bg-[#FFD700] text-black text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-md">
@@ -258,33 +258,33 @@ const MenuPage = () => {
                   ⏱ {item.deliveryTime || "25-35 mins"}
                 </p>
                 <div className="flex gap-2 mt-3">
-                      <button
-            onClick={() => setQuickViewItem(item)}
-            className={`flex-1 py-2 rounded-lg font-semibold transition-all duration-300
+                  <button
+                    onClick={() => setQuickViewItem(item)}
+                    className={`flex-1 py-2 rounded-lg font-semibold transition-all duration-300
               ${theme === "dark"
-                ? "bg-gray-700 text-white hover:bg-gray-600"
-                : "bg-gray-100 text-black hover:bg-gray-200"
-              }`}
-          >
-            Quick View
-          </button>
+                        ? "bg-gray-700 text-white hover:bg-gray-600"
+                        : "bg-gray-100 text-black hover:bg-gray-200"
+                      }`}
+                  >
+                    Quick View
+                  </button>
 
-          {/* Add to Cart Button */}
-          <button
-            disabled={getItemQuantity(item._id) > 0 || addLoadingId === item._id}
-            onClick={() => handleAddToCart(item)}
-            className={`flex-1 py-2 rounded-lg font-semibold flex items-center justify-center transition-all duration-300
+                  {/* Add to Cart Button */}
+                  <button
+                    disabled={getItemQuantity(item._id) > 0 || addLoadingId === item._id}
+                    onClick={() => handleAddToCart(item)}
+                    className={`flex-1 py-2 rounded-lg font-semibold flex items-center justify-center transition-all duration-300
               ${getItemQuantity(item._id) || addLoadingId === item._id
-                ? "bg-gray-400 cursor-not-allowed text-white"
-                : theme === "dark"
-                  ? "bg-gradient-to-r from-[#FF5722] to-[#FFD54F] text-black hover:opacity-90"
-                  : "bg-gradient-to-r from-[#FF5722] to-[#FFC107] text-white hover:opacity-90"
-              }`}
-          >
-            {addLoadingId === item._id ? (
-              <span className="loader w-4 h-4 border-2 border-t-transparent border-white rounded-full animate-spin"></span>
-            ) : getItemQuantity(item._id) > 0 ? "In Cart" : "Add to Cart"}
-          </button>
+                        ? "bg-gray-400 cursor-not-allowed text-white"
+                        : theme === "dark"
+                          ? "bg-gradient-to-r from-[#FF5722] to-[#FFD54F] text-black hover:opacity-90"
+                          : "bg-gradient-to-r from-[#FF5722] to-[#FFC107] text-white hover:opacity-90"
+                      }`}
+                  >
+                    {addLoadingId === item._id ? (
+                      <span className="loader w-4 h-4 border-2 border-t-transparent border-white rounded-full animate-spin"></span>
+                    ) : getItemQuantity(item._id) > 0 ? "In Cart" : "Add to Cart"}
+                  </button>
 
                 </div>
               </div>

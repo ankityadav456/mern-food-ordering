@@ -3,13 +3,10 @@ import { useAuth } from "../context/AuthContext";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import defualtUserLogo from "../assets/Images/profile.png";
 import { useTheme } from "../context/ThemeContext";
-import { Upload } from "lucide-react";
-
+import { Upload, Trash2, ArrowLeft, Check } from "lucide-react";
 
 const ProfilePage = () => {
-
   const { user, updateProfile, updateAvatar, handleDeleteAvatar } = useAuth();
   const { theme } = useTheme();
   const fileInputRef = useRef(null);
@@ -24,7 +21,6 @@ const ProfilePage = () => {
   const [formData, setFormData] = useState({
     userId: user?._id || "",
     name: user?.name || "",
-    mobile: user?.address?.mobileNumber || "",
     address: {
       fullName: user?.address?.fullName || "",
       mobileNumber: user?.address?.mobileNumber || "",
@@ -67,8 +63,7 @@ const ProfilePage = () => {
     e.preventDefault();
     setIsSaving(true);
     try {
-      // your save logic
-      await updateProfile(formData); // example async function
+      await updateProfile(formData);
       toast.success("Profile updated successfully!");
     } catch (error) {
       toast.error("Failed to update profile.");
@@ -78,63 +73,53 @@ const ProfilePage = () => {
   };
 
   const isDefaultAvatar = (avatarUrl) =>
-    avatarUrl.includes("default-avatar.png") || avatarUrl.includes("/uploads/avatars/default-avatar.png");
+    avatarUrl.includes("default-avatar.png") ||
+    avatarUrl.includes("/uploads/avatars/default-avatar.png");
 
   return (
     <motion.div
-      className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8"
+      className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
       <h2 className="text-3xl sm:text-4xl font-extrabold mb-10 text-center">
-        Manage Your <span className="text-[#D4AF37]">Profile</span>
+        Your <span className="bg-gradient-to-r from-primary-light to-secondary-light bg-clip-text text-transparent">Profile</span>
       </h2>
 
       {/* Avatar Section */}
       <motion.div
-        className="flex items-center justify-center gap-6 mb-12 flex-col sm:flex-row"
+        className="flex flex-col sm:flex-row items-center justify-center gap-8 mb-14"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <div className="relative">
+        <div className="relative group">
           <img
             src={avatarPreview}
             alt="avatar"
-            className="w-24 h-24 rounded-full object-cover border-4 border-[#D4AF37] shadow-md"
+            className="w-28 h-28 rounded-full object-cover border-4 border-[#FF5722] shadow-lg group-hover:scale-105 transition-transform duration-300"
           />
 
           {!isDefaultAvatar(avatarPreview) && (
             <button
               onClick={handleDeleteAvatarBtn}
               title="Delete Avatar"
-              className={`absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 border 
-    ${theme === "dark"
-                  ? "bg-gradient-to-br from-red-700 to-red-900 border-red-800 hover:shadow-md hover:shadow-red-500/40"
-                  : "bg-gradient-to-br from-red-400 to-red-600 border-red-500 hover:shadow-md hover:shadow-red-400/40"}
-  `}
+              className="absolute -top-2 -right-2 w-9 h-9 rounded-full flex items-center justify-center 
+              bg-gradient-to-br from-red-500 to-red-700 hover:shadow-lg transition"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2.2}
-                stroke="white"
-                className="w-4 h-4"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <Trash2 size={18} className="text-white" />
             </button>
-
           )}
         </div>
 
         <div>
           <button
-  onClick={() => fileInputRef.current.click()}
-  className="inline-flex items-center gap-2 px-6 py-2 rounded-full font-semibold text-sm tracking-wide shadow-md bg-gradient-to-r from-[#FF5722] to-[#FFD54F] text-white transition-transform duration-300 hover:scale-105 hover:shadow-lg"
->
-  <Upload size={16} /> Change Avatar
-</button>
+            onClick={() => fileInputRef.current.click()}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-sm tracking-wide shadow-md 
+            bg-gradient-to-r from-[#FF5722] to-[#FFD54F] text-white 
+            hover:scale-105 hover:shadow-lg transition-all"
+          >
+            <Upload size={16} /> Change Avatar
+          </button>
 
           <input
             type="file"
@@ -149,63 +134,59 @@ const ProfilePage = () => {
       {/* Profile Form */}
       <motion.form
         onSubmit={handleSubmit}
-        className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 bg-gray-100 dark:bg-[#1a1a1a] p-6 sm:p-8 rounded-2xl shadow-xl border border-gray-200 dark:border-[#2A2A2A]"
+        className="bg-white dark:bg-[#121212] p-8 sm:p-10 rounded-3xl shadow-2xl border border-gray-200 dark:border-[#2A2A2A] grid grid-cols-1 sm:grid-cols-2 gap-8"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
         {[
-          { label: "Full Name", name: "name", value: formData.name, placeholder: "Enter your name" },
-          { label: "Mobile", name: "mobileNumber", value: formData.address.mobileNumber, placeholder: "Enter your mobile" },
-          { label: "Full Name (Address)", name: "fullName", value: formData.address.fullName, placeholder: "Enter full name for delivery" },
-          { label: "Room / Flat No", name: "roomNumber", value: formData.address.roomNumber, placeholder: "Enter room number" },
+          { label: "Name", name: "name", value: formData.name, placeholder: "Enter your full name" },
+          { label: "Mobile", name: "mobileNumber", value: formData.address.mobileNumber, placeholder: "Enter your mobile number" },
+          { label: "Delivery Full Name", name: "fullName", value: formData.address.fullName, placeholder: "Recipient full name" },
+          { label: "Room / Flat No", name: "roomNumber", value: formData.address.roomNumber, placeholder: "e.g. 101-A" },
           { label: "Street", name: "street", value: formData.address.street, placeholder: "Enter street name" },
           { label: "City", name: "city", value: formData.address.city, placeholder: "Enter city" },
           { label: "State", name: "state", value: formData.address.state, placeholder: "Enter state" },
-          { label: "Pincode", name: "pincode", value: formData.address.pincode, placeholder: "Enter pincode" },
+          { label: "Pincode", name: "pincode", value: formData.address.pincode, placeholder: "Enter postal code" },
         ].map((field, index) => (
-          <div key={index} className="flex flex-col">
-            <label className="text-sm font-medium mb-1">{field.label}</label>
+          <div key={index} className="flex flex-col gap-2">
+            <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+              {field.label}
+            </label>
             <input
               type="text"
               name={field.name}
               value={field.value}
               onChange={handleChange}
               placeholder={field.placeholder}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-[#2A2A2A] rounded-lg bg-white dark:bg-[#121212] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#D4AF37] transition"
+              className="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-[#333] bg-white dark:bg-[#1a1a1a] 
+              text-black dark:text-white focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] outline-none transition"
             />
           </div>
         ))}
 
+        {/* Buttons */}
         <div className="sm:col-span-2 flex flex-col sm:flex-row justify-between items-center gap-4 mt-6">
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate(-1)}
             type="button"
-            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#D4AF37] text-black font-semibold text-sm sm:text-base px-6 py-3 rounded-xl hover:bg-[#8B0000] hover:text-white transition-all"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm sm:text-base 
+            bg-gray-200 dark:bg-[#2A2A2A] hover:bg-gray-300 dark:hover:bg-[#333] text-black dark:text-white transition-all"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="w-5 h-5"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-            Back
+            <ArrowLeft size={18} /> Back
           </motion.button>
 
           <motion.button
             whileTap={{ scale: 0.95 }}
             type="submit"
             disabled={isSaving}
-            className={`w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm sm:text-base transition-all duration-300
-    ${isSaving
+            className={`w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm sm:text-base 
+            transition-all duration-300 
+            ${isSaving
                 ? "bg-gray-400 text-white cursor-not-allowed"
-                : "bg-[#D4AF37] text-black hover:bg-[#B22222] hover:text-white"}
-  `}
+                : "bg-gradient-to-r from-[#FF5722] to-[#FFD54F] text-white hover:shadow-lg"
+              }`}
           >
             {isSaving ? (
               <svg
@@ -230,21 +211,10 @@ const ProfilePage = () => {
               </svg>
             ) : (
               <>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  stroke="currentColor"
-                  className="w-5 h-5"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                Save Changes
+                <Check size={18} /> Save Changes
               </>
             )}
           </motion.button>
-
         </div>
       </motion.form>
     </motion.div>
