@@ -71,7 +71,7 @@ const Home = () => {
   return (
     <div
       className={`${isDark ? "bg-[#121212]" : "bg-[#FAFAFA]"
-        } overflow-hidden`}
+        } overflow-hidden pt-2`}
     >
       {/* 🚀 Hero Section */}
       <section className="relative h-[85vh] flex flex-col justify-center items-center text-center px-6">

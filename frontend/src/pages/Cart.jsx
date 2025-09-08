@@ -34,25 +34,25 @@ const Cart = () => {
   const finalTotal = Math.max(totalPrice - discount, 0); // ensure not negative
 
   const handleRemove = async (id) => {
-  const result = await Swal.fire({
-    title: "Are you sure?",
-    text: "Do you want to remove this item from the cart?",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#d33",
-    cancelButtonColor: "#3085d6",
-    confirmButtonText: "Yes, remove it!",
-    cancelButtonText: "Cancel",
-  });
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to remove this item from the cart?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, remove it!",
+      cancelButtonText: "Cancel",
+    });
 
-  if (!result.isConfirmed) return;
+    if (!result.isConfirmed) return;
 
-  setActionLoading(true);
-  await removeFromCart(id);
-  setActionLoading(false);
+    setActionLoading(true);
+    await removeFromCart(id);
+    setActionLoading(false);
 
-  Swal.fire("Removed!", "The item has been removed from your cart.", "success");
-};
+    Swal.fire("Removed!", "The item has been removed from your cart.", "success");
+  };
 
   const handleQuantityChange = async (id, quantity) => {
     if (quantity < 1) return;
@@ -62,11 +62,35 @@ const Cart = () => {
   };
 
   const handleClearCart = async () => {
-    if (!window.confirm("Clear the cart?")) return;
-    setActionLoading(true);
-    await clearCart();
-    setActionLoading(false);
+    const result = await Swal.fire({
+      title: "Clear the cart?",
+      text: "Do you want to clear all items from your cart?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, clear it!",
+      cancelButtonText: "Cancel",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await clearCart();
+
+        Swal.fire({
+          title: "Cleared!",
+          text: "Your cart has been emptied.",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+      } catch (error) {
+        console.error("Error clearing cart:", error);
+        Swal.fire("Error", "Failed to clear the cart.", "error");
+      }
+    }
   };
+
 
   const handleApplyCoupon = () => {
     if (coupon.trim()) {
@@ -108,7 +132,7 @@ const Cart = () => {
     minute: "2-digit",
   });
 
-  if (loading) {
+  if (loading || actionLoading) {
     return (
       <div className="min-h-screen flex justify-center items-center bg-white dark:bg-[#0d0d0d]">
         <Loader />

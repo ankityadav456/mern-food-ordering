@@ -5,10 +5,12 @@ import axios from "../utils/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import AddressModal from "../components/AddressModal";
+import { motion, AnimatePresence } from "framer-motion";
+import { ShoppingCart, MapPin, CreditCard, Loader2, CheckCircle, ArrowLeft  } from "lucide-react";
 
 const CheckoutForm = () => {
   const { cartItems = [], clearCart, getTotalPrice } = useCart();
-  const { user, saveAddress, deleteAddress } = useAuth();
+  const { user, deleteAddress } = useAuth();
   const [loading, setLoading] = useState(false);
   const [clientSecret, setClientSecret] = useState("");
   const [errorMessage, setErrorMessage] = useState(null);
@@ -25,22 +27,14 @@ const CheckoutForm = () => {
   );
 
   useEffect(() => {
-    if (user && user.address) {
-      setSelectedAddress(user.address);
-    }
+    if (user && user.address) setSelectedAddress(user.address);
   }, [user]);
 
   useEffect(() => {
-    const observer = new MutationObserver(() => {
-      const darkModeActive = document.documentElement.classList.contains("dark");
-      setIsDark(darkModeActive);
-    });
-
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
-
+    const observer = new MutationObserver(() =>
+      setIsDark(document.documentElement.classList.contains("dark"))
+    );
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
     return () => observer.disconnect();
   }, []);
 
@@ -49,16 +43,12 @@ const CheckoutForm = () => {
       style: {
         base: {
           fontSize: "16px",
-          color: isDark ? "#f1f1f1" : "#000",
-          "::placeholder": {
-            color: isDark ? "#aaa" : "#888",
-          },
-          fontFamily: "Arial, sans-serif",
-          iconColor: isDark ? "#FFD700" : "#B22222",
+          color: isDark ? "#FFFFFF" : "#1E1E1E",
+          "::placeholder": { color: isDark ? "#CCCCCC" : "#666666" },
+          fontFamily: "Poppins, sans-serif",
+          iconColor: isDark ? "#FFD54F" : "#FF5722",
         },
-        invalid: {
-          color: "#FF4136",
-        },
+        invalid: { color: "#FF4136" },
       },
     }),
     [isDark]
@@ -66,7 +56,6 @@ const CheckoutForm = () => {
 
   useEffect(() => {
     if (cartItems.length === 0) return;
-
     const fetchClientSecret = async () => {
       try {
         const { data } = await axios.post("/payment/create-payment-intent", {
@@ -74,21 +63,18 @@ const CheckoutForm = () => {
         });
         setClientSecret(data.clientSecret);
       } catch (error) {
-        console.error("Error fetching client secret", error);
-        setErrorMessage("There was an issue with your payment details. Please try again.");
+        setErrorMessage("Error with payment details. Try again.");
       }
     };
-
     fetchClientSecret();
   }, [cartItems, getTotalPrice]);
 
   const handlePlaceOrder = async () => {
     if (!stripe || !elements || !clientSecret || cartItems.length === 0 || !selectedAddress) {
-      setErrorMessage("Please fill all required details.");
+      setErrorMessage("Please complete all details before proceeding.");
       return;
     }
 
-    // Validate address fields
     const { fullName, mobileNumber, roomNumber, street, city, state, pincode } = selectedAddress;
     if (!fullName || !mobileNumber || !roomNumber || !street || !city || !state || !pincode) {
       setErrorMessage("Please complete all address fields.");
@@ -100,20 +86,16 @@ const CheckoutForm = () => {
 
     try {
       const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: elements.getElement(CardElement),
-        },
+        payment_method: { card: elements.getElement(CardElement) },
       });
 
       if (error) {
-        setErrorMessage("Payment failed. Please check your card details or try again.");
-        console.error(error);
+        setErrorMessage("Payment failed. Check card details.");
         setLoading(false);
         return;
       }
 
       if (paymentIntent.status === "succeeded") {
-        // Save the order
         await axios.post("/orders", {
           items: cartItems.map((item) => ({
             foodId: item.foodId._id,
@@ -122,25 +104,21 @@ const CheckoutForm = () => {
             price: item.foodId.price,
           })),
           totalAmount: getTotalPrice(),
-          deliveryAddress: selectedAddress, // 🔥 Change this to match backend
+          deliveryAddress: selectedAddress,
         });
 
-
         clearCart();
-        setClientSecret(null); // 🔴 IMPORTANT: reset to prevent re-use
+        setClientSecret(null);
         navigate("/order-success");
       } else {
-        setErrorMessage("Unexpected payment status. Please try again.");
-        console.error("Unexpected PaymentIntent status:", paymentIntent.status);
+        setErrorMessage("Unexpected payment status.");
       }
     } catch (err) {
-      setErrorMessage("An error occurred while processing your order. Please try again.");
-      console.error("Order error", err);
+      setErrorMessage("Error processing order.");
     } finally {
       setLoading(false);
     }
   };
-
 
   const handleAddressAdded = (address) => {
     setSelectedAddress(address);
@@ -158,132 +136,196 @@ const CheckoutForm = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 rounded-2xl shadow-2xl border m-10 mx-12 bg-white border-gray-200 text-black dark:bg-[#111] dark:border-[#FFD700]/30 dark:text-white">
-      <h2 className="text-3xl font-bold text-[#B22222] dark:text-[#FFD700] mb-6">Checkout</h2>
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="max-w-7xl mx-auto p-6 mt-10 rounded-2xl shadow-xl 
+      bg-surface-light dark:bg-surface-dark border border-gray-200 dark:border-[#333] 
+      text-text-light dark:text-text-dark"
+    >
+      <h2 className="text-3xl font-bold text-center text-primary-light dark:text-primary-dark mb-8">
+        Checkout
+      </h2>
 
       {cartItems.length > 0 ? (
-        <>
-          <div className="space-y-4">
-            {cartItems.map((item) => (
-              <div
-                key={item.foodId._id}
-                className="flex justify-between items-center border-b pb-4 border-gray-300 dark:border-[#333]"
-              >
-                <div>
-                  <h3 className="text-xl font-semibold">{item.foodId.name}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Qty: {item.quantity}</p>
-                </div>
-                <p className="text-[#B22222] dark:text-[#FFD700] font-bold text-lg">
-                  ₹{item.foodId.price * item.quantity}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-6 border-t pt-4 text-right space-y-1 border-gray-300 dark:border-[#333]">
-            <p className="text-base">Subtotal: ₹{getTotalPrice()}</p>
-            <p className="text-base">Delivery Charge: ₹40</p>
-            <p className="text-xl font-bold text-[#B22222] dark:text-[#FFD700]">
-              Total: ₹{getTotalPrice() + 40}
-            </p>
-          </div>
-
-          {/* Address Section */}
-          <div className="mt-6">
-            <h3 className="text-xl font-semibold mb-2 text-[#B22222] dark:text-[#FFD700]">
-              Delivery Address
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* 🛒 Cart Summary */}
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="p-5 rounded-2xl bg-surface-light dark:bg-surface-dark shadow-md border border-gray-200 dark:border-[#333]"
+          >
+            <h3 className="flex items-center gap-2 text-xl font-semibold text-primary-light dark:text-primary-dark mb-4">
+              <ShoppingCart className="w-5 h-5" /> Your Order
             </h3>
+            <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+              {cartItems.map((item) => (
+                <motion.div
+                  key={item.foodId._id}
+                  whileHover={{ translateY: -2 }}
+                  className="flex justify-between items-center border-b pb-3 border-gray-200 dark:border-[#333]"
+                >
+                  <div>
+                    <p className="font-medium">{item.foodId.name}</p>
+                    <p className="text-sm text-text-subtleLight dark:text-text-subtleDark">
+                      Qty: {item.quantity}
+                    </p>
+                  </div>
+                  <p className="font-bold text-secondary-light dark:text-secondary-dark">
+                    ₹{item.foodId.price * item.quantity}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+            <div className="mt-6 border-t pt-4 space-y-1 border-gray-200 dark:border-[#333]">
+              <p className="text-text-subtleLight dark:text-text-subtleDark">
+                Subtotal: ₹{getTotalPrice()}
+              </p>
+              <p className="text-text-subtleLight dark:text-text-subtleDark">
+                Delivery Fee: ₹40
+              </p>
+              <p className="text-lg font-bold text-primary-light dark:text-primary-dark">
+                Total: ₹{getTotalPrice() + 40}
+              </p>
+            </div>
+          </motion.div>
 
-            {selectedAddress ? (
-              <div className="p-4 rounded-lg bg-gray-100 dark:bg-[#222] dark:border-[#444] mb-4">
-                <p>{selectedAddress.fullName}</p>
-                <p>Mobile: {selectedAddress.mobileNumber}</p>
-                <p>
-                  {selectedAddress.roomNumber}, {selectedAddress.street}
-                </p>
-                <p>
-                  {selectedAddress.city}, {selectedAddress.state} - {selectedAddress.pincode}
-                </p>
-
-                {/* Edit and Delete Buttons */}
-                <div className="flex space-x-4 mt-4">
-                  <button
-                    onClick={() => {
-                      setEditAddress(selectedAddress);
-                      setShowAddressModal(true);
-                    }}
-                    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-xl"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={handleDeleteAddress}
-                    className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-xl"
-                  >
-                    Delete
-                  </button>
+          {/* 📍 Address & Payment */}
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="space-y-6"
+          >
+            {/* Address Section */}
+            <div className="p-5 rounded-2xl bg-surface-light dark:bg-surface-dark shadow-md border border-gray-200 dark:border-[#333]">
+              <h3 className="flex items-center gap-2 text-xl font-semibold mb-4 text-primary-light dark:text-primary-dark">
+                <MapPin className="w-5 h-5" /> Delivery Address
+              </h3>
+              {selectedAddress ? (
+                <div className="p-4 rounded-lg bg-background-light dark:bg-background-dark shadow-sm">
+                  <p>{selectedAddress.fullName}</p>
+                  <p>Mobile: {selectedAddress.mobileNumber}</p>
+                  <p>
+                    {selectedAddress.roomNumber}, {selectedAddress.street}
+                  </p>
+                  <p>
+                    {selectedAddress.city}, {selectedAddress.state} - {selectedAddress.pincode}
+                  </p>
+                  <div className="flex gap-4 mt-4">
+                    <button
+                      onClick={() => {
+                        setEditAddress(selectedAddress);
+                        setShowAddressModal(true);
+                      }}
+                      className="px-4 py-2 rounded-xl bg-primary-light dark:bg-primary-dark hover:opacity-90 text-white"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={handleDeleteAddress}
+                      className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
+              ) : (
+                <p className="text-text-subtleLight dark:text-text-subtleDark mb-4">
+                  No address added yet.
+                </p>
+              )}
+              <button
+                onClick={() => setShowAddressModal(true)}
+                className="mt-3 px-5 py-2 rounded-xl bg-secondary-light dark:bg-secondary-dark text-black font-bold hover:opacity-90"
+              >
+                {selectedAddress ? "Change Address" : "Add Address"}
+              </button>
+            </div>
+
+            {/* Payment Section */}
+            <div className="p-5 rounded-2xl bg-surface-light dark:bg-surface-dark shadow-md border border-gray-200 dark:border-[#333]">
+              <h3 className="flex items-center gap-2 text-xl font-semibold mb-4 text-primary-light dark:text-primary-dark">
+                <CreditCard className="w-5 h-5" /> Payment
+              </h3>
+              <div className="border rounded-xl p-4 bg-background-light dark:bg-background-dark">
+                <CardElement options={CARD_OPTIONS} />
               </div>
-            ) : (
-              <p className="text-gray-500 dark:text-gray-400 mb-4">No address selected.</p>
+            </div>
+
+            {/* Error */}
+            {errorMessage && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="p-3 rounded-lg bg-red-500 text-white text-center"
+              >
+                {errorMessage}
+              </motion.div>
             )}
 
-            <button
-              onClick={() => setShowAddressModal(true)}
-              className="bg-[#B22222] hover:bg-[#a00000] text-white font-bold py-2 px-4 rounded-xl"
-            >
-              {selectedAddress ? "Change Address" : "Add Address"}
-            </button>
-          </div>
+            {/* Action Buttons */}
+            <div className="flex gap-4">
+  {/* Back to Cart Button */}
+  <button
+    onClick={() => navigate("/cart")}
+    className="w-1/2 flex items-center justify-center gap-2 px-6 py-3 rounded-xl
+      bg-surface-light dark:bg-surface-dark 
+      text-text-light dark:text-text-dark 
+      font-medium shadow-md 
+      hover:bg-gray-300 dark:hover:bg-[#444] 
+      transition-all duration-300"
+  >
+    <ArrowLeft className="w-5 h-5" />
+    Back to Cart
+  </button>
 
-          <div className="mt-6">
-            <h3 className="text-xl font-semibold text-[#B22222] dark:text-[#FFD700] mb-4">
-              Enter Payment Details
-            </h3>
-            <div className="border p-4 rounded-lg bg-gray-100 dark:bg-[#222] dark:border-[#444]">
-              <form>
-                <CardElement options={CARD_OPTIONS} />
-              </form>
-            </div>
-          </div>
+  {/* Place Order Button */}
+  <button
+  onClick={handlePlaceOrder}
+  disabled={loading || !clientSecret}
+  className="w-1/2 flex items-center justify-center gap-2 px-6 py-3 
+    rounded-xl bg-gradient-to-r from-[#FFD54F] to-[#FF5722]
+    text-white font-semibold shadow-md
+    hover:scale-105 disabled:opacity-60 
+    transition-all duration-300"
+>
+  {loading ? (
+    <>
+      <Loader2 className="w-5 h-5 animate-spin" />
+      Placing Order...
+    </>
+  ) : (
+    <>
+      <CheckCircle className="w-5 h-5" />
+      Place Order
+    </>
+  )}
+</button>
 
-          {errorMessage && (
-            <div className="mt-4 p-4 bg-red-500 text-white rounded-xl">
-              <p>{errorMessage}</p>
-            </div>
-          )}
+</div>
 
-          <div className="mt-6 flex flex-row space-x-4">
-            <button
-              onClick={() => navigate("/cart")}
-              className="w-1/2 bg-gray-200 hover:bg-gray-300 text-black dark:bg-[#333] dark:hover:bg-[#444] dark:text-white font-bold py-3 px-6 rounded-xl text-lg"
-            >
-              Back to Cart
-            </button>
-            <button
-              onClick={handlePlaceOrder}
-              disabled={loading || !clientSecret}
-              className="w-1/2 bg-[#B22222] hover:bg-[#a00000] text-white font-bold py-3 px-6 rounded-xl text-lg"
-            >
-              {loading ? "Placing Order..." : "Place Order"}
-            </button>
-          </div>
-        </>
+          </motion.div>
+        </div>
       ) : (
-        <p className="text-center mt-10 dark:text-white">Your cart is empty.</p>
+        <p className="text-center text-text-subtleLight dark:text-text-subtleDark">
+          Your cart is empty.
+        </p>
       )}
 
-      {showAddressModal && (
-        <AddressModal
-          onClose={() => {
-            setShowAddressModal(false);
-            setEditAddress(null);
-          }}
-          onAddressAdded={handleAddressAdded}
-          initialAddress={editAddress} // Pass existing address for edit mode
-        />
-      )}
-    </div>
+      {/* Address Modal */}
+      <AnimatePresence>
+        {showAddressModal && (
+          <AddressModal
+            onClose={() => {
+              setShowAddressModal(false);
+              setEditAddress(null);
+            }}
+            onAddressAdded={handleAddressAdded}
+            initialAddress={editAddress}
+          />
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 };
 

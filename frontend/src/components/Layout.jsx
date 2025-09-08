@@ -14,7 +14,7 @@ const Layout = () => {
       <Navbar isDrawerMode={false} onNavigate={() => { }} />
 
       <main
-        className={`pt-20 mt-3 ${isNoPadding ? "" : "px-4 pb-4"}`}
+        className={`pt-14 mt-4 ${isNoPadding ? "" : "px-4 pb-4"}`}
       >
         <Outlet />
       </main>
