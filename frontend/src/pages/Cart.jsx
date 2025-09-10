@@ -56,9 +56,9 @@ const Cart = () => {
 
   const handleQuantityChange = async (id, quantity) => {
     if (quantity < 1) return;
-    setActionLoading(true);
+    // setActionLoading(true);
     await updateItemQuantity(id, quantity);
-    setActionLoading(false);
+    // setActionLoading(false);
   };
 
   const handleClearCart = async () => {

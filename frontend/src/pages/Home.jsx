@@ -2,6 +2,8 @@ import React, { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom"; // ✅ added useNavigate
 import { motion } from "framer-motion";
 import { useTheme } from "../context/ThemeContext";
+import heroImg from '../assets/Images/heroImage.png'
+import heroImgLight from '../assets/Images/heroImglight.png'
 import {
   Pizza,
   Coffee,
@@ -69,16 +71,21 @@ const Home = () => {
   };
 
   return (
-    <div
+   <div
       className={`${isDark ? "bg-[#121212]" : "bg-[#FAFAFA]"
-        } overflow-hidden pt-2`}
+        } overflow-hidden`}
     >
       {/* 🚀 Hero Section */}
-      <section className="relative h-[85vh] flex flex-col justify-center items-center text-center px-6">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1600891964599-f61ba0e24092?w=1600')] bg-cover bg-center opacity-50 blur-sm"></div>
+      <section className="relative h-[85vh] flex flex-col justify-center items-center text-center px-6 my-2">
+        <div className="absolute inset-0 bg-cover bg-center opacity-75"  style={{ backgroundImage: `url(${isDark ? heroImg : heroImgLight})` }}></div>
 
+        {/* ✅ Dark overlay for readability */}
+        <div className="absolute inset-0 bg-black/50"></div>
+
+        {/* ✅ Content */}
         <motion.h2
-          className="text-3xl md:text-4xl font-extrabold text-[#FF5722] mb-4 relative z-10"
+          className="text-3xl md:text-4xl font-extrabold mb-4 relative z-10 
+               text-gray-900 dark:text-[#FF5722]"
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
@@ -87,7 +94,8 @@ const Home = () => {
         </motion.h2>
 
         <motion.h1
-          className="text-5xl md:text-6xl font-extrabold relative z-10"
+          className="text-5xl md:text-6xl font-extrabold relative z-10 
+               text-white dark:text-white"
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1 }}
@@ -99,20 +107,21 @@ const Home = () => {
           Instantly
         </motion.h1>
 
-        <p className="mt-6 text-lg max-w-xl text-gray-600 dark:text-gray-300 relative z-10">
+        <p className="mt-6 text-lg max-w-xl relative z-10 text-gray-100 dark:text-gray-300">
           Cravings don’t wait. Get your favorite meals delivered hot & fresh.
         </p>
 
         <Link
           to="/menu"
           className="mt-8 px-8 py-3 rounded-full font-bold text-white 
-             bg-gradient-to-r from-primary-light to-secondary-light
-             dark:from-primary-dark dark:to-secondary-dark 
-             shadow-lg hover:shadow-xl hover:scale-110 transition relative z-10"
+       bg-gradient-to-r from-primary-light to-secondary-light
+       dark:from-primary-dark dark:to-secondary-dark 
+       shadow-lg hover:shadow-xl hover:scale-110 transition relative z-10"
         >
           Explore Menu
         </Link>
       </section>
+
 
       {/* 🍴 Categories */}
       <section className="py-16 max-w-6xl mx-auto text-center">
@@ -133,14 +142,25 @@ const Home = () => {
       </section>
 
       {/* 🎉 Promo Carousel */}
-      <section className="py-14 bg-gradient-to-r from-[#FFF8E1] to-[#FFE082] dark:from-[#1E1E1E] dark:to-[#2C2C2C]">
+      <section className="py-14 bg-gradient-to-r from-[#FFF8E1] to-[#FFE082] dark:from-[#1E1E1E] dark:to-[#2C2C2C] overflow-hidden">
         <h2 className="text-3xl font-bold text-center mb-12">Deals of the Day</h2>
-        <div className="flex gap-6 overflow-x-auto px-6 snap-x py-3 snap-mandatory">
-          {promos.map((promo, i) => (
+
+        {/* Motion wrapper for continuous scroll */}
+        <motion.div
+          className="flex gap-6 px-6"
+          animate={{ x: ["0%", "-100%"] }}
+          transition={{
+            repeat: Infinity,
+            duration: 20, // ⏳ speed (lower = faster)
+            ease: "linear",
+          }}
+        >
+          {/* Duplicate promos twice for smooth infinite loop */}
+          {[...promos, ...promos].map((promo, i) => (
             <motion.div
               key={i}
               whileHover={{ scale: 1.05 }}
-              className="min-w-[280px] snap-center bg-white dark:bg-[#121212] rounded-2xl shadow-lg overflow-hidden"
+              className="min-w-[280px] bg-white dark:bg-[#121212] rounded-2xl shadow-lg overflow-hidden"
             >
               <img
                 src={promo.img}
@@ -155,8 +175,9 @@ const Home = () => {
               </div>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
       </section>
+
 
       {/* 🚀 Features */}
       <section className="py-16 pb-4 text-center max-w-6xl mx-auto px-6">
@@ -182,8 +203,8 @@ const Home = () => {
       {/* Final CTA */}
       <section className="py-14 text-center">
         <h2 className="text-4xl font-extrabold mb-8 flex items-center justify-center gap-2">
-          Hungry? Let’s Fix That{" "}
-          <Sandwich size={32} className="text-[#FF5722]" />
+          Hungry? Let’s Fix That
+          {/* <Sandwich size={32} className="text-[#FF5722]" /> */}
         </h2>
         <Link
           to="/menu"
