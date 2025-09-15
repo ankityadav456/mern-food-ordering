@@ -82,10 +82,10 @@ const Navbar = () => {
   );
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 ${bgColor} backdrop-blur-lg shadow-lg`}>
+    <nav className={`fixed top-0 left-0 right-0 z-50 ${bgColor} backdrop-blur-lg`}>
       {/* glowing animated underline */}
       <div
-        className="absolute bottom-0 left-0 w-full h-[1px]  opacity-50
+        className="absolute bottom-0 left-0 w-full   opacity-50
              bg-gradient-to-r from-[#FF5722] via-[#FFD54F] to-[#FF5722] 
              bg-[length:200%_100%] bg-left animate-shimmer"
       />

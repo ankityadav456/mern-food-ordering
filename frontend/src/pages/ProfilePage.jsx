@@ -64,7 +64,7 @@ const ProfilePage = () => {
     setIsSaving(true);
     try {
       await updateProfile(formData);
-      toast.success("Profile updated successfully!");
+      // toast.success("Profile updated successfully!");
     } catch (error) {
       toast.error("Failed to update profile.");
     } finally {
@@ -188,32 +188,7 @@ const ProfilePage = () => {
                 : "bg-gradient-to-r from-[#FF5722] to-[#FFD54F] text-white hover:shadow-lg"
               }`}
           >
-            {isSaving ? (
-              <svg
-                className="animate-spin h-5 w-5 text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                ></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v4l4-4-4-4v4a8 8 0 00-8 8z"
-                ></path>
-              </svg>
-            ) : (
-              <>
                 <Check size={18} /> Save Changes
-              </>
-            )}
           </motion.button>
         </div>
       </motion.form>

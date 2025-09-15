@@ -6,7 +6,8 @@ import { useNavigate } from "react-router-dom";
 import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import AddressModal from "../components/AddressModal";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingCart, MapPin, CreditCard, Loader2, CheckCircle, ArrowLeft  } from "lucide-react";
+import { ShoppingCart, MapPin, CreditCard, Loader2, CheckCircle, ArrowLeft, Pencil, Trash2 } from "lucide-react";
+import Swal from "sweetalert2";
 
 const CheckoutForm = () => {
   const { cartItems = [], clearCart, getTotalPrice } = useCart();
@@ -23,7 +24,7 @@ const CheckoutForm = () => {
   const elements = useElements();
 
   const [isDark, setIsDark] = useState(() =>
-    document.documentElement.classList.contains("dark")
+    document.documentElement.classList.contains("light")
   );
 
   useEffect(() => {
@@ -126,14 +127,42 @@ const CheckoutForm = () => {
     setEditAddress(null);
   };
 
+
   const handleDeleteAddress = async () => {
     try {
-      await deleteAddress();
-      setSelectedAddress(null);
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "This address will be permanently deleted!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#FF5722", // match your Yumigo theme
+        cancelButtonColor: "#6B7280",
+        confirmButtonText: "Yes, delete it!",
+      });
+
+      if (result.isConfirmed) {
+        await deleteAddress();
+        setSelectedAddress(null);
+
+        Swal.fire({
+          title: "Deleted!",
+          text: "Your address has been removed.",
+          icon: "success",
+          confirmButtonColor: "#FF5722",
+        });
+      }
     } catch (error) {
       console.error("Error deleting address", error);
+
+      Swal.fire({
+        title: "Error!",
+        text: "Something went wrong while deleting the address.",
+        icon: "error",
+        confirmButtonColor: "#FF5722",
+      });
     }
   };
+
 
   return (
     <motion.div
@@ -211,35 +240,41 @@ const CheckoutForm = () => {
                   <p>
                     {selectedAddress.city}, {selectedAddress.state} - {selectedAddress.pincode}
                   </p>
+
                   <div className="flex gap-4 mt-4">
                     <button
                       onClick={() => {
                         setEditAddress(selectedAddress);
                         setShowAddressModal(true);
                       }}
-                      className="px-4 py-2 rounded-xl bg-primary-light dark:bg-primary-dark hover:opacity-90 text-white"
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary-light dark:bg-primary-dark hover:opacity-90 text-white transition-all duration-200"
                     >
-                      Edit
+                      <Pencil size={18} /> Edit
                     </button>
+
                     <button
                       onClick={handleDeleteAddress}
-                      className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white"
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white transition-all duration-200"
                     >
-                      Delete
+                      <Trash2 size={18} /> Delete
                     </button>
                   </div>
+
                 </div>
               ) : (
                 <p className="text-text-subtleLight dark:text-text-subtleDark mb-4">
                   No address added yet.
                 </p>
               )}
-              <button
-                onClick={() => setShowAddressModal(true)}
-                className="mt-3 px-5 py-2 rounded-xl bg-secondary-light dark:bg-secondary-dark text-black font-bold hover:opacity-90"
-              >
-                {selectedAddress ? "Change Address" : "Add Address"}
-              </button>
+
+              {!selectedAddress ?
+                <button
+                  onClick={() => setShowAddressModal(true)}
+                  className="mt-3 px-5 py-2 rounded-xl bg-secondary-light dark:bg-secondary-dark text-black font-bold hover:opacity-90"
+                >
+                  {selectedAddress ? "Change Address" : "Add Address"}
+                </button>
+                : ""}
             </div>
 
             {/* Payment Section */}
@@ -265,44 +300,44 @@ const CheckoutForm = () => {
 
             {/* Action Buttons */}
             <div className="flex gap-4">
-  {/* Back to Cart Button */}
-  <button
-    onClick={() => navigate("/cart")}
-    className="w-1/2 flex items-center justify-center gap-2 px-6 py-3 rounded-xl
+              {/* Back to Cart Button */}
+              <button
+                onClick={() => navigate("/cart")}
+                className="w-1/2 flex items-center justify-center gap-2 px-6 py-3 rounded-xl
       bg-surface-light dark:bg-surface-dark 
       text-text-light dark:text-text-dark 
       font-medium shadow-md 
       hover:bg-gray-300 dark:hover:bg-[#444] 
       transition-all duration-300"
-  >
-    <ArrowLeft className="w-5 h-5" />
-    Back to Cart
-  </button>
+              >
+                <ArrowLeft className="w-5 h-5" />
+                Back to Cart
+              </button>
 
-  {/* Place Order Button */}
-  <button
-  onClick={handlePlaceOrder}
-  disabled={loading || !clientSecret}
-  className="w-1/2 flex items-center justify-center gap-2 px-6 py-3 
+              {/* Place Order Button */}
+              <button
+                onClick={handlePlaceOrder}
+                disabled={loading || !clientSecret}
+                className="w-1/2 flex items-center justify-center gap-2 px-6 py-3 
     rounded-xl bg-gradient-to-r from-[#FFD54F] to-[#FF5722]
     text-white font-semibold shadow-md
     hover:scale-105 disabled:opacity-60 
     transition-all duration-300"
->
-  {loading ? (
-    <>
-      <Loader2 className="w-5 h-5 animate-spin" />
-      Placing Order...
-    </>
-  ) : (
-    <>
-      <CheckCircle className="w-5 h-5" />
-      Place Order
-    </>
-  )}
-</button>
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Placing Order...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="w-5 h-5" />
+                    Place Order
+                  </>
+                )}
+              </button>
 
-</div>
+            </div>
 
           </motion.div>
         </div>

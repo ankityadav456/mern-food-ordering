@@ -215,80 +215,95 @@ const MenuPage = () => {
           filteredFoods.map((item) => (
             <motion.div
               key={item._id}
-              whileHover={{ scale: 1.03 }}
+              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.97 }}
-              className={`relative rounded-2xl border transition-all duration-300 ease-in-out
+              className={`relative rounded-2xl border transition-all duration-500 ease-in-out overflow-hidden
     ${getItemQuantity(item._id) > 0
-                  ? "border-[#FFD700] shadow-md shadow-[#FFD700]/30"
+                  ? `border-[${theme === "dark" ? "#FFD54F" : "#FFD54F"}] shadow-[0_0_20px_rgba(255,213,79,0.5)] animate-pulse-slow`
                   : theme === "dark"
-                    ? "bg-[#1A1A1A] border-[#333] hover:border-[#FFD700] hover:shadow-lg hover:shadow-[#FFD700]/20"
-                    : "bg-white border-gray-200 hover:border-[#FF9800] hover:shadow-md hover:shadow-orange-200"
+                    ? `bg-[#121212] border-[#2C2C2C] hover:border-[#FFD54F] hover:shadow-[0_0_15px_rgba(255,213,79,0.3)]`
+                    : `bg-[#FAFAFA] border-gray-200 hover:border-[#FF5722] hover:shadow-[0_0_15px_rgba(255,87,34,0.3)]`
                 }
-  `}>
+  `}
+            >
               {getItemQuantity(item._id) > 0 && (
-                <div className="absolute top-2 right-2 bg-[#FFD700] text-black text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-md">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                  className={`absolute top-2 right-2 text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-md
+        ${theme === "dark" ? "bg-[#FFD54F] text-black" : "bg-[#FFD54F] text-black"}
+      `}
+                >
                   {getItemQuantity(item._id)}
-                </div>
+                </motion.div>
               )}
-              <img
+
+              <motion.img
                 src={item.image}
                 alt={item.name}
-                className="p-3 w-full h-44 object-cover rounded-md pb-0"
+                className="p-3 w-full h-44 object-cover rounded-md pb-0 transition-transform duration-500 group-hover:scale-110"
+                whileHover={{ rotate: 1.5 }}
               />
+
               <div className="p-3">
-                <h3 className="text-lg font-bold text-[#FFD700] truncate">{item.name}</h3>
-                <p
-                  className={`text-md font-semibold ${theme === "dark" ? "text-white" : "text-black"
-                    }`}
-                >
+                <h3 className={`text-lg font-bold truncate ${theme === "dark" ? "text-[#FFD54F]" : "text-[#FF5722]"}`}>{item.name}</h3>
+                <p className={`text-md font-semibold ${theme === "dark" ? "text-white" : "text-black"}`}>
                   ₹{item.price.toLocaleString("en-IN")}
                 </p>
-                <p
-                  className={`text-xs mt-1 font-semibold ${item.category === "Vegetarian"
+                <p className={`text-xs mt-1 font-semibold ${item.category === "Vegetarian"
                     ? "text-green-500"
                     : item.category === "Non-Vegetarian"
                       ? "text-red-500"
-                      : "text-gray-500"
-                    }`}
-                >
+                      : theme === "dark"
+                        ? "text-gray-400"
+                        : "text-gray-600"
+                  }`}>
                   {item.category}
                 </p>
                 {renderStars(item.rating || 4.5)}
-                <p className="text-xs text-gray-500 mt-1">
+                <p className={`text-xs mt-1 flex items-center gap-1 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                   ⏱ {item.deliveryTime || "25-35 mins"}
                 </p>
+
                 <div className="flex gap-2 mt-3">
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => setQuickViewItem(item)}
                     className={`flex-1 py-2 rounded-lg font-semibold transition-all duration-300
-              ${theme === "dark"
-                        ? "bg-gray-700 text-white hover:bg-gray-600"
-                        : "bg-gray-100 text-black hover:bg-gray-200"
-                      }`}
+          ${theme === "dark" ? "bg-[#1E1E1E] text-white hover:bg-[#2A2A2A]" : "bg-[#F5F5F5] text-black hover:bg-[#FFE0B2]"}
+        `}
                   >
                     Quick View
-                  </button>
+                  </motion.button>
 
-                  {/* Add to Cart Button */}
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     disabled={getItemQuantity(item._id) > 0 || addLoadingId === item._id}
                     onClick={() => handleAddToCart(item)}
                     className={`flex-1 py-2 rounded-lg font-semibold flex items-center justify-center transition-all duration-300
-              ${getItemQuantity(item._id) || addLoadingId === item._id
+          ${getItemQuantity(item._id) || addLoadingId === item._id
                         ? "bg-gray-400 cursor-not-allowed text-white"
                         : theme === "dark"
-                          ? "bg-gradient-to-r from-[#FF5722] to-[#FFD54F] text-black hover:opacity-90"
-                          : "bg-gradient-to-r from-[#FF5722] to-[#FFC107] text-white hover:opacity-90"
-                      }`}
+                          ? "bg-gradient-to-r from-[#FF5722] to-[#FFD54F] text-black"
+                          : "bg-gradient-to-r from-[#FF5722] to-[#FFC107] text-white"
+                      }
+        `}
                   >
                     {addLoadingId === item._id ? (
                       <span className="loader w-4 h-4 border-2 border-t-transparent border-white rounded-full animate-spin"></span>
-                    ) : getItemQuantity(item._id) > 0 ? "In Cart" : "Add to Cart"}
-                  </button>
-
+                    ) : getItemQuantity(item._id) > 0 ? (
+                      "In Cart"
+                    ) : (
+                      "Add to Cart"
+                    )}
+                  </motion.button>
                 </div>
               </div>
             </motion.div>
+
 
           ))
         ) : (
