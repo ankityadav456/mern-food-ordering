@@ -13,7 +13,6 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // 📌 On mount — check token & fetch user
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -24,7 +23,6 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // 📌 Fetch logged-in user from backend
   const fetchUser = async () => {
     try {
       const res = await axios.get("/auth/me");
@@ -44,14 +42,12 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // 📌 Save token + fetch fresh user
   const setAuthData = (token) => {
     localStorage.setItem("token", token);
     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     fetchUser();
   };
 
-  // 📌 Signup
   const signup = async (name, email, password) => {
     try {
       const res = await axios.post("/auth/register", { name, email, password });
@@ -64,7 +60,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // 📌 Login
   const login = async (email, password) => {
     try {
       const res = await axios.post("/auth/login", { email, password });
@@ -77,7 +72,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // 📌 Update profile
   const updateProfile = async (formData) => {
     try {
       const res = await axios.put("/auth/update-profile", formData);
@@ -88,7 +82,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // 📌 Update avatar
   const updateAvatar = async (file) => {
     try {
       const formData = new FormData();
@@ -103,7 +96,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // 📌 Delete avatar
   const handleDeleteAvatar = async () => {
     try {
       const res = await axios.delete("/auth/delete-avatar");
@@ -115,7 +107,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // 📌 Save address
   const saveAddress = async (addressData) => {
     try {
       const res = await axios.put("/auth/save-address", addressData);
@@ -128,7 +119,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // 📌 Delete address
   const deleteAddress = async () => {
     try {
       const res = await axios.delete("/auth/delete-address");
@@ -140,7 +130,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // 📌 Logout
   const logout = (redirect = true) => {
     setUser(null);
     localStorage.removeItem("token");

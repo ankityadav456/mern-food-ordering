@@ -53,6 +53,9 @@ const Navbar = () => {
     return location.pathname.startsWith(path);
   };
 
+  const isHome = location.pathname === "/";
+
+
   // nav button
   const navButton = (to, icon, label, index = 0) => (
     <motion.button
@@ -83,6 +86,48 @@ const Navbar = () => {
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 ${bgColor} backdrop-blur-lg`}>
+      {isHome && (
+      <div
+        className="absolute inset-0 z-0 pointer-events-none animate-moveGrid"
+        style={{
+          backgroundImage: `
+      repeating-linear-gradient(
+        0deg, 
+        transparent, transparent 5px, 
+        rgba(75, 85, 99, 0.06) 5px, 
+        rgba(75, 85, 99, 0.06) 6px, 
+        transparent 6px, 
+        transparent 15px
+      ),
+      repeating-linear-gradient(
+        90deg, 
+        transparent, transparent 5px, 
+        rgba(75, 85, 99, 0.06) 5px, 
+        rgba(75, 85, 99, 0.06) 6px, 
+        transparent 6px, 
+        transparent 15px
+      ),
+      repeating-linear-gradient(
+        0deg, 
+        transparent, transparent 10px, 
+        rgba(107, 114, 128, 0.04) 10px, 
+        rgba(107, 114, 128, 0.04) 11px, 
+        transparent 11px, 
+        transparent 30px
+      ),
+      repeating-linear-gradient(
+        90deg, 
+        transparent, transparent 10px, 
+        rgba(107, 114, 128, 0.04) 10px, 
+        rgba(107, 114, 128, 0.04) 11px, 
+        transparent 11px, 
+        transparent 30px
+      )
+    `,
+          backgroundSize: "30px 30px, 30px 30px, 60px 60px, 60px 60px", // ✅ ensures visible movement
+        }}
+      />
+      )}
       {/* glowing animated underline */}
       <div
         className="absolute bottom-0 left-0 w-full   opacity-50
@@ -197,7 +242,7 @@ const Navbar = () => {
                       <p className={`${textColor} font-semibold`}>{user.name}</p>
                       <p className="text-sm text-gray-400 truncate">{user.email}</p>
                     </div>
-                     {user.isAdmin && (
+                    {user.isAdmin && (
                       <Link to="/admin-dashboard" className="block px-5 py-3 hover:bg-gradient-to-r hover:from-[#FF5722] hover:to-[#FFD54F] hover:text-black transition">Admin Panel</Link>
                     )}
                     <Link to="/dashboard" className="block px-5 py-3 hover:bg-gradient-to-r hover:from-[#FF5722] hover:to-[#FFD54F] hover:text-black transition">Dashboard</Link>

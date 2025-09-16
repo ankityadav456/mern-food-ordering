@@ -9,6 +9,9 @@ import {
   FaCheckCircle,
 } from "react-icons/fa";
 import { motion } from "framer-motion";
+// import { useTheme } from "../context/ThemeContext";
+import { useLocation } from "react-router-dom"; // ✅ add this
+
 
 const Footer = () => {
   const { theme } = useTheme();
@@ -21,6 +24,8 @@ const Footer = () => {
   const hoverGold = isDark ? "hover:text-[#FFB300]" : "hover:text-[#FF5722]";
   const borderColor = isDark ? "border-gray-800" : "border-gray-300";
   const bottomBg = isDark ? "bg-[#1A1A1A]/90 backdrop-blur-lg" : "bg-[#ffffff]/70 backdrop-blur-lg";
+  const location = useLocation();
+  const isHome = location.pathname === "/";
 
   const fadeUp = {
     hidden: { opacity: 0, y: 30 },
@@ -33,6 +38,49 @@ const Footer = () => {
 
   return (
     <footer className={`relative z-10 overflow-hidden ${textMain}`}>
+      {isHome && (
+        <div
+          className="absolute inset-0 z-0 pointer-events-none animate-moveGrid"
+          style={{
+            backgroundImage: `
+        repeating-linear-gradient(
+          0deg, 
+          transparent, transparent 5px, 
+          rgba(75, 85, 99, 0.06) 5px, 
+          rgba(75, 85, 99, 0.06) 6px, 
+          transparent 6px, 
+          transparent 15px
+        ),
+        repeating-linear-gradient(
+          90deg, 
+          transparent, transparent 5px, 
+          rgba(75, 85, 99, 0.06) 5px, 
+          rgba(75, 85, 99, 0.06) 6px, 
+          transparent 6px, 
+          transparent 15px
+        ),
+        repeating-linear-gradient(
+          0deg, 
+          transparent, transparent 10px, 
+          rgba(107, 114, 128, 0.04) 10px, 
+          rgba(107, 114, 128, 0.04) 11px, 
+          transparent 11px, 
+          transparent 30px
+        ),
+        repeating-linear-gradient(
+          90deg, 
+          transparent, transparent 10px, 
+          rgba(107, 114, 128, 0.04) 10px, 
+          rgba(107, 114, 128, 0.04) 11px, 
+          transparent 11px, 
+          transparent 30px
+        )
+      `,
+            backgroundSize: "30px 30px, 30px 30px, 60px 60px, 60px 60px",
+          }}
+        />
+      )}
+
       {/* Animated gradient line on top */}
       <div className="absolute top-0 left-0 w-full h-[1px]  opacity-50
       bg-gradient-to-r from-[#FF5722] via-[#FFD54F] to-[#FF5722] 

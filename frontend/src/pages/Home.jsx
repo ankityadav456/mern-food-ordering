@@ -8,309 +8,258 @@ export default function LandingPage() {
   const { theme } = useTheme();
 
   return (
-    <div className="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark overflow-hidden">
-      <ScrollProgress/>
-      <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden text-center px-6">
-        <div className="absolute inset-0 -z-10">
-          <div className="w-full h-full bg-[radial-gradient(circle_at_top_left,_var(--tw-gradient-stops))] from-primary-light via-secondary-light to-transparent dark:from-primary-dark dark:via-secondary-dark dark:to-transparent animate-pulse blur-3xl opacity-30"></div>
-        </div>
+    <div className="min-h-screen w-full bg-white relative text-gray-800">
+      <div
+        className="absolute inset-0 z-0 pointer-events-none animate-moveGrid"
+        style={{
+          backgroundImage: `
+      repeating-linear-gradient(
+        0deg, 
+        transparent, transparent 5px, 
+        rgba(75, 85, 99, 0.06) 5px, 
+        rgba(75, 85, 99, 0.06) 6px, 
+        transparent 6px, 
+        transparent 15px
+      ),
+      repeating-linear-gradient(
+        90deg, 
+        transparent, transparent 5px, 
+        rgba(75, 85, 99, 0.06) 5px, 
+        rgba(75, 85, 99, 0.06) 6px, 
+        transparent 6px, 
+        transparent 15px
+      ),
+      repeating-linear-gradient(
+        0deg, 
+        transparent, transparent 10px, 
+        rgba(107, 114, 128, 0.04) 10px, 
+        rgba(107, 114, 128, 0.04) 11px, 
+        transparent 11px, 
+        transparent 30px
+      ),
+      repeating-linear-gradient(
+        90deg, 
+        transparent, transparent 10px, 
+        rgba(107, 114, 128, 0.04) 10px, 
+        rgba(107, 114, 128, 0.04) 11px, 
+        transparent 11px, 
+        transparent 30px
+      )
+    `,
+          backgroundSize: "30px 30px, 30px 30px, 60px 60px, 60px 60px", // ✅ ensures visible movement
+        }}
+      />
 
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 0.6, y: 0 }}
-          transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
-          className="absolute top-20 left-10 w-40 h-40 bg-gradient-to-r from-primary-light to-secondary-light rounded-full blur-2xl opacity-40"
-        />
-        <motion.div
-          initial={{ opacity: 0, y: -40 }}
-          animate={{ opacity: 0.6, y: 0 }}
-          transition={{ duration: 2.5, repeat: Infinity, repeatType: "reverse" }}
-          className="absolute bottom-20 right-10 w-52 h-52 bg-gradient-to-r from-secondary-light to-primary-light rounded-full blur-2xl opacity-30"
-        />
+      <div className="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark overflow-hidden">
+        <ScrollProgress />
 
-      {/* Hero Content */}
-<motion.h1
-  initial={{ opacity: 0, y: 40 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 1 }}
-  className="text-5xl md:text-7xl font-extrabold leading-tight"
->
-  Say Hello to{" "}
-  <span className="bg-gradient-to-r from-primary-light to-secondary-light bg-clip-text text-transparent">
-    Yumigo
-  </span>
-  <br />
-  <span className="text-text-light dark:text-text-dark">
-    The Smarter Way to Order Food
-  </span>
-</motion.h1>
+        <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden text-center px-6">
+          <div className="absolute inset-0 -z-10">
+            <div className="w-full h-full bg-[radial-gradient(circle_at_top_left,_var(--tw-gradient-stops))] from-primary-light via-secondary-light to-transparent dark:from-primary-dark dark:via-secondary-dark dark:to-transparent animate-pulse blur-3xl opacity-30"></div>
+          </div>
 
-{/* Subheadline */}
-<motion.p
-  initial={{ opacity: 0 }}
-  animate={{ opacity: 1 }}
-  transition={{ delay: 0.5, duration: 1 }}
-  className="mt-6 text-lg md:text-xl text-text-subtleLight dark:text-text-subtleDark max-w-2xl"
->
-  With{" "}
-  <span className="bg-gradient-to-r from-primary-light to-secondary-light bg-clip-text text-transparent font-bold">
-    Yumigo
-  </span>
-  , enjoy fresh meals, lightning-fast delivery, and a seamless ordering
-  experience — anytime, anywhere.
-</motion.p>
-
-
-        {/* CTA Buttons */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 1 }}
-          className="mt-10 flex flex-col sm:flex-row gap-4"
-        >
-          <Link to="/menu">
-          <motion.button
-            whileHover={{ scale: 1.05, boxShadow: "0px 0px 20px rgba(255,87,34,0.6)" }}
-            whileTap={{ scale: 0.95 }}
-            className="px-8 py-3 rounded-full bg-gradient-to-r from-primary-light to-secondary-light text-white font-semibold shadow-lg flex items-center gap-2"
-          >
-            <ShoppingBag className="w-5 h-5" />
-            Order Now
-          </motion.button>
-          </Link>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="px-8 py-3 rounded-full border border-primary-light text-primary-light dark:text-primary-dark font-semibold shadow-lg flex items-center gap-2"
-          >
-            <Star className="w-5 h-5" />
-            Learn More
-          </motion.button>
-        </motion.div>
-      </section>
-
-
-      {/* Features Section */}
-      {/* <section className="py-24 px-6 max-w-6xl mx-auto grid md:grid-cols-3 gap-10">
-        {[
-          {
-            icon: <Rocket className="w-8 h-8 text-primary-light dark:text-primary-dark" />,
-            title: "Super Fast",
-            desc: "Your order reaches you at lightning speed.",
-          },
-          {
-            icon: <Utensils className="w-8 h-8 text-primary-light dark:text-primary-dark" />,
-            title: "Premium Quality",
-            desc: "Fresh ingredients & top-notch chefs.",
-          },
-          {
-            icon: (
-              <MessageCircle className="w-8 h-8 text-primary-light dark:text-primary-dark" />
-            ),
-            title: "24/7 Support",
-            desc: "We’re always here to help.",
-          },
-        ].map((item, i) => (
           <motion.div
-            key={i}
             initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.2 }}
-            viewport={{ once: true }}
-            className="p-8 rounded-2xl bg-surface-light dark:bg-surface-dark/60 shadow-lg backdrop-blur-lg hover:scale-105 transition-transform"
-          >
-            <div className="mb-4">{item.icon}</div>
-            <h3 className="text-2xl font-semibold">{item.title}</h3>
-            <p className="mt-3 text-text-subtleLight dark:text-text-subtleDark">
-              {item.desc}
-            </p>
-          </motion.div>
-        ))}
-      </section> */}
-
-      {/* Infinite Scroll Section */}
-{/* <section className="relative py-16 bg-surface-light dark:bg-surface-dark/60 overflow-hidden">
-  <h2 className="text-3xl font-bold text-center mb-12">
-    Trending <span className="text-primary-light">Deals</span>
-  </h2>
-
-  <div className="relative w-full overflow-hidden group">
-    <motion.div
-      className="flex gap-6"
-      animate={{ x: ["0%", "-100%"] }}
-      transition={{
-        repeat: Infinity,
-        duration: 25,
-        ease: "linear",
-      }}
-      // Pause on hover
-      whileHover={{ x: 0, transition: { duration: 0 } }}
-    >
-      {[
-        { title: "Pizza Fiesta", img: heroImg, desc: "Cheesy & loaded." },
-        { title: "Burger Blast", img: heroImg, desc: "Juicy perfection." },
-        { title: "Pasta Paradise", img: heroImg, desc: "Italian classic." },
-        { title: "Sushi Set", img: heroImg, desc: "Fresh & tasty." },
-        { title: "Taco Treat", img: heroImg, desc: "Spicy & crunchy." },
-      ]
-        .concat([
-          { title: "Pizza Fiesta", img: heroImg, desc: "Cheesy & loaded." },
-          { title: "Burger Blast", img: heroImg, desc: "Juicy perfection." },
-          { title: "Pasta Paradise", img: heroImg, desc: "Italian classic." },
-          { title: "Sushi Set", img: heroImg, desc: "Fresh & tasty." },
-          { title: "Taco Treat", img: heroImg, desc: "Spicy & crunchy." },
-        ]) // duplicate for seamless infinite loop
-        .map((item, i) => (
+            animate={{ opacity: 0.6, y: 0 }}
+            transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
+            className="absolute top-20 left-10 w-40 h-40 bg-gradient-to-r from-primary-light to-secondary-light rounded-full blur-2xl opacity-40"
+          />
           <motion.div
-            key={i}
-            whileHover={{ scale: 1.05 }}
-            className="min-w-[250px] bg-white dark:bg-surface-dark rounded-2xl shadow-lg p-5 cursor-pointer relative group"
+            initial={{ opacity: 0, y: -40 }}
+            animate={{ opacity: 0.6, y: 0 }}
+            transition={{ duration: 2.5, repeat: Infinity, repeatType: "reverse" }}
+            className="absolute bottom-20 right-10 w-52 h-52 bg-gradient-to-r from-secondary-light to-primary-light rounded-full blur-2xl opacity-30"
+          />
+
+          {/* Hero Content */}
+          <motion.h1
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1 }}
+            className="text-5xl md:text-7xl font-extrabold leading-tight"
           >
-            <img
-              src={item.img}
-              alt={item.title}
-              className="w-full h-40 object-cover rounded-xl"
-            />
-            <h3 className="text-lg font-semibold mt-3">{item.title}</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-300">
-              {item.desc}
-            </p>
+            Say Hello to{" "}
+            <span className="bg-gradient-to-r from-primary-light to-secondary-light bg-clip-text text-transparent">
+              Yumigo
+            </span>
+            <br />
+            <span className="text-text-light dark:text-text-dark">
+              The Smarter Way to Order Food
+            </span>
+          </motion.h1>
 
-            
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileHover={{ opacity: 1 }}
-              className="absolute inset-0 bg-black/60 text-white flex items-center justify-center rounded-2xl"
+          {/* Subheadline */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5, duration: 1 }}
+            className="mt-6 text-lg md:text-xl text-text-subtleLight dark:text-text-subtleDark max-w-2xl"
+          >
+            With{" "}
+            <span className="bg-gradient-to-r from-primary-light to-secondary-light bg-clip-text text-transparent font-bold">
+              Yumigo
+            </span>
+            , enjoy fresh meals, lightning-fast delivery, and a seamless ordering
+            experience — anytime, anywhere.
+          </motion.p>
+
+
+          {/* CTA Buttons */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1, duration: 1 }}
+            className="mt-10 flex flex-col sm:flex-row gap-4"
+          >
+            <Link to="/menu">
+              <motion.button
+                whileHover={{ scale: 1.05, boxShadow: "0px 0px 20px rgba(255,87,34,0.6)" }}
+                whileTap={{ scale: 0.95 }}
+                className="px-8 py-3 rounded-full bg-gradient-to-r from-primary-light to-secondary-light text-white font-semibold shadow-lg flex items-center gap-2"
+              >
+                <ShoppingBag className="w-5 h-5" />
+                Order Now
+              </motion.button>
+            </Link>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-8 py-3 rounded-full border border-primary-light text-primary-light dark:text-primary-dark font-semibold shadow-lg flex items-center gap-2"
             >
-              <span className="font-bold">View Details</span>
-            </motion.div>
+              <Star className="w-5 h-5" />
+              Learn More
+            </motion.button>
           </motion.div>
-        ))}
-    </motion.div>
-  </div>
-</section> */}
+        </section>
+
+        {/* How It Works */}
+        <section className="relative py-24 px-6 max-w-5xl mx-auto text-center">
+          {/* Animated Grid Overlay */}
 
 
-      {/* How It Works */}
-      <section className="py-24 px-6 max-w-5xl mx-auto text-center">
-        <h2 className="text-4xl font-bold mb-12">
-          How <span className="text-primary-light">Yumigo</span> Works
-        </h2>
-        <div className="grid md:grid-cols-3 gap-10">
-          {[
-            {
-              icon: <ShoppingBag className="w-10 h-10 text-secondary-light" />,
-              step: "Choose",
-              desc: "Browse menu & pick your favorite meal.",
-            },
-            {
-              icon: <Truck className="w-10 h-10 text-secondary-light" />,
-              step: "Deliver",
-              desc: "We cook & deliver it super fast to you.",
-            },
-            {
-              icon: <Smile className="w-10 h-10 text-secondary-light" />,
-              step: "Enjoy",
-              desc: "Sit back, relax & enjoy your food.",
-            },
-          ].map((item, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.3 }}
-              viewport={{ once: true }}
-              className="p-8 bg-surface-light dark:bg-surface-dark/60 rounded-2xl shadow-lg hover:scale-105 transition-transform"
-            >
-              <div className="mb-4 flex justify-center">{item.icon}</div>
-              <h3 className="text-xl font-semibold">{item.step}</h3>
-              <p className="mt-3 text-text-subtleLight dark:text-text-subtleDark">
-                {item.desc}
-              </p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
+          {/* Section content */}
+          <h2 className="relative text-4xl font-bold mb-12 z-10">
+            How <span className="text-primary-light">Yumigo</span> Works
+          </h2>
 
-      <section className="relative py-24 px-6 text-center overflow-hidden">
-        {/* Background */}
-        <div className="absolute inset-0 -z-10">
-          <div className="w-full h-full bg-gradient-to-r from-orange-400 via-amber-400 to-orange-500 dark:from-primary-dark dark:via-secondary-dark dark:to-primary-dark animate-gradient-x"></div>
-        </div>
+          <div className="relative z-10 grid md:grid-cols-3 gap-10">
+            {[
+              {
+                icon: <ShoppingBag className="w-10 h-10 text-secondary-light" />,
+                step: "Choose",
+                desc: "Browse menu & pick your favorite meal.",
+              },
+              {
+                icon: <Truck className="w-10 h-10 text-secondary-light" />,
+                step: "Deliver",
+                desc: "We cook & deliver it super fast to you.",
+              },
+              {
+                icon: <Smile className="w-10 h-10 text-secondary-light" />,
+                step: "Enjoy",
+                desc: "Sit back, relax & enjoy your food.",
+              },
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.3 }}
+                viewport={{ once: true }}
+                className="p-8 bg-surface-light dark:bg-surface-dark/90 rounded-2xl shadow-lg hover:scale-105 transition-transform"
+              >
+                <div className="mb-4 flex justify-center">{item.icon}</div>
+                <h3 className="text-xl font-semibold">{item.step}</h3>
+                <p className="mt-3 text-text-subtleLight dark:text-text-subtleDark">
+                  {item.desc}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </section>
 
-        {/* Floating Glow Elements (only show in dark mode) */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 0.25, scale: 1 }}
-          transition={{ duration: 3, repeat: Infinity, repeatType: "reverse" }}
-          className="hidden dark:block absolute top-20 left-10 w-40 h-40 bg-white rounded-full blur-3xl"
-        />
-        <motion.div
-          initial={{ opacity: 0, scale: 1.2 }}
-          animate={{ opacity: 0.25, scale: 1 }}
-          transition={{ duration: 4, repeat: Infinity, repeatType: "reverse" }}
-          className="hidden dark:block absolute bottom-20 right-10 w-52 h-52 bg-yellow-300 rounded-full blur-3xl"
-        />
 
-        {/* Headline */}
-        <motion.h2
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="text-4xl md:text-5xl font-extrabold 
+        <section className="relative py-24 px-6 text-center overflow-hidden">
+          {/* Background */}
+          <div className="absolute inset-0 -z-10">
+            <div className="w-full h-full bg-gradient-to-r from-orange-400 via-amber-400 to-orange-500 dark:from-primary-dark dark:via-secondary-dark dark:to-primary-dark animate-gradient-x"></div>
+          </div>
+
+          {/* Floating Glow Elements (only show in dark mode) */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 0.25, scale: 1 }}
+            transition={{ duration: 3, repeat: Infinity, repeatType: "reverse" }}
+            className="hidden dark:block absolute top-20 left-10 w-40 h-40 bg-white rounded-full blur-3xl"
+          />
+          <motion.div
+            initial={{ opacity: 0, scale: 1.2 }}
+            animate={{ opacity: 0.25, scale: 1 }}
+            transition={{ duration: 4, repeat: Infinity, repeatType: "reverse" }}
+            className="hidden dark:block absolute bottom-20 right-10 w-52 h-52 bg-yellow-300 rounded-full blur-3xl"
+          />
+
+          {/* Headline */}
+          <motion.h2
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="text-4xl md:text-5xl font-extrabold 
                text-gray-900 dark:text-white drop-shadow-lg"
-        >
-          Ready to{" "}
-          <span className="text-primary-light dark:text-yellow-300">
-            Taste Happiness?
-          </span>
-        </motion.h2>
+          >
+            Ready to{" "}
+            <span className="text-primary-light dark:text-yellow-300">
+              Taste Happiness?
+            </span>
+          </motion.h2>
 
-        {/* Subheadline */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.3, duration: 0.8 }}
-          className="mt-4 text-lg md:text-xl 
+          {/* Subheadline */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+            className="mt-4 text-lg md:text-xl 
                text-gray-700 dark:text-white/90 
                max-w-2xl mx-auto"
-        >
-          Experience lightning-fast delivery and mouth-watering meals with{" "}
-          <span className="font-semibold">Yumigo</span>.
-          Your cravings, just a click away.
-        </motion.p>
+          >
+            Experience lightning-fast delivery and mouth-watering meals with{" "}
+            <span className="font-semibold">Yumigo</span>.
+            Your cravings, just a click away.
+          </motion.p>
 
-        {/* CTA Button */}
-     <Link to="/menu">
-  <motion.button
-    whileHover={{
-      scale: 1.1,
-      boxShadow: "0px 0px 30px rgba(0,0,0,0.2)",
-    }}
-    whileTap={{ scale: 0.95 }}
-    className="relative mt-8 px-10 py-4 rounded-full 
+          {/* CTA Button */}
+          <Link to="/menu">
+            <motion.button
+              whileHover={{
+                scale: 1.1,
+                boxShadow: "0px 0px 30px rgba(0,0,0,0.2)",
+              }}
+              whileTap={{ scale: 0.95 }}
+              className="relative mt-8 px-10 py-4 rounded-full 
                bg-surface-light dark:bg-surface-dark 
                text-primary-light dark:text-primary-dark 
                font-bold text-lg shadow-lg flex items-center gap-2 mx-auto 
                overflow-hidden transition-colors duration-300"
-  >
-    <ShoppingBag className="w-5 h-5 text-primary-light dark:text-primary-dark" />
-    <span className="relative z-10">Get Started</span>
+            >
+              <ShoppingBag className="w-5 h-5 text-primary-light dark:text-primary-dark" />
+              <span className="relative z-10">Get Started</span>
 
-    {/* Hover shine overlay */}
-    <span
-      className="absolute inset-0 rounded-full 
+              {/* Hover shine overlay */}
+              <span
+                className="absolute inset-0 rounded-full 
                  bg-gradient-to-r from-primary-light to-secondary-light 
                  dark:from-primary-dark dark:to-secondary-dark 
                  opacity-0 hover:opacity-20 transition-opacity duration-300"
-    ></span>
-  </motion.button>
-</Link>
+              ></span>
+            </motion.button>
+          </Link>
 
-      </section>
-      
+        </section>
+
+      </div>
     </div>
+
   );
 }
