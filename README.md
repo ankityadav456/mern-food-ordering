@@ -55,10 +55,10 @@ I built Yumigo to experiment with modern frontend patterns and to create a delig
 ## Screenshots
 
 ### Home Page
-![Yumigo Home Page](.frontend/public/YumigoHomePage.png)
+![Yumigo Home Page](frontend/public/YumigoHomePage.png)
 
 ### Dark Mode
-![Yumigo Dark Mode](.frontend/public/YumigoDarkMode.png)
+![Yumigo Dark Mode](frontend/public/YumigoDarkMode.png)
 
 
 ---
