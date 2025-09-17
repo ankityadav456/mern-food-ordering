@@ -1,109 +1,71 @@
-# 🍔 Food Ordering App
+# Yumigo 🍽️
 
-## 📌 Overview
-
-The **Food Ordering App** is a full-stack web application built using the **MERN stack (MongoDB, Express.js, React, Node.js)**. It allows users to browse a menu, place orders, and track their order status. Admins have additional privileges to manage users, orders, and menu items.
-
----
-
-## 🚀 Features
-
-### User Features:
-
-✅ User Authentication (Login/Signup)\
-✅ Browse food menu\
-✅ Add/remove items from cart\
-✅ Place orders & make payments\
-✅ Track order status\
-✅ Dark Mode support
-
-### Admin Features:
-
-✅ Admin authentication\
-✅ Manage menu items (Add/Edit/Delete)\
-✅ View and manage user orders\
-✅ Update order status\
-✅ User management (View/Delete users)
+> Yumigo — a modern, elegant food-ordering web app built with React (Vite), Tailwind, Node/Express and MongoDB.  
+> Designed for a smooth, premium experience with a polished dark/light theme, quick cart interactions, and an intuitive admin area.
 
 ---
 
-## 🛠️ Tech Stack
+## Why I built Yumigo
 
-- **Frontend**: React.js, Tailwind CSS, React Router
-- **Backend**: Node.js, Express.js
-- **Database**: MongoDB (Mongoose ODM)
-- **Authentication**: JWT (JSON Web Token)
-- **State Management**: React Context API
-- **Deployment**: Vercel (Frontend), Render (Backend)
+I built Yumigo to experiment with modern frontend patterns and to create a delightful ordering flow that feels fast and intentional. My goals were simple: make browsing food enjoyable, make ordering frictionless, and keep the UI polished — especially in dark mode (I love an elegant black + gold vibe).
 
 ---
 
-## 🏗️ Installation & Setup
+## Live demo
 
-### 1️⃣ Clone the repository
-
-```sh
- git clone https://github.com/yourusername/food-ordering-app.git
- cd food-ordering-app
-```
-
-### 2️⃣ Install dependencies
-
-#### Backend
-
-```sh
- cd backend
- npm install
-```
-
-#### Frontend
-
-```sh
- cd frontend
- npm install
-```
-
-### 3️⃣ Set up environment variables
-
-Create a `.env` file in the **backend** directory and add:
-
-```env
-PORT=5000
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret
-```
-
-### 4️⃣ Start the application
-
-#### Backend
-
-```sh
- npm run dev
-```
-
-#### Frontend
-
-```sh
- npm start
-```
+- Demo: [_(Yumigo Deploy Web App)_](https://yumigo-frontend.onrender.com/)
 
 ---
 
-## 📜 License
+## Highlights / Key features
 
-MIT License
-
-Copyright (c) 2025 [Your Name]
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+- Elegant dark & light themes with a premium look and feel (black, gold, and warm accent tones).
+- Menu with category filtering, sorting, and price range controls.
+- Quick View modal for food items with animated entry (Framer Motion).
+- Persistent cart saved to MongoDB in the User model (cart survives refresh).
+- Add-to-cart button shows loader to prevent double clicks and improve UX.
+- User authentication and role-based access (regular users & admin).
+- Admin panel for managing food items, users, and orders.
+- Responsive layout with a Metronic-style sidebar/drawer behavior and accessible navbar.
+- Global loader state for consistent loading indicators across API calls.
 
 ---
 
-## 📩 Contact
+## Tech stack
 
-For any inquiries, feel free to reach out:\
-🔗 GitHub: ankityadav456
+**Frontend**
+- React (Vite)
+- Tailwind CSS (custom theme + Poppins)
+- Framer Motion (animations)
+- React Router
+- Lucide icons
+
+**Backend**
+- Node.js + Express
+- MongoDB (Mongoose)
+- JWT authentication
+
+**Dev / Tools**
+- Axios (API client)
+- ESLint / Prettier (optional)
+- Git/GitHub
+
+---
+
+## Screenshots
+
+> Add screenshots into `/public/screenshots/` and reference them here, for example:
+- `screenshots/home.png`
+- `screenshots/menu.png`
+- `screenshots/cart.png`
+
+---
+
+## Getting started (local)
+
+> These instructions assume you have Node.js (>=16) and MongoDB installed (or access to a MongoDB Atlas URI).
+
+1. **Clone the repo**
+```bash
+git clone https://github.com/ankityadav456/mern-food-ordering
+cd yumigo
