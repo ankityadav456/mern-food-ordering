@@ -54,9 +54,12 @@ I built Yumigo to experiment with modern frontend patterns and to create a delig
 
 ## Screenshots
 
-> Add screenshots into `/public/` and reference them here, for example:
-- `YumigoHomePage.png`
-- `Yumigo Dark Mode.png`
+### Home Page
+![Yumigo Home Page](./public/YumigoHomePage.png)
+
+### Dark Mode
+![Yumigo Dark Mode](./public/YumigoDarkMode.png)
+
 
 ---
 
