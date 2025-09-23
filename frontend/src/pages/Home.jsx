@@ -16,39 +16,40 @@ export default function LandingPage() {
       repeating-linear-gradient(
         0deg, 
         transparent, transparent 5px, 
-        rgba(75, 85, 99, 0.06) 5px, 
-        rgba(75, 85, 99, 0.06) 6px, 
+        ${theme === "dark" ? "rgba(255,255,255,0.06)" : "rgba(75,85,99,0.06)"} 5px, 
+        ${theme === "dark" ? "rgba(255,255,255,0.06)" : "rgba(75,85,99,0.06)"} 6px, 
         transparent 6px, 
         transparent 15px
       ),
       repeating-linear-gradient(
         90deg, 
         transparent, transparent 5px, 
-        rgba(75, 85, 99, 0.06) 5px, 
-        rgba(75, 85, 99, 0.06) 6px, 
+        ${theme === "dark" ? "rgba(255,255,255,0.06)" : "rgba(75,85,99,0.06)"} 5px, 
+        ${theme === "dark" ? "rgba(255,255,255,0.06)" : "rgba(75,85,99,0.06)"} 6px, 
         transparent 6px, 
         transparent 15px
       ),
       repeating-linear-gradient(
         0deg, 
         transparent, transparent 10px, 
-        rgba(107, 114, 128, 0.04) 10px, 
-        rgba(107, 114, 128, 0.04) 11px, 
+        ${theme === "dark" ? "rgba(255,255,255,0.04)" : "rgba(107,114,128,0.04)"} 10px, 
+        ${theme === "dark" ? "rgba(255,255,255,0.04)" : "rgba(107,114,128,0.04)"} 11px, 
         transparent 11px, 
         transparent 30px
       ),
       repeating-linear-gradient(
         90deg, 
         transparent, transparent 10px, 
-        rgba(107, 114, 128, 0.04) 10px, 
-        rgba(107, 114, 128, 0.04) 11px, 
+        ${theme === "dark" ? "rgba(255,255,255,0.04)" : "rgba(107,114,128,0.04)"} 10px, 
+        ${theme === "dark" ? "rgba(255,255,255,0.04)" : "rgba(107,114,128,0.04)"} 11px, 
         transparent 11px, 
         transparent 30px
       )
     `,
-          backgroundSize: "30px 30px, 30px 30px, 60px 60px, 60px 60px", // ✅ ensures visible movement
+          backgroundSize: "30px 30px, 30px 30px, 60px 60px, 60px 60px",
         }}
       />
+
 
       <div className="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark overflow-hidden">
         <ScrollProgress />

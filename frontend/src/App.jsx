@@ -21,6 +21,7 @@ import CheckoutPage from "./pages/CheckoutPage";
 import OrderSuccessPage from "./pages/OrderSuccessPage";
 import OrderSummary from "./pages/OrderSummary";
 import ProfilePage from "./pages/ProfilePage";
+import ManageUser from "./pages/ManageUser";
 
 import { Toaster } from "react-hot-toast";
 
@@ -91,6 +92,10 @@ const App = () => {
             <Route
               path="profile"
               element={<ProtectedRoute><ProfilePage /></ProtectedRoute>}
+            />
+             <Route
+              path="users"
+              element={<ProtectedRoute><AdminRoute><ManageUser /></AdminRoute></ProtectedRoute>}
             />
           </Route>
 

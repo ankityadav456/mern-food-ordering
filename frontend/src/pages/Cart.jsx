@@ -132,16 +132,9 @@ const Cart = () => {
     minute: "2-digit",
   });
 
-  if (loading || actionLoading) {
-    return (
-      <div className="min-h-screen flex justify-center items-center bg-white dark:bg-[#0d0d0d]">
-        <Loader />
-      </div>
-    );
-  }
-
   return (
     <div className="px-4 sm:px-8 py-6 text-black dark:text-white min-h-screen">
+      {(loading || actionLoading) && <Loader />}
       <div className="max-w-6xl mx-auto w-full">
         {/* Header */}
         <h2 className="text-3xl font-extrabold mb-8 text-center bg-clip-text text-transparent bg-gradient-to-r from-[#FF5722] to-[#FFD54F] flex items-center justify-center gap-2">

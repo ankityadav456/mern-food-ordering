@@ -11,6 +11,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null); // ✅ no localStorage user
   const [loading, setLoading] = useState(true);
+  const [allUsers, setAllUsers] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -57,6 +58,20 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       throw new Error(error.response?.data?.message || "Signup failed");
+    }
+  };
+
+
+  // Admin: fetch all users
+  const fetchAllUsers = async () => {
+    if (!user?.isAdmin) return; // only admins
+    try {
+      const res = await axios.get("/auth/users"); // your admin endpoint
+      if (res.data.success) {
+        setAllUsers(res.data.users);
+      }
+    } catch (error) {
+      console.error("Fetch all users failed:", error.response?.data?.message || error.message);
     }
   };
 
@@ -142,6 +157,8 @@ export const AuthProvider = ({ children }) => {
       value={{
         user,
         signup,
+        allUsers,        // ✅ added
+        fetchAllUsers,   // ✅ added
         login,
         logout,
         updateProfile,
