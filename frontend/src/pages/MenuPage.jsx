@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useContext } from "react";
+import React, { useMemo, useState, useEffect, useRef, useContext } from "react";
 import { useFood } from "../context/FoodContext";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
@@ -14,12 +14,13 @@ import chinese from "../assets/Images/Chinese-Food-Download-Free-PNG.png";
 import chicken from "../assets/Images/chicken.png";
 import biryani from "../assets/Images/biryani.png";
 import All from "../assets/Images/allimage.jpg";
+import SkeletonCard from "../components/SkeletonCard"
 import { Eye, ShoppingCart } from "lucide-react";
 
 const MenuPage = () => {
   const { updateItemQuantity } = useCart();
-  const [loading, setLoading] = useState(false);
-  const { foodItems } = useFood();
+  // const [loading1, setLoading] = useState(false);
+  const { foodItems, loading, setLoading } = useFood();
   const { searchQuery } = useContext(SearchContext);
   const { cartItems, addToCart } = useCart();
   const { theme } = useTheme();
@@ -44,47 +45,42 @@ const MenuPage = () => {
     { name: "Chicken", image: chicken },
   ];
 
-  const applyFilters = () => {
-    setLoading(true);
-    setTimeout(() => {
-      let result = [...foodItems];
-      if (selectedCategory !== "All") {
-        result = result.filter((item) => item.category === selectedCategory);
-      }
-      result = result.filter((item) => item.price <= priceLimit);
-      if (sortOrder === "asc") result.sort((a, b) => a.price - b.price);
-      if (sortOrder === "desc") result.sort((a, b) => b.price - a.price);
-      setFilteredFoods(result);
-      setLoading(false);
-    }, 100);
-  };
+  // // ✅ Compute filtered list only if foodItems exist
+  const filteredResults = useMemo(() => {
+    if (!foodItems || foodItems.length === 0) return [];
 
+    let result = [...foodItems];
+
+    // search
+    if (searchQuery.trim() !== "") {
+      result = result.filter((item) =>
+        item.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // category
+    if (selectedCategory !== "All") {
+      result = result.filter((item) => item.category === selectedCategory);
+    }
+
+    // price filter
+    result = result.filter((item) => item.price <= priceLimit);
+
+    // sort
+    if (sortOrder === "asc") result.sort((a, b) => a.price - b.price);
+    if (sortOrder === "desc") result.sort((a, b) => b.price - a.price);
+
+    return result;
+  }, [foodItems, searchQuery, selectedCategory, priceLimit, sortOrder]);
+
+  // update filteredFoods only when items exist
   useEffect(() => {
-    setLoading(true);
-    const delayDebounce = setTimeout(() => {
-      setLoading(true);
-      if (searchQuery.trim() !== "") {
-        const result = foodItems.filter((item) =>
-          item.name.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-        setFilteredFoods(result);
-        setLoading(false);
-      } else {
-        if (didInitialRender.current) {
-          applyFilters();
-        } else {
-          didInitialRender.current = true;
-          setLoading(false);
-        }
-      }
-    }, 300);
-    return () => clearTimeout(delayDebounce);
-  }, [searchQuery, foodItems, selectedCategory, priceLimit, sortOrder]);
+    if (foodItems && foodItems.length > 0) {
+      setFilteredFoods(filteredResults);
+    }
+  }, [filteredResults, foodItems]);
 
-  useEffect(() => {
-    applyFilters();
-  }, []);
-
+  // update quick view qty
   useEffect(() => {
     if (quickViewItem) {
       setQuantity(getItemQuantity(quickViewItem._id) || 0);
@@ -98,7 +94,7 @@ const MenuPage = () => {
     setSortOrder("");
     setPriceLimit(1000);
     setSelectedCategory("All");
-    applyFilters();
+    // applyFilters();
     setShowFilterModal(false)
   };
 
@@ -252,12 +248,12 @@ const MenuPage = () => {
                   ₹{item.price.toLocaleString("en-IN")}
                 </p>
                 <p className={`text-xs mt-1 font-semibold ${item.category === "Vegetarian"
-                    ? "text-green-500"
-                    : item.category === "Non-Vegetarian"
-                      ? "text-red-500"
-                      : theme === "dark"
-                        ? "text-gray-400"
-                        : "text-gray-600"
+                  ? "text-green-500"
+                  : item.category === "Non-Vegetarian"
+                    ? "text-red-500"
+                    : theme === "dark"
+                      ? "text-gray-400"
+                      : "text-gray-600"
                   }`}>
                   {item.category}
                 </p>
@@ -313,7 +309,23 @@ const MenuPage = () => {
         )}
 
       </div>
-
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 py-6 px-5 md:px-1">
+        {/* 🔹 Show Skeletons while loading */}
+        {loading
+          ? Array.from({ length: 8 }).map((_, idx) => (
+              <SkeletonCard key={idx} theme={theme} />
+            ))
+          : filteredFoods.length > 0
+          ? filteredFoods.map((item) => (
+              <motion.div key={item._id}>
+              </motion.div>
+            ))
+          : (
+            <p className="text-center col-span-full text-gray-500">
+              No food items found.
+            </p>
+          )}
+      </div>
       <AnimatePresence>
         {showFilterModal && (
           <motion.div
