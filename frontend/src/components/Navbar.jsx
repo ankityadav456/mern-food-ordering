@@ -54,6 +54,7 @@ const Navbar = () => {
   };
 
   const isHome = location.pathname === "/";
+  const isMenu = location.pathname === "/menu";
 
 
   // nav button
@@ -72,7 +73,7 @@ const Navbar = () => {
             ? "bg-gradient-to-r from-[#FFD700] to-[#FF9800] text-black shadow-lg"
             : "bg-gradient-to-r from-[#FFB300] to-[#FF5722] text-white shadow-lg"
           : theme === "dark"
-            ? "bg-[#1A1A1A] text-white hover:bg-gradient-to-r hover:from-[#FFB300] hover:to-[#FF9800] hover:text-black hover:shadow-[0_0_12px_rgba(255,179,0,0.4)]"
+            ? "bg-[#1A1A1A] text-white border border-[#FFD54F] hover:bg-gradient-to-r hover:from-[#FFB300] hover:to-[#FF9800] hover:text-black hover:shadow-[0_0_12px_rgba(255,179,0,0.4)]"
             : "bg-white text-black border border-[#FFD54F] hover:bg-gradient-to-r hover:from-[#FFD54F] hover:to-[#FF9800] hover:text-black hover:shadow-[0_0_12px_rgba(255,152,0,0.4)]"
         }`}
       initial={{ opacity: 0, y: -15 }}
@@ -87,10 +88,10 @@ const Navbar = () => {
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 ${bgColor} backdrop-blur-lg`}>
       {isHome && (
-      <div
-        className="absolute inset-0 z-0 pointer-events-none animate-moveGrid"
-        style={{
-          backgroundImage: `
+        <div
+          className="absolute inset-0 z-0 pointer-events-none animate-moveGrid"
+          style={{
+            backgroundImage: `
       repeating-linear-gradient(
         0deg, 
         transparent, transparent 5px, 
@@ -124,9 +125,9 @@ const Navbar = () => {
         transparent 30px
       )
     `,
-          backgroundSize: "30px 30px, 30px 30px, 60px 60px, 60px 60px",
-        }}
-      />
+            backgroundSize: "30px 30px, 30px 30px, 60px 60px, 60px 60px",
+          }}
+        />
       )}
       {/* glowing animated underline */}
       <div
@@ -152,28 +153,31 @@ const Navbar = () => {
           </motion.button>
 
           {/* Logo */}
+          <Link to="/">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
-            className="flex items-center gap-2"
+            className={`${isMenu ? "hidden" : ""} flex items-center gap-2`}
           >
-            <img src={logo} alt="Yumigo Logo" className="h-12 w-12 rounded-full hidden md:block" />
-            <h1 className="hidden md:block font-extrabold text-xl tracking-widest bg-gradient-to-r from-[#FF5722] to-[#FFD54F] bg-clip-text text-transparent">
+            <img src={logo} alt="Yumigo Logo" className={`h-12 w-12 rounded-full`} />
+            <h1 className="font-extrabold text-xl tracking-widest bg-gradient-to-r from-[#FF5722] to-[#FFD54F] bg-clip-text text-transparent">
               Yumigo
             </h1>
           </motion.div>
+          </Link>
         </div>
 
         {/* Search bar */}
+        {isMenu && (
         <form onSubmit={handleSearchSubmit} className="flex-1 mx-4">
           <GlobalSearch query={searchQuery} setQuery={setSearchQuery} theme={theme} />
-        </form>
+        </form>)}
 
         {/* Right section */}
         <div className="flex items-center gap-3">
           {/* Large screen nav links */}
-          <div className="hidden lg:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-3 me-3">
             {navButton("/", <Home size={18} />, "Home", 0)}
             {navButton("/menu", <Menu size={18} />, "Menu", 1)}
             {user && navButton("/dashboard", <LayoutDashboard size={18} />, "Dashboard", 2)}

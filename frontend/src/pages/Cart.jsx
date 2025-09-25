@@ -17,6 +17,7 @@ const Cart = () => {
   const [coupon, setCoupon] = useState("");
   const navigate = useNavigate();
   const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const { theme } = useTheme();
 
   const [discount, setDiscount] = useState(0); // new state for discount
   useEffect(() => {
@@ -34,25 +35,37 @@ const Cart = () => {
   const finalTotal = Math.max(totalPrice - discount, 0); // ensure not negative
 
   const handleRemove = async (id) => {
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "Do you want to remove this item from the cart?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, remove it!",
-      cancelButtonText: "Cancel",
-    });
 
-    if (!result.isConfirmed) return;
+  const result = await Swal.fire({
+    title: "Are you sure?",
+    text: "Do you want to remove this item from the cart?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, remove it!",
+    cancelButtonText: "Cancel",
 
-    setActionLoading(true);
-    await removeFromCart(id);
-    setActionLoading(false);
+    // 🎨 Adjust colors & background based on theme
+    background: theme === "dark" ? "#1E1E1E" : "#FFFFFF",
+    color: theme === "dark" ? "#EAEAEA" : "#111111",
+    confirmButtonColor: theme === "dark" ? "#FF5722" : "#FF7043", // your primary
+    cancelButtonColor: theme === "dark" ? "#FFC107" : "#3085d6",
+  });
 
-    Swal.fire("Removed!", "The item has been removed from your cart.", "success");
-  };
+  if (!result.isConfirmed) return;
+
+  setActionLoading(true);
+  await removeFromCart(id);
+  setActionLoading(false);
+
+  Swal.fire({
+    title: "Removed!",
+    text: "The item has been removed from your cart.",
+    icon: "success",
+    background: theme === "dark" ? "#1E1E1E" : "#FFFFFF",
+    color: theme === "dark" ? "#EAEAEA" : "#111111",
+    confirmButtonColor: theme === "dark" ? "#FF5722" : "#FF7043",
+  });
+};
 
   const handleQuantityChange = async (id, quantity) => {
     if (quantity < 1) return;

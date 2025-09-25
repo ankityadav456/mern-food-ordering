@@ -5,7 +5,6 @@ import Footer from "./Footer";
 const Layout = () => {
   const location = useLocation();
 
-  // Add route paths here that should NOT have padding
   const noPaddingRoutes = ["/"];
   const isNoPadding = noPaddingRoutes.includes(location.pathname);
 

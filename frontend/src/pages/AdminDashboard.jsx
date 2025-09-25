@@ -25,7 +25,7 @@ export default function AdminDashboard() {
       title: "Manage Users",
       description: "View and control all user accounts.",
       icon: <Users className="w-10 h-10 text-gold" />,
-      action: () => alert("Coming soon!"),
+      action: () => navigate("/users"),
     },
     {
       title: "All Orders",

@@ -77,39 +77,43 @@ export default function ManageUsers() {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <button className="px-4 py-2 bg-primary-light dark:bg-primary-dark text-white rounded-lg shadow hover:opacity-90">
+        <button className="px-4 py-2 bg-primary-light dark:bg-primary-dark text-white rounded-lg shadow hover:opacity-90 w-full md:w-auto">
           + Add User
         </button>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto bg-surface-light dark:bg-surface-dark rounded-xl shadow-lg">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b border-gray-200 dark:border-gray-700 text-sm">
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Email</th>
-              <th className="px-4 py-3">Role</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3 text-right">Actions</th>
-            </tr>
-          </thead>
+      {/* Table for md+ screens */}
+      <div className="hidden md:block bg-surface-light dark:bg-surface-dark rounded-xl shadow-lg">
+        <table className="w-full table-fixed text-left border-collapse">
+  <thead>
+    <tr>
+      <th className="px-4 py-3 w-1/5 truncate">Name</th>
+      <th className="px-4 py-3 w-1/4 truncate">Email</th>
+      <th className="px-4 py-3 w-1/6">Role</th>
+      <th className="px-4 py-3 w-1/6">Status</th>
+      <th className="px-4 py-3 w-1/6 text-right">Actions</th>
+    </tr>
+  </thead>
+
           <tbody>
             {filteredUsers.map((u) => (
               <motion.tr
                 key={u._id}
-                whileHover={{ scale: 1.01, backgroundColor: "rgba(255, 87, 34, 0.05)" }}
+                whileHover={{
+                  scale: 1.01,
+                  backgroundColor: "rgba(255, 87, 34, 0.05)",
+                }}
                 className="border-b border-gray-100 dark:border-gray-700 transition"
               >
                 <td className="px-4 py-3 font-medium">{u.name}</td>
                 <td className="px-4 py-3">{u.email}</td>
-                <td className="px-4 py-3">{u.role || "User"}</td>
+                <td className="px-4 py-3">{u.isAdmin ? "Admin" : "User"}</td>
                 <td className="px-4 py-3">
                   <span
                     className={`px-3 py-1 text-xs rounded-full ${
                       u.status === "Active"
                         ? "bg-green-100 text-green-600"
-                        : "bg-red-100 text-red-600"
+                        : "bg-green-100 text-green-600" 
                     }`}
                   >
                     {u.status}
@@ -131,7 +135,11 @@ export default function ManageUsers() {
                     onClick={() => handleToggleStatus(u._id, u.status)}
                     disabled={loadingAction === u._id}
                   >
-                    {u.status === "Active" ? <UserX className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
+                    {u.status === "Active" ? (
+                      <UserX className="w-4 h-4" />
+                    ) : (
+                      <UserCheck className="w-4 h-4" />
+                    )}
                   </button>
                   <button
                     className="p-2 rounded-lg bg-red-500 text-white hover:bg-red-600"
@@ -145,13 +153,82 @@ export default function ManageUsers() {
             ))}
             {filteredUsers.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-gray-500 dark:text-gray-400">
+                <td
+                  colSpan={5}
+                  className="px-4 py-6 text-center text-gray-500 dark:text-gray-400"
+                >
                   No users found
                 </td>
               </tr>
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Card layout for mobile */}
+      <div className="md:hidden space-y-4">
+        {filteredUsers.length > 0 ? (
+          filteredUsers.map((u) => (
+            <motion.div
+              key={u._id}
+              whileHover={{ scale: 1.01 }}
+              className="bg-surface-light dark:bg-surface-dark rounded-xl shadow-md p-4 space-y-2"
+            >
+              <div className="flex justify-between items-center">
+                <h3 className="font-semibold">{u.name}</h3>
+                <span
+                  className={`px-2 py-1 text-xs rounded-full ${
+                    u.status === "Active"
+                      ? "bg-green-100 text-green-600"
+                      : "bg-red-100 text-red-600"
+                  }`}
+                >
+                  {u.status}
+                </span>
+              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {u.email}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Role: {u.role || "User"}
+              </p>
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  className="p-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600"
+                  disabled={loadingAction === u._id}
+                >
+                  <Edit className="w-4 h-4" />
+                </button>
+                <button
+                  className={`p-2 rounded-lg ${
+                    u.status === "Active"
+                      ? "bg-yellow-500 hover:bg-yellow-600"
+                      : "bg-green-500 hover:bg-green-600"
+                  } text-white`}
+                  onClick={() => handleToggleStatus(u._id, u.status)}
+                  disabled={loadingAction === u._id}
+                >
+                  {u.status === "Active" ? (
+                    <UserX className="w-4 h-4" />
+                  ) : (
+                    <UserCheck className="w-4 h-4" />
+                  )}
+                </button>
+                <button
+                  className="p-2 rounded-lg bg-red-500 text-white hover:bg-red-600"
+                  onClick={() => handleDeleteUser(u._id)}
+                  disabled={loadingAction === u._id}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </motion.div>
+          ))
+        ) : (
+          <p className="text-center text-gray-500 dark:text-gray-400">
+            No users found
+          </p>
+        )}
       </div>
     </div>
   );

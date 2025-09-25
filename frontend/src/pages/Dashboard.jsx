@@ -106,17 +106,22 @@ const Dashboard = () => {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.3 }}
           className="relative bg-gradient-to-r from-[#FF5722] via-[#FFD54F] to-[#FF5722] 
-                     text-black py-6 px-8 rounded-3xl shadow-2xl overflow-hidden"
+             text-black py-4 px-4 sm:py-6 sm:px-8 rounded-2xl sm:rounded-3xl 
+             shadow-xl sm:shadow-2xl overflow-hidden mx-2"
         >
-          <div className="absolute inset-0 bg-white/10 backdrop-blur-sm rounded-3xl"></div>
-          <p className="relative text-xl font-bold text-center flex items-center justify-center gap-2">
-            <Award size={22} /> You've earned{" "}
-            <span className="bg-black/80 px-5 py-1 rounded-full text-[#FFD54F] inline-block mx-2 shadow-md">
+          {/* Frosted overlay */}
+          <div className="absolute inset-0 bg-white/10 backdrop-blur-sm rounded-2xl sm:rounded-3xl"></div>
+
+          <p className="relative text-base sm:text-xl font-bold text-center flex flex-wrap items-center justify-center gap-2">
+            <Award size={20} className="shrink-0" />
+            <span>You’ve earned</span>
+            <span className="bg-black/80 px-3 py-1 sm:px-5 sm:py-1 rounded-full text-[#FFD54F] inline-block shadow-md text-sm sm:text-base">
               {orders.length * 50} YumPoints
-            </span>{" "}
-            so far!
+            </span>
+            <span>so far!</span>
           </p>
         </motion.div>
+
 
         {/* QUICK ACTIONS */}
         <div className="mt-16">
@@ -232,11 +237,10 @@ const Dashboard = () => {
                     {new Date(order.createdAt).toLocaleDateString()}
                   </p>
                   <span
-                    className={`mt-4 inline-block px-3 py-1 rounded-full text-sm font-medium ${
-                      order.paymentStatus === "Paid"
+                    className={`mt-4 inline-block px-3 py-1 rounded-full text-sm font-medium ${order.paymentStatus === "Paid"
                         ? "bg-green-200 text-green-800"
                         : "bg-yellow-200 text-yellow-800"
-                    }`}
+                      }`}
                   >
                     {order.paymentStatus}
                   </span>

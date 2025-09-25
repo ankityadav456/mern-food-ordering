@@ -14,12 +14,12 @@ import chinese from "../assets/Images/Chinese-Food-Download-Free-PNG.png";
 import chicken from "../assets/Images/chicken.png";
 import biryani from "../assets/Images/biryani.png";
 import All from "../assets/Images/allimage.jpg";
-import SkeletonCard from "../components/SkeletonCard"
-import { Eye, ShoppingCart } from "lucide-react";
+import SkeletonCard from '../components/SkeletonCard'
+import FoodCard from '../components/FoodItemCard'
 
 const MenuPage = () => {
   const { updateItemQuantity } = useCart();
-  // const [loading1, setLoading] = useState(false);
+  const [loading1, setLoading1] = useState(false);
   const { foodItems, loading, setLoading } = useFood();
   const { searchQuery } = useContext(SearchContext);
   const { cartItems, addToCart } = useCart();
@@ -45,42 +45,34 @@ const MenuPage = () => {
     { name: "Chicken", image: chicken },
   ];
 
-  // // ✅ Compute filtered list only if foodItems exist
+  // ✅ Compute filtered list
   const filteredResults = useMemo(() => {
     if (!foodItems || foodItems.length === 0) return [];
-
     let result = [...foodItems];
 
-    // search
     if (searchQuery.trim() !== "") {
       result = result.filter((item) =>
         item.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-
-    // category
     if (selectedCategory !== "All") {
       result = result.filter((item) => item.category === selectedCategory);
     }
-
-    // price filter
     result = result.filter((item) => item.price <= priceLimit);
-
-    // sort
     if (sortOrder === "asc") result.sort((a, b) => a.price - b.price);
     if (sortOrder === "desc") result.sort((a, b) => b.price - a.price);
 
     return result;
   }, [foodItems, searchQuery, selectedCategory, priceLimit, sortOrder]);
 
-  // update filteredFoods only when items exist
+  // ✅ Update filtered foods
   useEffect(() => {
     if (foodItems && foodItems.length > 0) {
       setFilteredFoods(filteredResults);
     }
   }, [filteredResults, foodItems]);
 
-  // update quick view qty
+  // ✅ Update quick view qty
   useEffect(() => {
     if (quickViewItem) {
       setQuantity(getItemQuantity(quickViewItem._id) || 0);
@@ -94,19 +86,19 @@ const MenuPage = () => {
     setSortOrder("");
     setPriceLimit(1000);
     setSelectedCategory("All");
-    // applyFilters();
-    setShowFilterModal(false)
+    setShowFilterModal(false);
   };
 
   const getItemQuantity = (id) => {
-    const item = Array.isArray(cartItems) ? cartItems.find((ci) => ci.foodId._id === id) : 0;
+    const item = Array.isArray(cartItems)
+      ? cartItems.find((ci) => ci.foodId._id === id)
+      : 0;
     return item ? item.quantity : 0;
   };
 
   const handleAddToCart = async (food, fromModal = false) => {
     if (!fromModal && addLoadingId) return;
     if (fromModal && modalLoading) return;
-
     if (fromModal) setModalLoading(true);
     else setAddLoadingId(food._id);
 
@@ -124,17 +116,19 @@ const MenuPage = () => {
 
   const handleQuantityChange = async (id, qty) => {
     if (qty < 1) return;
-    setLoading(true);
+    setLoading1(true);
     await updateItemQuantity(id, qty);
     setQuickViewItem(null);
-    setLoading(false);
+    setLoading1(false);
   };
 
   const renderStars = (rating) => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
-      if (rating >= i) stars.push(<FaStar key={i} className="text-yellow-400" />);
-      else if (rating >= i - 0.5) stars.push(<FaStarHalfAlt key={i} className="text-yellow-400" />);
+      if (rating >= i)
+        stars.push(<FaStar key={i} className="text-yellow-400" />);
+      else if (rating >= i - 0.5)
+        stars.push(<FaStarHalfAlt key={i} className="text-yellow-400" />);
       else stars.push(<FaRegStar key={i} className="text-yellow-400" />);
     }
     return <div className="flex items-center gap-1 mt-1">{stars}</div>;
@@ -142,38 +136,35 @@ const MenuPage = () => {
 
   return (
     <div className="py-6 max-w-7xl mx-auto text-gray-900 dark:text-white">
-      {loading && <Loader />}
-
+      {loading1 && <Loader />}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         className={`rounded-2xl shadow-xl p-6 mx-2 md:mx-0 border transition-all ${theme === "dark"
-          ? "bg-gradient-to-br from-[#0d0d0d] via-[#1A1A1A] to-[#0d0d0d] border-[#2A2A2A]"
-          : "bg-gray-100 border-gray-300"
+            ? "bg-gradient-to-br from-[#0d0d0d] via-[#1A1A1A] to-[#0d0d0d] border-[#2A2A2A]"
+            : "bg-gray-100 border-gray-300"
           }`}
       >
-        <h2
-          className="text-3xl font-bold text-center 
-             text-primary-light dark:text-primary-dark"
-        >
+        <h2 className="text-3xl font-bold text-center text-primary-light dark:text-primary-dark">
           Menu
         </h2>
-
         <div className="text-sm text-center mt-2 text-text-light dark:text-text-dark">
           Showing:{" "}
           <span className="font-bold text-primary-light dark:text-primary-dark">
             {selectedCategory}
-          </span>, Sort:{" "}
+          </span>
+          , Sort:{" "}
           <span className="font-bold text-primary-light dark:text-primary-dark">
             {sortOrder || "Default"}
-          </span>, Max Price:{" "}
+          </span>
+          , Max Price:{" "}
           <span className="font-bold text-primary-light dark:text-primary-dark">
             ₹{priceLimit}
           </span>
         </div>
 
-
+        {/* 🔹 Category Selector */}
         <div className="mt-6 px-4 overflow-x-auto scrollbar-hide flex gap-6 py-2">
           {categories.map((category, index) => (
             <div
@@ -183,8 +174,8 @@ const MenuPage = () => {
             >
               <div
                 className={`w-24 h-24 rounded-full overflow-hidden shadow-md transition-all duration-300 ${selectedCategory === category.name
-                  ? "ring-4 ring-[#FFD700] scale-105"
-                  : "bg-white"
+                    ? "ring-4 ring-[#FFD700] scale-105"
+                    : "bg-white"
                   }`}
               >
                 <img
@@ -194,9 +185,9 @@ const MenuPage = () => {
                 />
               </div>
               <p
-                className={`mt-2 text-sm font-semibold text-center transition-colors duration-300 ${selectedCategory === category.name
-                  ? "text-[#FFD700]"
-                  : "text-gray-800 dark:text-white"
+                className={`mt-2 text-sm font-semibold text-center ${selectedCategory === category.name
+                    ? "text-[#FFD700]"
+                    : "text-gray-800 dark:text-white"
                   }`}
               >
                 {category.name}
@@ -206,126 +197,32 @@ const MenuPage = () => {
         </div>
       </motion.div>
 
+      {/* 🔹 Food Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 py-6 px-5 md:px-1">
-        {filteredFoods.length > 0 ? (
-          filteredFoods.map((item) => (
-            <motion.div
-              key={item._id}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.97 }}
-              className={`relative rounded-2xl border transition-all duration-500 ease-in-out overflow-hidden
-    ${getItemQuantity(item._id) > 0
-                  ? `border-[${theme === "dark" ? "#FFD54F" : "#FFD54F"}] shadow-[0_0_20px_rgba(255,213,79,0.5)] animate-pulse-slow`
-                  : theme === "dark"
-                    ? `bg-[#121212] border-[#2C2C2C] hover:border-[#FFD54F] hover:shadow-[0_0_15px_rgba(255,213,79,0.3)]`
-                    : `bg-[#FAFAFA] border-gray-200 hover:border-[#FF5722] hover:shadow-[0_0_15px_rgba(255,87,34,0.3)]`
-                }
-  `}
-            >
-              {getItemQuantity(item._id) > 0 && (
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                  className={`absolute top-2 right-2 text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-md
-        ${theme === "dark" ? "bg-[#FFD54F] text-black" : "bg-[#FFD54F] text-black"}
-      `}
-                >
-                  {getItemQuantity(item._id)}
-                </motion.div>
-              )}
-
-              <motion.img
-                src={item.image}
-                alt={item.name}
-                className="p-3 w-full h-44 object-cover rounded-md pb-0 transition-transform duration-500 group-hover:scale-110"
-                whileHover={{ rotate: 1.5 }}
-              />
-
-              <div className="p-3">
-                <h3 className={`text-lg font-bold truncate ${theme === "dark" ? "text-[#FFD54F]" : "text-[#FF5722]"}`}>{item.name}</h3>
-                <p className={`text-md font-semibold ${theme === "dark" ? "text-white" : "text-black"}`}>
-                  ₹{item.price.toLocaleString("en-IN")}
-                </p>
-                <p className={`text-xs mt-1 font-semibold ${item.category === "Vegetarian"
-                  ? "text-green-500"
-                  : item.category === "Non-Vegetarian"
-                    ? "text-red-500"
-                    : theme === "dark"
-                      ? "text-gray-400"
-                      : "text-gray-600"
-                  }`}>
-                  {item.category}
-                </p>
-                {renderStars(item.rating || 4.5)}
-                <p className={`text-xs mt-1 flex items-center gap-1 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                  ⏱ {item.deliveryTime || "25-35 mins"}
-                </p>
-
-                <div className="flex gap-2 mt-3">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setQuickViewItem(item)}
-                    className={`flex-1 py-2 rounded-lg font-semibold transition-all duration-300
-          ${theme === "dark" ? "bg-[#1E1E1E] text-white hover:bg-[#2A2A2A]" : "bg-[#F5F5F5] text-black hover:bg-[#FFE0B2]"}
-        `}
-                  >
-                    Quick View
-                  </motion.button>
-
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    disabled={getItemQuantity(item._id) > 0 || addLoadingId === item._id}
-                    onClick={() => handleAddToCart(item)}
-                    className={`flex-1 py-2 rounded-lg font-semibold flex items-center justify-center transition-all duration-300
-          ${getItemQuantity(item._id) || addLoadingId === item._id
-                        ? "bg-gray-400 cursor-not-allowed text-white"
-                        : theme === "dark"
-                          ? "bg-gradient-to-r from-[#FF5722] to-[#FFD54F] text-black"
-                          : "bg-gradient-to-r from-[#FF5722] to-[#FFC107] text-white"
-                      }
-        `}
-                  >
-                    {addLoadingId === item._id ? (
-                      <span className="loader w-4 h-4 border-2 border-t-transparent border-white rounded-full animate-spin"></span>
-                    ) : getItemQuantity(item._id) > 0 ? (
-                      "In Cart"
-                    ) : (
-                      "Add to Cart"
-                    )}
-                  </motion.button>
-                </div>
-              </div>
-            </motion.div>
-
-
-          ))
-        ) : (
-          !loading && (
-            <p className="text-center col-span-full text-gray-500">No food items found.</p>
-          )
-        )}
-
-      </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 py-6 px-5 md:px-1">
-        {/* 🔹 Show Skeletons while loading */}
         {loading
           ? Array.from({ length: 8 }).map((_, idx) => (
-              <SkeletonCard key={idx} theme={theme} />
-            ))
+            <SkeletonCard key={idx} theme={theme} />
+          ))
           : filteredFoods.length > 0
-          ? filteredFoods.map((item) => (
-              <motion.div key={item._id}>
-              </motion.div>
+            ? filteredFoods.map((item) => (
+              <FoodCard
+                key={item._id}
+                item={item}
+                theme={theme}
+                getItemQuantity={getItemQuantity}
+                handleAddToCart={handleAddToCart}
+                setQuickViewItem={setQuickViewItem}
+                addLoadingId={addLoadingId}
+              />
             ))
-          : (
-            <p className="text-center col-span-full text-gray-500">
-              No food items found.
-            </p>
-          )}
+            : (
+              <p className="text-center col-span-full text-gray-500 dark:text-gray-400">
+                No food items found.
+              </p>
+            )}
       </div>
+
+      {/* 🔹 Filter Modal */}
       <AnimatePresence>
         {showFilterModal && (
           <motion.div
@@ -336,11 +233,14 @@ const MenuPage = () => {
             onClick={() => setShowFilterModal(false)}
           >
             <motion.div
-              initial={{ scale: 0.95, opacity: 0, y: 30 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 30 }}
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 50, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className={`w-full max-w-md p-6 rounded-2xl shadow-2xl transition-all duration-300 ${theme === "dark" ? "bg-[#1a1a1a] text-white" : "bg-white text-black"}`}
+              className={`w-full max-w-md p-6 rounded-2xl shadow-2xl ${theme === "dark"
+                  ? "bg-[#1a1a1a] text-white"
+                  : "bg-white text-black"
+                }`}
             >
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-bold">Filter Options</h3>
@@ -350,13 +250,17 @@ const MenuPage = () => {
                 />
               </div>
 
+              {/* Sort */}
               <div className="mb-5">
                 <label className="block font-semibold mb-1">Sort By:</label>
                 <div className="relative w-full">
                   <select
                     value={sortOrder}
                     onChange={(e) => handleSortChange(e.target.value)}
-                    className={`w-full appearance-none px-4 py-2 pr-10 rounded-lg border focus:outline-none cursor-pointer ${theme === "dark" ? "bg-[#111] border-[#FFD700] text-white" : "bg-white border-gray-400 text-black"}`}
+                    className={`w-full appearance-none px-4 py-2 pr-10 rounded-lg border focus:outline-none cursor-pointer ${theme === "dark"
+                        ? "bg-[#111] border-[#FFD700] text-white"
+                        : "bg-white border-gray-400 text-black"
+                      }`}
                   >
                     <option value="">Default</option>
                     <option value="asc">Price: Low → High</option>
@@ -366,6 +270,7 @@ const MenuPage = () => {
                 </div>
               </div>
 
+              {/* Price */}
               <div className="mb-5">
                 <label className="block font-semibold mb-1">
                   Max Price: ₹{priceLimit}
@@ -377,15 +282,15 @@ const MenuPage = () => {
                   step="50"
                   value={priceLimit}
                   onChange={handlePriceChange}
-                  className="w-full accent-red-500"
+                  className="w-full accent-orange-500"
                 />
               </div>
 
-              {/* Clear Filters Button */}
+              {/* Clear */}
               <div className="mt-6 text-right">
                 <button
                   onClick={handleClearFilters}
-                  className="px-4 py-2 rounded-lg font-semibold bg-red-500 text-white hover:bg-red-600 transition"
+                  className="px-4 py-2 rounded-lg font-semibold bg-gradient-to-r from-red-500 to-orange-500 text-white hover:opacity-90"
                 >
                   Clear Filters
                 </button>
@@ -489,9 +394,8 @@ const MenuPage = () => {
       <button
         onClick={() => setShowFilterModal(true)}
         aria-label="Open Filters"
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-gradient-to-r from-[#FFB300] to-[#FF5722] text-white dark:from-[#FFA000] dark:to-[#FF7043] font-semibold px-5 py-3 rounded-full shadow-lg hover:scale-105 transition-transform duration-300 focus:outline-none focus:ring-2 focus:ring-orange-300 dark:focus:ring-orange-600"
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-gradient-to-r from-[#FFB300] to-[#FF5722] text-white dark:from-[#FFA000] dark:to-[#FF7043] font-semibold px-5 py-3 rounded-full shadow-lg hover:scale-105 transition-transform duration-300"
       >
-        {/* SVG Filter Icon */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
