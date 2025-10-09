@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useTheme } from "../context/ThemeContext";
 import heroImg from "../assets/Images/heroImage.png";
-import { Star, Zap, Headphones, ShoppingBag, Truck, Smile, Rocket, Utensils, MessageCircle } from "lucide-react";
+import { Star, Zap, Headphones, ShoppingBag, Truck, Smile, Rocket, Utensils, MessageCircle, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import ScrollProgress from '../components/ScrollProgress'
 export default function LandingPage() {
@@ -131,6 +131,16 @@ export default function LandingPage() {
               Learn More
             </motion.button>
           </motion.div>
+          {/* Scroll hint */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.8 }}
+          transition={{ delay: 2 }}
+          className="absolute bottom-10 flex flex-col items-center"
+        >
+          <ChevronDown className="w-6 h-6 text-primary-light animate-bounce" />
+          <span className="text-xs text-text-subtleLight mt-1">Scroll Down</span>
+        </motion.div>
         </section>
 
         {/* How It Works */}

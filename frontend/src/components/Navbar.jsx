@@ -154,25 +154,30 @@ const Navbar = () => {
 
           {/* Logo */}
           <Link to="/">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-            className={`${isMenu ? "hidden" : ""} flex items-center gap-2`}
-          >
-            <img src={logo} alt="Yumigo Logo" className={`h-12 w-12 rounded-full`} />
-            <h1 className="font-extrabold text-xl tracking-widest bg-gradient-to-r from-[#FF5722] to-[#FFD54F] bg-clip-text text-transparent">
-              Yumigo
-            </h1>
-          </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              className={`hidden md:flex items-center gap-2`}
+            >
+              <img
+                src={logo}
+                alt="Yumigo Logo"
+                className="h-12 w-12 rounded-full"
+              />
+              <h1 className="font-extrabold text-xl tracking-widest bg-gradient-to-r from-[#FF5722] to-[#FFD54F] bg-clip-text text-transparent">
+                Yumigo
+              </h1>
+            </motion.div>
           </Link>
+
         </div>
 
         {/* Search bar */}
         {isMenu && (
-        <form onSubmit={handleSearchSubmit} className="flex-1 mx-4">
-          <GlobalSearch query={searchQuery} setQuery={setSearchQuery} theme={theme} />
-        </form>)}
+          <form onSubmit={handleSearchSubmit} className="flex-1 mx-4">
+            <GlobalSearch query={searchQuery} setQuery={setSearchQuery} theme={theme} />
+          </form>)}
 
         {/* Right section */}
         <div className="flex items-center gap-3">

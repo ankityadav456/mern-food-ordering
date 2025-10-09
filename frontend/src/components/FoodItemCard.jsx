@@ -1,3 +1,4 @@
+// src/components/FoodItemCard.jsx
 import React from "react";
 import { motion } from "framer-motion";
 import { FaStar, FaRegStar } from "react-icons/fa";
@@ -11,19 +12,17 @@ const FoodItemCard = ({
   addLoadingId,
 }) => {
   const inCart = getItemQuantity(item._id) > 0;
+  const isDark = theme === "dark";
 
   return (
     <motion.div
-      whileHover={{ scale: 1.03 }}
-      whileTap={{ scale: 0.97 }}
-      className={`relative rounded-2xl border transition-all overflow-hidden
-        ${inCart
-          ? theme === "dark"
-            ? "border-primary-dark shadow-[0_0_5px_rgba(255,87,34,0.6)]"
-            : "border-primary-light shadow-[0_0_5px_rgba(255,87,34,0.4)]"
-          : theme === "dark"
-            ? "bg-[#121212] border-[#2C2C2C] hover:border-primary-dark hover:shadow-[0_0_10px_rgba(255,87,34,0.25)]"
-            : "bg-[#FAFAFA] border-gray-200 hover:border-primary-light hover:shadow-[0_0_10px_rgba(255,87,34,0.2)]"
+      layout
+      whileHover={{ y: -6, scale: 1.02 }}
+      transition={{ type: "spring", stiffness: 250, damping: 16 }}
+      className={`relative overflow-hidden rounded-2xl border backdrop-blur-md shadow-md transition-all duration-300
+        ${isDark
+          ? "bg-[#1E1E1E]/80 border-[#2C2C2C] hover:shadow-[0_0_25px_rgba(255,87,34,0.25)]"
+          : "bg-white/90 border-gray-200 hover:shadow-[0_0_25px_rgba(255,87,34,0.15)]"
         }`}
     >
       {/* Quantity Badge */}
@@ -42,88 +41,100 @@ const FoodItemCard = ({
       <motion.img
         src={item.image}
         alt={item.name}
-        className="p-3 w-full h-44 object-cover rounded-md pb-0 transition-transform duration-500 group-hover:scale-105"
-        whileHover={{ rotate: 1 }}
+        className="w-full h-44 object-cover rounded-t-2xl transition-transform duration-700 hover:scale-110"
+        loading="lazy"
       />
 
       {/* Content */}
-      <div className="p-3">
-        <h3
-          className={`text-lg font-bold truncate ${theme === "dark" ? "text-primary-dark" : "text-primary-light"
-            }`}
+      <div className="p-4 flex flex-col gap-1">
+        <motion.h3
+          layout
+          className={`text-lg font-semibold truncate ${
+            isDark ? "text-white" : "text-gray-900"
+          }`}
         >
           {item.name}
-        </h3>
-        <p
-          className={`text-md font-semibold ${theme === "dark" ? "text-white" : "text-black"
+        </motion.h3>
+
+        <div className="flex items-center justify-between mt-1">
+          <p
+            className={`font-bold ${
+              isDark ? "text-primary-dark" : "text-primary-light"
             }`}
-        >
-          ₹{item.price.toLocaleString("en-IN")}
-        </p>
-        <p
-          className={`text-xs mt-1 font-semibold ${item.category === "Vegetarian"
-            ? "text-green-500"
-            : item.category === "Non-Vegetarian"
-              ? "text-red-500"
-              : theme === "dark"
+          >
+            ₹{item.price.toLocaleString("en-IN")}
+          </p>
+          <p
+            className={`text-xs font-medium ${
+              item.category === "Vegetarian"
+                ? "text-green-500"
+                : item.category === "Non-Vegetarian"
+                ? "text-red-500"
+                : isDark
                 ? "text-gray-400"
                 : "text-gray-600"
             }`}
-        >
-          {item.category}
-        </p>
+          >
+            {item.category}
+          </p>
+        </div>
 
         {/* Rating */}
         <div className="flex items-center gap-1 mt-1">
           {[...Array(5)].map((_, i) =>
             i < Math.floor(item.rating || 4.5) ? (
-              <FaStar key={i} className="text-yellow-400" />
+              <FaStar key={i} className="text-yellow-400 text-sm" />
             ) : (
-              <FaRegStar key={i} className="text-yellow-400" />
+              <FaRegStar key={i} className="text-yellow-400 text-sm" />
             )
           )}
         </div>
 
         <p
-          className={`text-xs mt-1 flex items-center gap-1 ${theme === "dark" ? "text-gray-400" : "text-gray-600"
+          className={`text-xs mt-1 ${
+            isDark ? "text-gray-400" : "text-gray-600"
+          }`}
+        >
+          ⏱ {item.deliveryTime || "25–35 mins"}
+        </p>
+      </div>
+
+      {/* Bottom Action Buttons */}
+      <div
+        className={`flex items-center gap-2 px-4 py-3 border-t backdrop-blur-lg
+          ${isDark ? "border-[#2C2C2C]" : "border-gray-200"}`}
+      >
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setQuickViewItem(item)}
+          className={`flex-1 py-2 rounded-xl font-medium text-sm transition-all duration-200
+            ${isDark
+              ? "bg-[#2A2A2A]/80 text-white hover:bg-[#353535]/90"
+              : "bg-gray-100 text-gray-900 hover:bg-gray-200"
             }`}
         >
-          ⏱ {item.deliveryTime || "25-35 mins"}
-        </p>
+          Quick View
+        </motion.button>
 
-        {/* Actions */}
-        <div className="flex gap-2 mt-3">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setQuickViewItem(item)}
-            className={`flex-1 py-2 rounded-lg font-semibold ${theme === "dark"
-              ? "bg-[#1E1E1E] text-white hover:bg-[#2A2A2A]"
-              : "bg-[#F5F5F5] text-black hover:bg-[#FFE0B2]"
-              }`}
-          >
-            Quick View
-          </motion.button>
-
-          <motion.button
-            whileHover={{ scale: inCart ? 1 : 1.05 }}
-            whileTap={{ scale: inCart ? 1 : 0.95 }}
-            onClick={() => !inCart && handleAddToCart(item)}
-            disabled={addLoadingId === item._id || inCart}
-            className={`flex-1 py-2 rounded-lg font-semibold transition-colors duration-200
-    ${addLoadingId === item._id || inCart
+        <motion.button
+          whileHover={{ scale: inCart ? 1 : 1.05 }}
+          whileTap={{ scale: inCart ? 1 : 0.95 }}
+          onClick={() => !inCart && handleAddToCart(item)}
+          disabled={addLoadingId === item._id || inCart}
+          className={`flex-1 py-2 rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm
+            ${
+              addLoadingId === item._id || inCart
                 ? "bg-gray-400 text-white cursor-not-allowed"
                 : "bg-gradient-to-r from-primary-light to-secondary-light dark:from-primary-dark dark:to-secondary-dark text-white hover:opacity-90"
-              }`}
-          >
-            {addLoadingId === item._id
-              ? "Adding..."
-              : inCart
-                ? "In Cart"
-                : "Add"}
-          </motion.button>
-
-        </div>
+            }`}
+        >
+          {addLoadingId === item._id
+            ? "Adding..."
+            : inCart
+            ? "In Cart"
+            : "Add"}
+        </motion.button>
       </div>
     </motion.div>
   );

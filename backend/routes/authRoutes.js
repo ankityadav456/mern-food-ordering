@@ -7,8 +7,7 @@ import {
   updateUserAvatar,
   updateAddress,
   deleteAddress,
-  deleteAvatar,
-  fetchAllUsers
+  deleteAvatar
 } from "../controllers/authController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { uploadAvatar } from "../middleware/multer.js";
@@ -26,6 +25,6 @@ router.put("/update-avatar", protect, uploadAvatar.single("avatar"), updateUserA
 router.put("/save-address", protect, updateAddress);
 router.delete("/delete-address", protect, deleteAddress);
 router.delete("/delete-avatar", protect, deleteAvatar);
-router.get("/users", protect, fetchAllUsers); // GET /api/auth/users
+// router.get("/users", protect, fetchAllUsers); // GET /api/auth/users
 
 export default router;

@@ -37,7 +37,7 @@ const sendTokenResponse = (res, user, message) => {
       address: user.address || null,
       avatar: user.avatar || null,
     },
-    token, // still returning for mobile app compatibility
+    token,
   });
 };
 
@@ -94,25 +94,23 @@ export const logoutUser = (req, res) => {
   res.status(200).json({ success: true, message: "Logged out successfully" });
 };
 
-// controllers/userController.js (add this at the end of your current exports)
+// export const fetchAllUsers = async (req, res) => {
+//   try {
+//     if (!req.user.isAdmin) {
+//       return res.status(403).json({ message: "Access denied" });
+//     }
 
-export const fetchAllUsers = async (req, res) => {
-  try {
-    if (!req.user.isAdmin) {
-      return res.status(403).json({ message: "Access denied" });
-    }
-
-    const users = await User.find().select("-password"); // exclude passwords
-    res.status(200).json({
-      success: true,
-      count: users.length,
-      users,
-    });
-  } catch (error) {
-    console.error("Error in fetchAllUsers:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
+//     const users = await User.find().select("-password");
+//     res.status(200).json({
+//       success: true,
+//       count: users.length,
+//       users,
+//     });
+//   } catch (error) {
+//     console.error("Error in fetchAllUsers:", error);
+//     res.status(500).json({ message: "Server error" });
+//   }
+// };
 
 
 export const getUserProfile = async (req, res) => {

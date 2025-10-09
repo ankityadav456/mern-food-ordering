@@ -9,9 +9,10 @@ import defaultUserLogo from "../assets/Images/profile.png";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // ✅ no localStorage user
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [allUsers, setAllUsers] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,6 +25,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
+  // 🔹 Fetch logged-in user
   const fetchUser = async () => {
     try {
       const res = await axios.get("/auth/me");
@@ -35,6 +37,9 @@ export const AuthProvider = ({ children }) => {
         address: res.data.user.address || null,
         avatar: res.data.user.avatar || defaultUserLogo,
       });
+
+      // ✅ auto-fetch all users if logged-in user is admin
+      if (res.data.user.isAdmin) fetchAllUsers();
     } catch (error) {
       console.error("Fetch User Failed:", error.response?.data?.message || error.message);
       logout(false);
@@ -49,6 +54,7 @@ export const AuthProvider = ({ children }) => {
     fetchUser();
   };
 
+  // 🔹 Signup
   const signup = async (name, email, password) => {
     try {
       const res = await axios.post("/auth/register", { name, email, password });
@@ -61,20 +67,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-
-  // Admin: fetch all users
-  const fetchAllUsers = async () => {
-    if (!user?.isAdmin) return; // only admins
-    try {
-      const res = await axios.get("/auth/users"); // your admin endpoint
-      if (res.data.success) {
-        setAllUsers(res.data.users);
-      }
-    } catch (error) {
-      console.error("Fetch all users failed:", error.response?.data?.message || error.message);
-    }
-  };
-
+  // 🔹 Login
   const login = async (email, password) => {
     try {
       const res = await axios.post("/auth/login", { email, password });
@@ -87,16 +80,26 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // 🔹 Logout
+  const logout = (redirect = true) => {
+    setUser(null);
+    localStorage.removeItem("token");
+    delete axios.defaults.headers.common["Authorization"];
+    if (redirect) navigate("/login");
+  };
+
+  // 🔹 Profile update
   const updateProfile = async (formData) => {
     try {
       const res = await axios.put("/auth/update-profile", formData);
       Swal.fire(res.data.message);
-      fetchUser(); // ✅ get updated data
+      fetchUser();
     } catch (error) {
       throw new Error("Profile update failed");
     }
   };
 
+  // 🔹 Avatar update
   const updateAvatar = async (file) => {
     try {
       const formData = new FormData();
@@ -105,7 +108,7 @@ export const AuthProvider = ({ children }) => {
         headers: { "Content-Type": "multipart/form-data" },
       });
       Swal.fire(res.data.message);
-      fetchUser(); // ✅ get updated avatar
+      fetchUser();
     } catch (error) {
       throw new Error("Avatar upload failed");
     }
@@ -115,18 +118,19 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await axios.delete("/auth/delete-avatar");
       toast.success("Avatar removed successfully");
-      fetchUser(); // ✅ refresh user data
+      fetchUser();
       return res.data.user.avatar;
     } catch {
       toast.error("Failed to remove avatar");
     }
   };
 
+  // 🔹 Address
   const saveAddress = async (addressData) => {
     try {
       const res = await axios.put("/auth/save-address", addressData);
       if (res.data.success) {
-        fetchUser(); // ✅ refresh
+        fetchUser();
         return res.data.address;
       }
     } catch (error) {
@@ -137,28 +141,68 @@ export const AuthProvider = ({ children }) => {
   const deleteAddress = async () => {
     try {
       const res = await axios.delete("/auth/delete-address");
-      if (res.data.success) {
-        fetchUser(); // ✅ refresh
-      }
+      if (res.data.success) fetchUser();
     } catch (error) {
       throw new Error(error.response?.data?.message || "Delete Address Failed");
     }
   };
 
-  const logout = (redirect = true) => {
-    setUser(null);
-    localStorage.removeItem("token");
-    delete axios.defaults.headers.common["Authorization"];
-    if (redirect) navigate("/login");
+  // 🔹 Admin actions
+  const fetchAllUsers = async () => {
+    if (!user?.isAdmin) return;
+    try {
+      setLoadingUsers(true);
+      const { data } = await axios.get("/admin/users"); // admin endpoint
+      if (data.success) setAllUsers(data.users);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to fetch users");
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
+  const deleteUser = async (id) => {
+    try {
+      await axios.delete(`/admin/users/${id}`);
+      toast.success("User deleted successfully");
+      setAllUsers((prev) => prev.filter((u) => u._id !== id));
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to delete user");
+    }
+  };
+
+  const toggleUserStatus = async (id, currentStatus) => {
+    try {
+      const { data } = await axios.put(`/admin/users/${id}/status`, {
+        status: currentStatus === "Active" ? "Blocked" : "Active",
+      });
+      toast.success("User status updated");
+      setAllUsers((prev) =>
+        prev.map((u) => (u._id === id ? { ...u, status: data.status } : u))
+      );
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to update status");
+    }
+  };
+
+  const updateUser = async (id, updatedFields) => {
+    try {
+      const { data } = await axios.put(`/admin/users/${id}`, updatedFields);
+      toast.success("User updated successfully");
+      setAllUsers((prev) =>
+        prev.map((u) => (u._id === id ? { ...u, ...data.user } : u))
+      );
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to update user");
+    }
   };
 
   return (
     <AuthContext.Provider
       value={{
         user,
+        loading,
         signup,
-        allUsers,        // ✅ added
-        fetchAllUsers,   // ✅ added
         login,
         logout,
         updateProfile,
@@ -166,8 +210,13 @@ export const AuthProvider = ({ children }) => {
         handleDeleteAvatar,
         saveAddress,
         deleteAddress,
-        fetchUser, // in case you want to manually refresh
-        loading,
+        allUsers,
+        loadingUsers,
+        fetchAllUsers,
+        deleteUser,
+        toggleUserStatus,
+        updateUser,
+        fetchUser,
       }}
     >
       {!loading && children}

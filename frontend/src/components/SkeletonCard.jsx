@@ -1,21 +1,60 @@
-import React from 'react'
+// src/components/SkeletonCard.jsx
+import React from "react";
+import { motion } from "framer-motion";
 
 const SkeletonCard = ({ theme }) => {
   return (
-    <div
-      className={`relative rounded-2xl border p-4 animate-pulse ${theme === "dark" ? "bg-[#1a1a1a] border-[#2C2C2C]" : "bg-gray-100 border-gray-200"
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className={`rounded-2xl overflow-hidden border backdrop-blur-md 
+        ${theme === "dark"
+          ? "bg-[rgba(30,30,30,0.6)] border-[rgba(255,255,255,0.1)]"
+          : "bg-[rgba(255,255,255,0.5)] border-[rgba(0,0,0,0.05)] shadow-md"
         }`}
     >
-      <div className="w-full h-44 rounded-lg bg-gray-300 dark:bg-gray-700"></div>
-      <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-3/4 mt-3"></div>
-      <div className="h-3 bg-gray-300 dark:bg-gray-700 rounded w-1/2 mt-2"></div>
-      <div className="h-3 bg-gray-300 dark:bg-gray-700 rounded w-1/3 mt-2"></div>
-      <div className="flex gap-2 mt-3">
-        <div className="flex-1 h-8 bg-gray-300 dark:bg-gray-700 rounded"></div>
-        <div className="flex-1 h-8 bg-gray-300 dark:bg-gray-700 rounded"></div>
-      </div>
-    </div>
-  )
-}
+      {/* Image Skeleton */}
+      <div
+        className={`w-full h-44 animate-pulse rounded-t-2xl 
+          ${theme === "dark" ? "bg-[rgba(255,255,255,0.05)]" : "bg-gray-200"}
+        `}
+      ></div>
 
-export default SkeletonCard
+      {/* Content */}
+      <div className="p-4 space-y-3">
+        <div
+          className={`w-3/4 h-4 rounded-md animate-pulse 
+            ${theme === "dark" ? "bg-[rgba(255,255,255,0.08)]" : "bg-gray-300"}
+          `}
+        ></div>
+        <div
+          className={`w-1/2 h-3 rounded-md animate-pulse 
+            ${theme === "dark" ? "bg-[rgba(255,255,255,0.08)]" : "bg-gray-300"}
+          `}
+        ></div>
+        <div
+          className={`w-1/3 h-3 rounded-md animate-pulse 
+            ${theme === "dark" ? "bg-[rgba(255,255,255,0.08)]" : "bg-gray-300"}
+          `}
+        ></div>
+
+        {/* Buttons */}
+        <div className="flex gap-2 mt-3">
+          <div
+            className={`flex-1 h-8 rounded-lg animate-pulse 
+              ${theme === "dark" ? "bg-[rgba(255,255,255,0.08)]" : "bg-gray-300"}
+            `}
+          ></div>
+          <div
+            className={`flex-1 h-8 rounded-lg animate-pulse 
+              ${theme === "dark" ? "bg-[rgba(255,255,255,0.08)]" : "bg-gray-300"}
+            `}
+          ></div>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+export default SkeletonCard;

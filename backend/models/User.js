@@ -1,4 +1,3 @@
-// models/User.js
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import cartItemSchema from "./Cart.js";
@@ -10,17 +9,24 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     isAdmin: { type: Boolean, default: false },
     avatar: { type: String, default: "" },
+
+    status: {
+      type: String,
+      enum: ["Active", "Blocked"],
+      default: "Active",
+    },
+
     cart: [cartItemSchema],
     orders: [{ type: mongoose.Schema.Types.ObjectId, ref: "Order" }],
-    address: { // ✅ Address field added
+    address: {
       fullName: { type: String },
       mobileNumber: { type: String },
       roomNumber: { type: String },
       street: { type: String },
       city: { type: String },
       state: { type: String },
-      pincode: { type: String }
-    }
+      pincode: { type: String },
+    },
   },
   { timestamps: true }
 );
