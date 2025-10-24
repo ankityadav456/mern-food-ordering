@@ -1,3 +1,4 @@
+// src/pages/CheckoutForm.jsx
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { useState, useEffect, useMemo } from "react";
@@ -6,8 +7,18 @@ import { useNavigate } from "react-router-dom";
 import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import AddressModal from "../components/AddressModal";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingCart, MapPin, CreditCard, Loader2, CheckCircle, ArrowLeft, Pencil, Trash2 } from "lucide-react";
+import {
+  ShoppingCart,
+  MapPin,
+  CreditCard,
+  Loader2,
+  CheckCircle,
+  ArrowLeft,
+  Pencil,
+  Trash2,
+} from "lucide-react";
 import Swal from "sweetalert2";
+import { useTheme } from "../context/ThemeContext";
 
 const CheckoutForm = () => {
   const { cartItems = [], clearCart, getTotalPrice } = useCart();
@@ -18,41 +29,32 @@ const CheckoutForm = () => {
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [editAddress, setEditAddress] = useState(null);
-
+  const [addressLoading, setAddressLoading] = useState(false); // ✅ new state
+  const { theme } = useTheme();
   const navigate = useNavigate();
   const stripe = useStripe();
   const elements = useElements();
 
-  const [isDark, setIsDark] = useState(() =>
-    document.documentElement.classList.contains("light")
-  );
-
   useEffect(() => {
     if (user && user.address) setSelectedAddress(user.address);
   }, [user]);
-
-  useEffect(() => {
-    const observer = new MutationObserver(() =>
-      setIsDark(document.documentElement.classList.contains("dark"))
-    );
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
-    return () => observer.disconnect();
-  }, []);
 
   const CARD_OPTIONS = useMemo(
     () => ({
       style: {
         base: {
           fontSize: "16px",
-          color: isDark ? "#FFFFFF" : "#1E1E1E",
-          "::placeholder": { color: isDark ? "#CCCCCC" : "#666666" },
+          color: theme === "dark" ? "#FFFFFF" : "#1E1E1E",
+          "::placeholder": {
+            color: theme === "dark" ? "#CCCCCC" : "#666666",
+          },
           fontFamily: "Poppins, sans-serif",
-          iconColor: isDark ? "#FFD54F" : "#FF5722",
+          iconColor: theme === "dark" ? "#FFD54F" : "#FF5722",
         },
         invalid: { color: "#FF4136" },
       },
     }),
-    [isDark]
+    [theme]
   );
 
   useEffect(() => {
@@ -70,15 +72,31 @@ const CheckoutForm = () => {
     fetchClientSecret();
   }, [cartItems, getTotalPrice]);
 
+  // ✅ Updated function: shows alert when address is missing
   const handlePlaceOrder = async () => {
-    if (!stripe || !elements || !clientSecret || cartItems.length === 0 || !selectedAddress) {
-      setErrorMessage("Please complete all details before proceeding.");
+    if (!selectedAddress) {
+      Swal.fire({
+        title: "No Address Found!",
+        text: "Please add a delivery address before placing your order.",
+        icon: "warning",
+        confirmButtonText: "Add Address",
+        background: theme === "dark" ? "#1E1E1E" : "#FFFFFF",
+        color: theme === "dark" ? "#EAEAEA" : "#111111",
+        confirmButtonColor: theme === "dark" ? "#FF5722" : "#FF7043",
+      }).then((result) => {
+        if (result.isConfirmed) setShowAddressModal(true);
+      });
       return;
     }
 
     const { fullName, mobileNumber, roomNumber, street, city, state, pincode } = selectedAddress;
     if (!fullName || !mobileNumber || !roomNumber || !street || !city || !state || !pincode) {
       setErrorMessage("Please complete all address fields.");
+      return;
+    }
+
+    if (!stripe || !elements || !clientSecret || cartItems.length === 0) {
+      setErrorMessage("Please complete all details before proceeding.");
       return;
     }
 
@@ -121,34 +139,44 @@ const CheckoutForm = () => {
     }
   };
 
+  // ✅ Address added handler with loader
   const handleAddressAdded = (address) => {
-    setSelectedAddress(address);
-    setShowAddressModal(false);
-    setEditAddress(null);
+    setAddressLoading(true);
+    setTimeout(() => {
+      setSelectedAddress(address);
+      setShowAddressModal(false);
+      setEditAddress(null);
+      setAddressLoading(false);
+    }, 1200);
   };
 
-
   const handleDeleteAddress = async () => {
+    const isDark = theme === "dark";
     try {
       const result = await Swal.fire({
         title: "Are you sure?",
         text: "This address will be permanently deleted!",
         icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: "#FF5722", // match your Yumigo theme
-        cancelButtonColor: "#6B7280",
         confirmButtonText: "Yes, delete it!",
+        cancelButtonText: "Cancel",
+        background: isDark ? "#1E1E1E" : "#FFFFFF",
+        color: isDark ? "#EAEAEA" : "#111111",
+        confirmButtonColor: isDark ? "#FF5722" : "#FF7043",
+        cancelButtonColor: isDark ? "#FFD54F" : "#FFC107",
       });
 
       if (result.isConfirmed) {
         await deleteAddress();
         setSelectedAddress(null);
 
-        Swal.fire({
+        await Swal.fire({
           title: "Deleted!",
           text: "Your address has been removed.",
           icon: "success",
-          confirmButtonColor: "#FF5722",
+          background: isDark ? "#1E1E1E" : "#FFFFFF",
+          color: isDark ? "#EAEAEA" : "#111111",
+          confirmButtonColor: isDark ? "#FF5722" : "#FF7043",
         });
       }
     } catch (error) {
@@ -158,44 +186,50 @@ const CheckoutForm = () => {
         title: "Error!",
         text: "Something went wrong while deleting the address.",
         icon: "error",
-        confirmButtonColor: "#FF5722",
+        background: isDark ? "#1E1E1E" : "#FFFFFF",
+        color: isDark ? "#EAEAEA" : "#111111",
+        confirmButtonColor: isDark ? "#FF5722" : "#FF7043",
       });
     }
   };
-
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-7xl mx-auto p-6 mt-10 rounded-2xl shadow-xl 
-      bg-surface-light dark:bg-surface-dark border border-gray-200 dark:border-[#333] 
-      text-text-light dark:text-text-dark"
+      className="max-w-7xl mx-auto p-6 mt-12 rounded-3xl shadow-xl
+             bg-surface-light dark:bg-surface-dark
+             border border-transparent dark:border-transparent
+             text-text-light dark:text-text-dark
+             transition-all duration-500"
     >
-      <h2 className="text-3xl font-bold text-center text-primary-light dark:text-primary-dark mb-8">
+      <h2 className="text-4xl md:text-5xl font-extrabold text-center text-primary-light dark:text-primary-dark mb-10">
         Checkout
       </h2>
 
       {cartItems.length > 0 ? (
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* 🛒 Cart Summary */}
+        <div className="grid md:grid-cols-2 gap-8 md:gap-12">
+          {/* Cart Summary */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
-            className="p-5 rounded-2xl bg-surface-light dark:bg-surface-dark shadow-md border border-gray-200 dark:border-[#333]"
+            className="p-6 rounded-3xl bg-surface-light dark:bg-surface-dark shadow-lg 
+                   border border-gray-100 dark:border-[#222] flex flex-col"
           >
-            <h3 className="flex items-center gap-2 text-xl font-semibold text-primary-light dark:text-primary-dark mb-4">
-              <ShoppingCart className="w-5 h-5" /> Your Order
+            <h3 className="flex items-center gap-3 text-2xl font-semibold text-primary-light dark:text-primary-dark mb-6">
+              <ShoppingCart className="w-6 h-6" /> Your Order
             </h3>
-            <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+
+            <div className="space-y-5 max-h-[350px] overflow-y-auto pr-3 custom-scrollbar">
               {cartItems.map((item) => (
                 <motion.div
                   key={item.foodId._id}
-                  whileHover={{ translateY: -2 }}
-                  className="flex justify-between items-center border-b pb-3 border-gray-200 dark:border-[#333]"
+                  whileHover={{ scale: 1.02 }}
+                  className="flex justify-between items-center py-3 px-2 rounded-xl
+                         hover:bg-primary-light/10 dark:hover:bg-primary-dark/20 transition-all"
                 >
-                  <div>
-                    <p className="font-medium">{item.foodId.name}</p>
+                  <div className="flex flex-col">
+                    <p className="font-medium text-lg">{item.foodId.name}</p>
                     <p className="text-sm text-text-subtleLight dark:text-text-subtleDark">
                       Qty: {item.quantity}
                     </p>
@@ -206,143 +240,112 @@ const CheckoutForm = () => {
                 </motion.div>
               ))}
             </div>
-            <div className="mt-6 border-t pt-4 space-y-1 border-gray-200 dark:border-[#333]">
+
+            <div className="mt-6 border-t pt-5 space-y-2 border-gray-100 dark:border-[#222]">
               <p className="text-text-subtleLight dark:text-text-subtleDark">
                 Subtotal: ₹{getTotalPrice()}
               </p>
               <p className="text-text-subtleLight dark:text-text-subtleDark">
                 Delivery Fee: ₹40
               </p>
-              <p className="text-lg font-bold text-primary-light dark:text-primary-dark">
+              <p className="text-xl font-bold text-primary-light dark:text-primary-dark">
                 Total: ₹{getTotalPrice() + 40}
               </p>
             </div>
           </motion.div>
 
-          {/* 📍 Address & Payment */}
+          {/* Address & Payment */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
-            className="space-y-6"
+            className="space-y-6 flex flex-col"
           >
-            {/* Address Section */}
-            <div className="p-5 rounded-2xl bg-surface-light dark:bg-surface-dark shadow-md border border-gray-200 dark:border-[#333]">
-              <h3 className="flex items-center gap-2 text-xl font-semibold mb-4 text-primary-light dark:text-primary-dark">
-                <MapPin className="w-5 h-5" /> Delivery Address
+            {/* Address */}
+            <div className="p-6 rounded-3xl bg-surface-light dark:bg-surface-dark shadow-lg border border-gray-100 dark:border-[#222]">
+              <h3 className="flex items-center gap-3 text-2xl font-semibold mb-5 text-primary-light dark:text-primary-dark">
+                <MapPin className="w-6 h-6" /> Delivery Address
               </h3>
               {selectedAddress ? (
-                <div className="p-4 rounded-lg bg-background-light dark:bg-background-dark shadow-sm">
-                  <p>{selectedAddress.fullName}</p>
-                  <p>Mobile: {selectedAddress.mobileNumber}</p>
+                <div className="p-5 rounded-2xl bg-background-light dark:bg-background-dark shadow-md">
+                  <p className="font-medium">{selectedAddress.fullName}</p>
+                  <p className="text-text-subtleLight dark:text-text-subtleDark">
+                    Mobile: {selectedAddress.mobileNumber}
+                  </p>
                   <p>
                     {selectedAddress.roomNumber}, {selectedAddress.street}
                   </p>
                   <p>
-                    {selectedAddress.city}, {selectedAddress.state} - {selectedAddress.pincode}
+                    {selectedAddress.city}, {selectedAddress.state} -{" "}
+                    {selectedAddress.pincode}
                   </p>
 
-                  <div className="flex gap-4 mt-4">
+                  <div className="flex gap-4 mt-5">
                     <button
                       onClick={() => {
                         setEditAddress(selectedAddress);
                         setShowAddressModal(true);
                       }}
-                      className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary-light dark:bg-primary-dark hover:opacity-90 text-white transition-all duration-200"
+                      className="flex items-center gap-2 px-5 py-2 rounded-2xl bg-primary-light dark:bg-primary-dark text-white font-semibold hover:scale-105 transition-transform"
                     >
                       <Pencil size={18} /> Edit
                     </button>
-
                     <button
                       onClick={handleDeleteAddress}
-                      className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white transition-all duration-200"
+                      className="flex items-center gap-2 px-5 py-2 rounded-2xl bg-red-500 hover:bg-red-600 text-white font-semibold transition-colors"
                     >
                       <Trash2 size={18} /> Delete
                     </button>
                   </div>
-
                 </div>
               ) : (
-                <p className="text-text-subtleLight dark:text-text-subtleDark mb-4">
-                  No address added yet.
-                </p>
-              )}
-
-              {!selectedAddress ?
                 <button
                   onClick={() => setShowAddressModal(true)}
-                  className="mt-3 px-5 py-2 rounded-xl bg-secondary-light dark:bg-secondary-dark text-black font-bold hover:opacity-90"
+                  className="mt-4 px-6 py-3 rounded-2xl bg-secondary-light dark:bg-secondary-dark font-bold text-black hover:scale-105 transition-transform"
                 >
-                  {selectedAddress ? "Change Address" : "Add Address"}
+                  Add Address
                 </button>
-                : ""}
+              )}
             </div>
 
-            {/* Payment Section */}
-            <div className="p-5 rounded-2xl bg-surface-light dark:bg-surface-dark shadow-md border border-gray-200 dark:border-[#333]">
-              <h3 className="flex items-center gap-2 text-xl font-semibold mb-4 text-primary-light dark:text-primary-dark">
-                <CreditCard className="w-5 h-5" /> Payment
+            {/* Payment */}
+            <div className="p-6 rounded-3xl bg-surface-light dark:bg-surface-dark shadow-lg border border-gray-100 dark:border-[#222]">
+              <h3 className="flex items-center gap-3 text-2xl font-semibold mb-4 text-primary-light dark:text-primary-dark">
+                <CreditCard className="w-6 h-6" /> Payment
               </h3>
-              <div className="border rounded-xl p-4 bg-background-light dark:bg-background-dark">
+              <div className="border rounded-2xl p-4 text-black dark:text-white bg-background-light dark:bg-background-dark">
                 <CardElement options={CARD_OPTIONS} />
               </div>
             </div>
 
-            {/* Error */}
-            {errorMessage && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="p-3 rounded-lg bg-red-500 text-white text-center"
-              >
-                {errorMessage}
-              </motion.div>
-            )}
-
-            {/* Action Buttons */}
-            <div className="flex gap-4">
-              {/* Back to Cart Button */}
+            {/* Buttons */}
+            <div className="flex flex-col md:flex-row gap-4 mt-4">
               <button
                 onClick={() => navigate("/cart")}
-                className="w-1/2 flex items-center justify-center gap-2 px-6 py-3 rounded-xl
-      bg-surface-light dark:bg-surface-dark 
-      text-text-light dark:text-text-dark 
-      font-medium shadow-md 
-      hover:bg-gray-300 dark:hover:bg-[#444] 
-      transition-all duration-300"
+                className="w-full md:w-1/2 flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark font-medium shadow-md hover:scale-105 transition-transform"
               >
-                <ArrowLeft className="w-5 h-5" />
-                Back to Cart
+                <ArrowLeft className="w-5 h-5" /> Back to Cart
               </button>
 
-              {/* Place Order Button */}
               <button
                 onClick={handlePlaceOrder}
                 disabled={loading || !clientSecret}
-                className="w-1/2 flex items-center justify-center gap-2 px-6 py-3 
-    rounded-xl bg-gradient-to-r from-[#FFD54F] to-[#FF5722]
-    text-white font-semibold shadow-md
-    hover:scale-105 disabled:opacity-60 
-    transition-all duration-300"
+                className="w-full md:w-1/2 flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-[#FFD54F] to-[#FF5722] text-white font-semibold shadow-lg hover:scale-105 disabled:opacity-60 transition-transform"
               >
                 {loading ? (
                   <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Placing Order...
+                    <Loader2 className="w-5 h-5 animate-spin" /> Placing Order...
                   </>
                 ) : (
                   <>
-                    <CheckCircle className="w-5 h-5" />
-                    Place Order
+                    <CheckCircle className="w-5 h-5" /> Place Order
                   </>
                 )}
               </button>
-
             </div>
-
           </motion.div>
         </div>
       ) : (
-        <p className="text-center text-text-subtleLight dark:text-text-subtleDark">
+        <p className="text-center text-lg text-text-subtleLight dark:text-text-subtleDark mt-20">
           Your cart is empty.
         </p>
       )}
@@ -360,6 +363,22 @@ const CheckoutForm = () => {
           />
         )}
       </AnimatePresence>
+
+      {/* ✅ Address Saving Loader */}
+      {addressLoading && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex flex-col items-center gap-3 bg-surface-light dark:bg-surface-dark px-8 py-6 rounded-2xl shadow-lg"
+          >
+            <Loader2 className="w-8 h-8 text-primary-light dark:text-primary-dark animate-spin" />
+            <p className="text-text-light dark:text-text-dark font-medium">
+              Saving address...
+            </p>
+          </motion.div>
+        </div>
+      )}
     </motion.div>
   );
 };
