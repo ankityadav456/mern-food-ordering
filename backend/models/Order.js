@@ -1,6 +1,7 @@
 // models/Order.js
 import mongoose from "mongoose";
 
+/* ---------------- ORDER ITEM ---------------- */
 const orderItemSchema = new mongoose.Schema({
   foodId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -21,6 +22,7 @@ const orderItemSchema = new mongoose.Schema({
   },
 });
 
+/* ---------------- ADDRESS ---------------- */
 const addressSchema = new mongoose.Schema({
   fullName: { type: String, required: true },
   mobileNumber: { type: String, required: true },
@@ -28,9 +30,20 @@ const addressSchema = new mongoose.Schema({
   street: { type: String, required: true },
   city: { type: String, required: true },
   state: { type: String, required: true },
-  pincode: { type: String, required: true }
+  pincode: { type: String, required: true },
 });
 
+/* ---------------- COUPON ---------------- */
+const appliedCouponSchema = new mongoose.Schema({
+  code: { type: String },
+  discountType: {
+    type: String,
+    enum: ["fixed", "percentage"],
+  },
+  discount: { type: Number },
+});
+
+/* ---------------- ORDER ---------------- */
 const orderSchema = new mongoose.Schema(
   {
     user: {
@@ -38,22 +51,49 @@ const orderSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+
     items: {
       type: [orderItemSchema],
       required: true,
     },
+
+    /* ---------- PRICE BREAKDOWN ---------- */
+    cartTotal: {
+      type: Number,
+      required: true, // subtotal before coupon
+    },
+
+    discount: {
+      type: Number,
+      default: 0,
+    },
+
+    deliveryFee: {
+      type: Number,
+      default: 40,
+    },
+
     totalAmount: {
       type: Number,
-      required: true,
+      required: true, // final payable
     },
+
+    appliedCoupon: {
+      type: appliedCouponSchema,
+      default: null,
+    },
+
+    /* ---------- PAYMENT ---------- */
     paymentStatus: {
       type: String,
       enum: ["Pending", "Paid", "Failed"],
       default: "Paid",
     },
+
+    /* ---------- DELIVERY ---------- */
     deliveryAddress: {
       type: addressSchema,
-      required: true, // ✅ Ensure address is mandatory for every order
+      required: true,
     },
   },
   { timestamps: true }

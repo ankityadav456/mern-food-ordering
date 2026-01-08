@@ -1,14 +1,20 @@
+// import Order from "../models/Order.js";
+// import User from "../models/User.js";
+// import FoodItem from "../models/FoodItem.js";
+
+// ✅ Place a new order with delivery address
 import Order from "../models/Order.js";
 import User from "../models/User.js";
 import FoodItem from "../models/FoodItem.js";
+import Coupon from "../models/Coupon.js";
+import { staticCoupons } from "../utils/staticCoupons.js";
 
-// ✅ Place a new order with delivery address
 export const placeOrder = async (req, res) => {
   try {
-    const { items, totalAmount, deliveryAddress } = req.body;
+    const { items, couponCode, deliveryFee = 40, deliveryAddress } = req.body;
     const userId = req.user.id;
 
-    // Validate address fields
+    /* ---------------- ADDRESS VALIDATION ---------------- */
     if (
       !deliveryAddress ||
       !deliveryAddress.fullName ||
@@ -22,13 +28,17 @@ export const placeOrder = async (req, res) => {
       return res.status(400).json({ message: "All delivery address fields are required" });
     }
 
-    // Validate and prepare order items
+    /* ---------------- CART VALIDATION ---------------- */
+    if (!items || items.length === 0) {
+      return res.status(400).json({ message: "Cart is empty" });
+    }
+
+    /* ---------------- FETCH FOOD ITEMS ---------------- */
     const orderItems = await Promise.all(
       items.map(async (item) => {
-        const food = await FoodItem.findById(item.foodId._id || item.foodId); // Accept full object or ID
-        if (!food) {
-          throw new Error(`Food item ${item.foodId} not found`);
-        }
+        const food = await FoodItem.findById(item.foodId);
+        if (!food) throw new Error("Food item not found");
+
         return {
           foodId: food._id,
           name: food.name,
@@ -38,36 +48,87 @@ export const placeOrder = async (req, res) => {
       })
     );
 
-    // Calculate total manually to ensure correctness
-    const calculatedTotal = orderItems.reduce(
-      (acc, item) => acc + item.price * item.quantity,
+    /* ---------------- CALCULATE CART TOTAL ---------------- */
+    let cartTotal = orderItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
       0
     );
 
-    if (calculatedTotal !== totalAmount) {
-      return res.status(400).json({
-        message: "Total amount mismatch. Please verify your cart.",
-      });
+    /* ---------------- APPLY COUPON (IF ANY) ---------------- */
+    let discount = 0;
+    let appliedCoupon = null;
+
+    if (couponCode) {
+      const upperCode = couponCode.toUpperCase();
+
+      let coupon =
+        staticCoupons.find(c => c.code === upperCode && c.isActive) ||
+        await Coupon.findOne({ code: upperCode, isActive: true });
+
+      if (!coupon) {
+        return res.status(400).json({ message: "Invalid coupon" });
+      }
+
+      if (coupon.expiryDate && new Date() > coupon.expiryDate) {
+        return res.status(400).json({ message: "Coupon expired" });
+      }
+
+      if (coupon.minOrderValue && cartTotal < coupon.minOrderValue) {
+        return res.status(400).json({
+          message: `Minimum order ₹${coupon.minOrderValue} required`
+        });
+      }
+
+      if (coupon.discountType === "percentage") {
+        discount = (cartTotal * coupon.discountValue) / 100;
+        if (coupon.maxDiscount && discount > coupon.maxDiscount) {
+          discount = coupon.maxDiscount;
+        }
+      } else {
+        discount = coupon.discountValue;
+      }
+
+      appliedCoupon = {
+        code: coupon.code,
+        discount,
+        discountType: coupon.discountType,
+      };
     }
 
-    // Create order with address
+    /* ---------------- FINAL TOTAL ---------------- */
+    const finalAmount = Math.max(cartTotal - discount + deliveryFee, 0);
+
+    /* ---------------- CREATE ORDER ---------------- */
     const order = await Order.create({
       user: userId,
       items: orderItems,
-      totalAmount: calculatedTotal,
+      cartTotal,
+      discount,
+      deliveryFee,
+      totalAmount: finalAmount,
+      appliedCoupon,
       paymentStatus: "Paid",
-      deliveryAddress, // ✅ Save address here
+      deliveryAddress,
     });
 
-    // Optional: Save order reference to user document
-    await User.findByIdAndUpdate(userId, { $push: { orders: order._id } });
+    /* ---------------- SAVE ORDER TO USER ---------------- */
+    await User.findByIdAndUpdate(userId, {
+      $push: { orders: order._id },
+      $unset: { appliedCoupon: "" }, // clear applied coupon
+    });
 
-    res.status(201).json({ message: "Order placed successfully", order });
+    res.status(201).json({
+      success: true,
+      message: "Order placed successfully",
+      order,
+    });
+
   } catch (error) {
     console.error("Order Error:", error.message);
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: "Server error" });
   }
 };
+
 
 // ✅ Get orders for a user using query param
 export const getUserOrders = async (req, res) => {

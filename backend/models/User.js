@@ -27,6 +27,16 @@ const userSchema = new mongoose.Schema(
       state: { type: String },
       pincode: { type: String },
     },
+
+    appliedCoupon: {
+      code: { type: String, default: null },
+      discountValue: { type: Number, default: 0 },
+      discountType: { 
+        type: String, 
+        enum: ["percentage", "fixed", null],
+        default: null 
+      },
+    },
   },
   { timestamps: true }
 );
@@ -41,6 +51,21 @@ userSchema.pre("save", async function (next) {
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return bcrypt.compare(enteredPassword, this.password);
 };
+
+userSchema.virtual("cartTotal").get(function () {
+  return this.cart.reduce((sum, item) => {
+    const price = item.price || (item.foodId?.price ?? 0);
+    return sum + price * item.quantity;
+  }, 0);
+});
+
+userSchema.virtual("finalTotal").get(function () {
+  let total = this.cartTotal;
+  if (this.appliedCoupon?.discountValue) {
+    total -= this.appliedCoupon.discountValue;
+  }
+  return total < 0 ? 0 : total;
+});
 
 const User = mongoose.model("User", userSchema);
 export default User;
