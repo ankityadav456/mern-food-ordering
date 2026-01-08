@@ -1,6 +1,13 @@
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { ClipboardList, Users, Utensils } from "lucide-react";
+import Swal from "sweetalert2";
+import {
+  ClipboardList,
+  Users,
+  Utensils,
+  LayoutDashboard,
+  ShieldAlert,
+} from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function AdminDashboard() {
@@ -9,79 +16,119 @@ export default function AdminDashboard() {
 
   if (!user?.isAdmin) {
     return (
-      <div className="flex items-center justify-center h-screen bg-background-light dark:bg-background-dark">
-        <h2 className="text-red-500 text-2xl font-bold">
-          🚫 Access Denied: Admins Only
+      <div className="flex flex-col items-center justify-center h-screen bg-background-light dark:bg-background-dark text-center">
+        <ShieldAlert size={52} className="text-red-500 mb-4" />
+        <h2 className="text-2xl font-semibold text-red-500">
+          Access Denied
         </h2>
+        <p className="text-sm text-text-light/60 dark:text-text-dark/60 mt-2">
+          Admin privileges required
+        </p>
       </div>
     );
   }
 
+  const showComingSoon = (isDark) => {
+  Swal.fire({
+  title: "Coming Soon",
+  text: "This feature is under development.",
+  icon: "info",
+  showClass: {
+    popup: "animate__animated animate__fadeInUp",
+  },
+  hideClass: {
+    popup: "animate__animated animate__fadeOutDown",
+  },
+  confirmButtonText: "Got it",
+  background: isDark ? "#1E1E1E" : "#FFFFFF",
+  color: isDark ? "#FFFFFF" : "#121212",
+  confirmButtonColor: "#FF5722",
+});
+
+};
+
   const cards = [
     {
       title: "Manage Food Items",
-      description: "Add, update or remove food from the menu.",
-      icon: <Utensils className="w-12 h-12 text-primary-light dark:text-primary-dark" />,
+      description: "Create, edit and organize menu items.",
+      icon: Utensils,
       action: () => navigate("/food-management"),
     },
     {
       title: "Manage Users",
-      description: "View and control all user accounts.",
-      icon: <Users className="w-12 h-12 text-primary-light dark:text-primary-dark" />,
+      description: "View and control user accounts.",
+      icon: Users,
       action: () => navigate("/users"),
     },
     {
       title: "All Orders",
-      description: "Track and manage all placed orders.",
-      icon: <ClipboardList className="w-12 h-12 text-primary-light dark:text-primary-dark" />,
-      action: () => alert("Coming soon!"),
+      description: "Track, update and fulfill orders.",
+      icon: ClipboardList,
+      action: () => showComingSoon(
+  document.documentElement.classList.contains("dark")
+),
     },
   ];
 
   return (
-     <div className="min-h-screen py-6 max-w-7xl mx-auto text-gray-900 dark:text-white">
-      {/* Title Animation */}
+    <div className="min-h-screen px-6 py-10 max-w-7xl mx-auto">
+      {/* ---------- HEADER ---------- */}
       <motion.h1
-        initial={{ opacity: 0, y: -30 }}
+        initial={{ opacity: 0, y: -25 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className="text-3xl font-bold mb-10 text-center"
+        transition={{ duration: 0.6 }}
+        className="mb-12 flex items-center justify-center gap-3 text-3xl md:text-4xl font-bold text-primary"
       >
-        📊 Admin Dashboard
+        <LayoutDashboard size={34} />
+        Admin Dashboard
       </motion.h1>
 
-      {/* Cards with Animation */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        {cards.map((card, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: index * 0.2 }}
-            whileHover={{ scale: 1.05, y: -5 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={card.action}
-            className="bg-surface-light dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded-2xl shadow-lg p-6 cursor-pointer group overflow-hidden relative"
-          >
-            {/* Glow Effect on Hover */}
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-br from-primary-light/10 to-secondary-light/10 dark:from-primary-dark/10 dark:to-secondary-dark/10 transition duration-500 rounded-2xl"></div>
+      {/* ---------- CARDS ---------- */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {cards.map((card, index) => {
+          const Icon = card.icon;
 
-            {/* Icon */}
-            <div className="flex items-center justify-center mb-4 relative z-10">
-              {card.icon}
-            </div>
+          return (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.12, duration: 0.5 }}
+              whileHover={{ y: -6 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={card.action}
+              className="
+                relative cursor-pointer rounded-3xl p-6
+                bg-white/70 dark:bg-[#1E1E1E]/80
+                backdrop-blur-xl
+                border border-black/5 dark:border-white/10
+                shadow-[0_10px_30px_rgba(0,0,0,0.08)]
+                dark:shadow-[0_10px_30px_rgba(0,0,0,0.5)]
+                group transition-all
+              "
+            >
+              {/* Gradient Ring */}
+              <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition duration-500 bg-gradient-to-br from-primary/20 via-transparent to-secondary/20 pointer-events-none" />
 
-            {/* Title */}
-            <h2 className="text-lg font-semibold text-center mb-2 relative z-10 group-hover:text-primary-light dark:group-hover:text-primary-dark transition">
-              {card.title}
-            </h2>
+              {/* Icon */}
+              <div className="relative z-10 flex justify-center mb-5">
+                <div className="p-4 rounded-2xl bg-primary/10 text-primary">
+                  <Icon size={36} />
+                </div>
+              </div>
 
-            {/* Description */}
-            <p className="text-sm text-text-light/70 dark:text-text-dark/70 text-center relative z-10">
-              {card.description}
-            </p>
-          </motion.div>
-        ))}
+              {/* Title */}
+              <h2 className="relative z-10 text-lg font-semibold text-center mb-2 group-hover:text-primary transition">
+                {card.title}
+              </h2>
+
+              {/* Description */}
+              <p className="relative z-10 text-sm text-center text-text-light/70 dark:text-text-dark/70">
+                {card.description}
+              </p>
+            </motion.div>
+          );
+        })}
       </div>
     </div>
   );

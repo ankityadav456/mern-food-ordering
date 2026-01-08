@@ -132,63 +132,124 @@ export default function LandingPage() {
             </motion.button>
           </motion.div>
           {/* Scroll hint */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.8 }}
-          transition={{ delay: 2 }}
-          className="absolute bottom-10 flex flex-col items-center"
-        >
-          <ChevronDown className="w-6 h-6 text-primary-light animate-bounce" />
-          <span className="text-xs text-text-subtleLight mt-1">Scroll Down</span>
-        </motion.div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.8 }}
+            transition={{ delay: 2 }}
+            className="absolute bottom-10 flex flex-col items-center"
+          >
+            <ChevronDown className="w-6 h-6 text-primary-light animate-bounce" />
+            <span className="text-xs text-text-subtleLight mt-1">Scroll Down</span>
+          </motion.div>
         </section>
 
-        {/* How It Works */}
-        <section className="relative py-24 px-6 max-w-5xl mx-auto text-center">
-          {/* Animated Grid Overlay */}
 
 
-          {/* Section content */}
-          <h2 className="relative text-4xl font-bold mb-12 z-10">
-            How <span className="text-primary-light">Yumigo</span> Works
-          </h2>
+        {/* HOW IT WORKS – ULTRA ANIMATED 2026 */}
+        <section className="relative py-36 overflow-hidden">
+          {/* Animated Gradient Orbs */}
+          <motion.div
+            animate={{ y: [0, -40, 0], x: [0, 30, 0] }}
+            transition={{ duration: 14, repeat: Infinity }}
+            className="absolute top-20 left-10 w-72 h-72 bg-primary/30 rounded-full blur-[160px]"
+          />
+          <motion.div
+            animate={{ y: [0, 50, 0], x: [0, -40, 0] }}
+            transition={{ duration: 16, repeat: Infinity }}
+            className="absolute bottom-20 right-10 w-72 h-72 bg-secondary/30 rounded-full blur-[160px]"
+          />
 
-          <div className="relative z-10 grid md:grid-cols-3 gap-10">
+          {/* Title */}
+          <motion.h2
+            initial={{ opacity: 0, y: -40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="text-center text-5xl md:text-6xl font-extrabold mb-24"
+          >
+            How{" "}
+            <span className="bg-gradient-to-r from-primary-light to-secondary-light bg-clip-text text-transparent font-bold">
+              Yumigo
+            </span>{" "}
+            Works
+          </motion.h2>
+
+          {/* Steps */}
+          <div className="relative z-10 max-w-7xl mx-auto grid md:grid-cols-3 gap-16 px-6">
             {[
               {
-                icon: <ShoppingBag className="w-10 h-10 text-secondary-light" />,
-                step: "Choose",
-                desc: "Browse menu & pick your favorite meal.",
+                icon: ShoppingBag,
+                title: "Choose",
+                desc: "Discover curated dishes made just for you.",
+                glow: "",
               },
               {
-                icon: <Truck className="w-10 h-10 text-secondary-light" />,
-                step: "Deliver",
-                desc: "We cook & deliver it super fast to you.",
+                icon: Truck,
+                title: "Deliver",
+                desc: "Lightning-fast delivery while food stays hot.",
+                glow: "",
               },
               {
-                icon: <Smile className="w-10 h-10 text-secondary-light" />,
-                step: "Enjoy",
-                desc: "Sit back, relax & enjoy your food.",
+                icon: Smile,
+                title: "Enjoy",
+                desc: "Sit back and enjoy the Yumigo experience.",
+                glow: "",
               },
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.3 }}
-                viewport={{ once: true }}
-                className="p-8 bg-surface-light dark:bg-surface-dark/90 rounded-2xl shadow-lg hover:scale-105 transition-transform"
-              >
-                <div className="mb-4 flex justify-center">{item.icon}</div>
-                <h3 className="text-xl font-semibold">{item.step}</h3>
-                <p className="mt-3 text-text-subtleLight dark:text-text-subtleDark">
-                  {item.desc}
-                </p>
-              </motion.div>
-            ))}
+            ].map((item, i) => {
+              const Icon = item.icon;
+
+              return (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 80 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.3, duration: 0.8 }}
+                  whileHover={{ y: -20 }}
+                  className="group relative"
+                >
+                  {/* Glow ring */}
+                  <div
+                    className={`absolute -inset-1 rounded-3xl bg-gradient-to-br ${item.glow}
+                        opacity-40 blur-2xl group-hover:opacity-80 transition`}
+                  />
+
+                  {/* Card */}
+                  <motion.div
+                    animate={{ y: [0, -10, 0] }}
+                    transition={{ duration: 5 + i, repeat: Infinity, ease: "easeInOut" }}
+                    className="relative rounded-3xl p-12 bg-white/60 dark:bg-surface-dark/60
+                       backdrop-blur-2xl border border-white/20
+                       shadow-[0_30px_80px_-30px_rgba(0,0,0,0.4)]"
+                  >
+                    {/* Icon */}
+                    <motion.div
+                      animate={{ rotate: [0, 5, -5, 0] }}
+                      transition={{ duration: 6, repeat: Infinity }}
+                      className="mb-8 flex justify-center"
+                    >
+                      <div
+                        className="w-24 h-24 rounded-3xl flex items-center justify-center
+                           bg-gradient-to-br from-primary to-secondary
+                           text-orange-500 shadow-xl"
+                      >
+                        <Icon size={56} strokeWidth={1.5} />
+                      </div>
+                    </motion.div>
+
+                    {/* Text */}
+                    <h3 className="text-2xl font-bold text-center mb-4">
+                      {item.title}
+                    </h3>
+                    <p className="text-center text-lg text-text-subtleLight dark:text-text-subtleDark">
+                      {item.desc}
+                    </p>
+                  </motion.div>
+                </motion.div>
+              );
+            })}
           </div>
         </section>
-
 
         <section className="relative py-24 px-6 text-center overflow-hidden">
           {/* Background */}
@@ -217,7 +278,7 @@ export default function LandingPage() {
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
             className="text-4xl md:text-5xl font-extrabold 
-               text-gray-900 dark:text-white drop-shadow-lg"
+               text-gray-900 dark:text-white"
           >
             Ready to{" "}
             <span className="text-primary-light dark:text-yellow-300">
@@ -240,7 +301,6 @@ export default function LandingPage() {
             Your cravings, just a click away.
           </motion.p>
 
-          {/* CTA Button */}
           <Link to="/menu">
             <motion.button
               whileHover={{
@@ -248,13 +308,14 @@ export default function LandingPage() {
                 boxShadow: "0px 0px 30px rgba(0,0,0,0.2)",
               }}
               whileTap={{ scale: 0.95 }}
-              className="relative mt-8 px-10 py-4 rounded-full 
+              className="relative mt-8 px-10 py-3 rounded-full 
+              bg-gradient-to-r from-primary-light to-secondary-light
                bg-surface-light dark:bg-surface-dark 
-               text-primary-light dark:text-primary-dark 
+               text-white dark:text-primary-dark 
                font-bold text-lg shadow-lg flex items-center gap-2 mx-auto 
                overflow-hidden transition-colors duration-300"
             >
-              <ShoppingBag className="w-5 h-5 text-primary-light dark:text-primary-dark" />
+              <ShoppingBag className="w-5 h-5 text-white dark:text-primary-dark" />
               <span className="relative z-10">Get Started</span>
 
               {/* Hover shine overlay */}

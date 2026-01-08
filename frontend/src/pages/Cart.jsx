@@ -10,6 +10,9 @@ import Lottie from "lottie-react";
 import emptyCartAnim from "../assets/lottieIJson/Empty red.json";
 import shoppingCartAnim from "../assets/lottieIJson/shopping cart.json";
 import Swal from "sweetalert2";
+import axios from "../utils/axiosInstance"; // already used elsewhere, right?
+import { useAuth } from "../context/AuthContext";
+
 const Cart = () => {
   const { cartItems, fetchCartItems, removeFromCart, updateItemQuantity, clearCart } = useCart();
   const [loading, setLoading] = useState(true);
@@ -18,6 +21,7 @@ const Cart = () => {
   const navigate = useNavigate();
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const { theme } = useTheme();
+    const { user } = useAuth();
 
   const [discount, setDiscount] = useState(0); // new state for discount
   useEffect(() => {
@@ -36,36 +40,36 @@ const Cart = () => {
 
   const handleRemove = async (id) => {
 
-  const result = await Swal.fire({
-    title: "Are you sure?",
-    text: "Do you want to remove this item from the cart?",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonText: "Yes, remove it!",
-    cancelButtonText: "Cancel",
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to remove this item from the cart?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, remove it!",
+      cancelButtonText: "Cancel",
 
-    // 🎨 Adjust colors & background based on theme
-    background: theme === "dark" ? "#1E1E1E" : "#FFFFFF",
-    color: theme === "dark" ? "#EAEAEA" : "#111111",
-    confirmButtonColor: theme === "dark" ? "#FF5722" : "#FF7043", // your primary
-    cancelButtonColor: theme === "dark" ? "#FFC107" : "#3085d6",
-  });
+      // 🎨 Adjust colors & background based on theme
+      background: theme === "dark" ? "#1E1E1E" : "#FFFFFF",
+      color: theme === "dark" ? "#EAEAEA" : "#111111",
+      confirmButtonColor: theme === "dark" ? "#FF5722" : "#FF7043", // your primary
+      cancelButtonColor: theme === "dark" ? "#FFC107" : "#3085d6",
+    });
 
-  if (!result.isConfirmed) return;
+    if (!result.isConfirmed) return;
 
-  setActionLoading(true);
-  await removeFromCart(id);
-  setActionLoading(false);
+    setActionLoading(true);
+    await removeFromCart(id);
+    setActionLoading(false);
 
-  Swal.fire({
-    title: "Removed!",
-    text: "The item has been removed from your cart.",
-    icon: "success",
-    background: theme === "dark" ? "#1E1E1E" : "#FFFFFF",
-    color: theme === "dark" ? "#EAEAEA" : "#111111",
-    confirmButtonColor: theme === "dark" ? "#FF5722" : "#FF7043",
-  });
-};
+    Swal.fire({
+      title: "Removed!",
+      text: "The item has been removed from your cart.",
+      icon: "success",
+      background: theme === "dark" ? "#1E1E1E" : "#FFFFFF",
+      color: theme === "dark" ? "#EAEAEA" : "#111111",
+      confirmButtonColor: theme === "dark" ? "#FF5722" : "#FF7043",
+    });
+  };
 
   const handleQuantityChange = async (id, quantity) => {
     if (quantity < 1) return;
@@ -105,32 +109,39 @@ const Cart = () => {
   };
 
 
-  const handleApplyCoupon = () => {
-    if (coupon.trim()) {
-      if (discount > 0) {
-        toast.error("Coupon already applied");
-        setCoupon("");
-        return;
-      }
 
-      if (coupon === "ANKIT100") {
-        setDiscount(100);
-        setAppliedCoupon("ANKIT100");
-        toast.success("ANKIT100 applied! ₹100 off");
-        setCoupon("");
-      } else if (coupon === "FOOD50") {
-        const discountAmount = Math.min(totalPrice * 0.5, 200);
-        setDiscount(discountAmount);
-        setAppliedCoupon("FOOD50");
-        toast.success(`FOOD50 applied! 50% off (Saved ₹${discountAmount})`);
-        setCoupon("");
-      } else {
-        toast.error("❌ Invalid coupon code");
-      }
+const handleApplyCoupon = async () => {
+  if (!coupon.trim()) {
+    toast.error("Enter a valid code");
+    return;
+  }
+
+  if (discount > 0) {
+    toast.error("Coupon already applied");
+    return;
+  }
+
+  try {
+    setLoading(true);
+    const { data } = await axios.post("/coupons/apply", {
+      userId: user._id,            // 👈 include logged-in user
+      code: coupon,                // 👈 match backend param name
+      cartTotal: totalPrice,       // 👈 match backend param name
+    });
+    if (data.success) {
+      setDiscount(data.discount);
+      setAppliedCoupon(data.appliedCoupon);
+      toast.success(data.message);
     } else {
-      toast.error("Enter a valid code");
+      toast.error(data.message);
     }
-  };
+  } catch (err) {
+    console.error("Coupon Apply Error:", err);
+    toast.error("Something went wrong while applying coupon");
+  } finally {
+    setLoading(false);
+  }
+};
 
 
   const handleRemoveCoupon = () => {
@@ -287,12 +298,18 @@ const Cart = () => {
                 {/* Actions */}
                 <div className="flex flex-col gap-3">
                   <Link
-                    to="/checkout"
-                    onClick={() => toast.success("Proceeding to checkout...")}
-                    className="flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-[#FFD54F] to-[#FF5722] text-white font-semibold rounded-full shadow-md hover:scale-105 transition-transform"
-                  >
-                    <CreditCard size={18} /> Checkout
-                  </Link>
+                      to="/checkout"
+                      state={{
+                        discount,
+                        appliedCoupon,
+                        finalTotal: Math.max(totalPrice - discount, 0),
+                      }}
+                      onClick={() => toast.success("Proceeding to checkout...")}
+                      className="flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-[#FFD54F] to-[#FF5722] text-white font-semibold rounded-full shadow-md hover:scale-105 transition-transform"
+                    >
+                      <CreditCard size={18} /> Checkout
+                    </Link>
+
 
                   <div className="flex flex-wrap gap-3">
                     <Link

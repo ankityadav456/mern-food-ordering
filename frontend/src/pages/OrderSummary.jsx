@@ -1,15 +1,14 @@
 import { useAuth } from "../context/AuthContext";
-import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axiosInstance from "../utils/axiosInstance";
 import Loader from "../components/Loader";
 import { motion } from "framer-motion";
 import { useTheme } from "../context/ThemeContext";
+import { Tag, MapPin } from "lucide-react";
 
 const OrderSummary = () => {
   const { user } = useAuth();
   const { theme } = useTheme();
-  const { orderId } = useParams();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -20,99 +19,147 @@ const OrderSummary = () => {
           params: { userId: user?._id },
         });
         setOrders(data.orders);
-      } catch (error) {
-        console.error("Error fetching orders", error);
+      } catch (err) {
+        console.error("Fetch orders error", err);
       } finally {
         setLoading(false);
       }
     };
 
-    if (user?._id) {
-      fetchOrders();
-    }
+    if (user?._id) fetchOrders();
   }, [user]);
 
   if (loading) return <Loader />;
 
-  // Theme classes
-  const bgColor = theme === "dark" ? "bg-[#111]" : "bg-[#FAF9F6]";
-  const textColor = theme === "dark" ? "text-white" : "text-black";
-  const tableBg = theme === "dark" ? "bg-[#1a1a1a]" : "bg-white";
-  const borderColor = theme === "dark" ? "border-[#2A2A2A]" : "border-gray-300";
-  const hoverColor = theme === "dark" ? "hover:bg-[#2b2b2b]" : "hover:bg-gray-100";
-  const noDataColor = theme === "dark" ? "text-gray-400" : "text-gray-600";
+  const isDark = theme === "dark";
 
   return (
-    <div className={`min-h-screen ${textColor} p-6 md:p-10`}>
+    <div
+      className={`min-h-screen p-6 md:p-10 transition-colors duration-500
+      ${isDark ? "bg-[#121212] text-[#EAEAEA]" : "bg-[#FAFAFA] text-[#1E1E1E]"}`}
+    >
       <motion.h2
-        className="text-3xl font-bold mb-8 text-center text-[#FFD700]"
+        className="text-4xl font-extrabold text-center mb-12
+        text-[#FF5722]"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7 }}
       >
-        My Order History
+        My Orders
       </motion.h2>
 
       {orders.length === 0 ? (
-        <div className={`text-center ${noDataColor} text-lg`}>No orders found.</div>
+        <p className="text-center text-gray-400 text-lg">
+          No orders found.
+        </p>
       ) : (
-        <div className="overflow-x-auto rounded-xl">
-          <motion.table
-            className={`min-w-full ${tableBg} ${borderColor} border rounded-xl overflow-hidden shadow-lg`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8 }}
-          >
-            <thead className="bg-[#FFD700] text-black">
-              <tr>
-                <th className="py-3 px-4 text-left">Order ID</th>
-                <th className="py-3 px-4 text-left">Date</th>
-                <th className="py-3 px-4 text-left">Items</th>
-                <th className="py-3 px-4 text-left">Total</th>
-                <th className="py-3 px-4 text-left">Address</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((order, index) => (
-                <motion.tr
-                  key={order._id}
-                  className={`${borderColor} border-b ${hoverColor} transition-all duration-300`}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
+        <div className="space-y-10 max-w-5xl mx-auto">
+          {orders.map((order, index) => (
+            <motion.div
+              key={order._id}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.08 }}
+              className={`rounded-3xl p-6 md:p-7 shadow-xl border
+              ${
+                isDark
+                  ? "bg-[#1E1E1E] border-[#2A2A2A]"
+                  : "bg-white border-gray-200"
+              }`}
+            >
+              {/* ---------- HEADER ---------- */}
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
+                <div>
+                  <p className="text-xs text-gray-400 uppercase tracking-wide">
+                    Order ID
+                  </p>
+                  <p className="font-semibold break-all text-sm">
+                    {order._id}
+                  </p>
+                </div>
+                <p className="text-sm text-gray-400">
+                  {new Date(order.createdAt).toLocaleString()}
+                </p>
+              </div>
+
+              {/* ---------- ITEMS ---------- */}
+              <div className="space-y-2 mb-6">
+                {order.items.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="flex justify-between text-sm md:text-base"
+                  >
+                    <span className="font-medium">
+                      {item.foodId.name} × {item.quantity}
+                    </span>
+                    <span className="font-semibold">
+                      ₹{item.foodId.price * item.quantity}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {/* ---------- PRICE BREAKDOWN ---------- */}
+              <div
+                className={`rounded-2xl p-4 mb-6 border border-dashed
+                ${isDark ? "border-[#2A2A2A]" : "border-gray-300"}`}
+              >
+                <div className="flex justify-between text-sm text-gray-400">
+                  <span>Subtotal</span>
+                  <span>₹{order.cartTotal}</span>
+                </div>
+
+                {order.appliedCoupon && (
+                  <div className="flex justify-between text-sm mt-1 text-[#4CAF50]">
+                    <span className="flex items-center gap-1">
+                      <Tag size={14} />
+                      Coupon ({order.appliedCoupon.code})
+                    </span>
+                    <span>-₹{order.discount}</span>
+                  </div>
+                )}
+
+                <div className="flex justify-between text-sm mt-1 text-gray-400">
+                  <span>Delivery Fee</span>
+                  <span>₹{order.deliveryFee}</span>
+                </div>
+
+                <div className="flex justify-between font-extrabold text-lg mt-4 text-[#FF5722]">
+                  <span>Total</span>
+                  <span>₹{order.totalAmount}</span>
+                </div>
+              </div>
+
+              {/* ---------- ADDRESS ---------- */}
+              <div className="flex items-start gap-3 text-sm">
+                <MapPin size={18} className="mt-1 text-[#FFC107]" />
+                <div>
+                  <p className="font-semibold">
+                    {order.deliveryAddress.fullName}
+                  </p>
+                  <p className="text-gray-400">
+                    {order.deliveryAddress.roomNumber},{" "}
+                    {order.deliveryAddress.street},{" "}
+                    {order.deliveryAddress.city},{" "}
+                    {order.deliveryAddress.state} -{" "}
+                    {order.deliveryAddress.pincode}
+                  </p>
+                  <p className="text-gray-400">
+                    Mobile: {order.deliveryAddress.mobileNumber}
+                  </p>
+                </div>
+              </div>
+
+              {/* ---------- STATUS ---------- */}
+              <div className="flex justify-end mt-6">
+                <span
+                  className="px-4 py-1 rounded-full text-xs font-semibold
+                  bg-[#4CAF50]/20 text-[#4CAF50]"
                 >
-                  <td className="py-4 px-4 break-all">{order._id}</td>
-                  <td className="py-4 px-4">{new Date(order.createdAt).toLocaleDateString()}</td>
-                  <td className="py-4 px-4">
-                    <ul className="space-y-1">
-                      {order.items.map((item, idx) => (
-                        <li key={idx}>
-                          {item.foodId.name} x {item.quantity} - ₹{item.foodId.price * item.quantity}
-                        </li>
-                      ))}
-                    </ul>
-                  </td>
-                  <td className="py-4 px-4 font-semibold text-[#FFD700]">₹{order.totalAmount}</td>
-                  <td className="py-4 px-4">
-                    {order.deliveryAddress ? (
-                      <div>
-                        <p>{order.deliveryAddress.fullName}</p>
-                        <p>Mobile: {order.deliveryAddress.mobileNumber}</p>
-                        <p>
-                          {order.deliveryAddress.roomNumber}, {order.deliveryAddress.street}
-                        </p>
-                        <p>
-                          {order.deliveryAddress.city}, {order.deliveryAddress.state} - {order.deliveryAddress.pincode}
-                        </p>
-                      </div>
-                    ) : (
-                      <p className={noDataColor}>No Address Provided</p>
-                    )}
-                  </td>
-                </motion.tr>
-              ))}
-            </tbody>
-          </motion.table>
+                  Paid
+                </span>
+              </div>
+            </motion.div>
+          ))}
         </div>
       )}
     </div>

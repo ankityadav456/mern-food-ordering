@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import AddressModal from "../components/AddressModal";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLocation } from "react-router-dom";
 import {
   ShoppingCart,
   MapPin,
@@ -34,7 +35,8 @@ const CheckoutForm = () => {
   const navigate = useNavigate();
   const stripe = useStripe();
   const elements = useElements();
-
+  const location = useLocation();
+  const { discount = 0, appliedCoupon = null, finalTotal = 0 } = location.state || {};
   useEffect(() => {
     if (user && user.address) setSelectedAddress(user.address);
   }, [user]);
@@ -62,7 +64,7 @@ const CheckoutForm = () => {
     const fetchClientSecret = async () => {
       try {
         const { data } = await axios.post("/payment/create-payment-intent", {
-          amount: (getTotalPrice() + 40) * 100,
+          amount: (finalTotal + 40) * 100,
         });
         setClientSecret(data.clientSecret);
       } catch (error) {
@@ -122,7 +124,9 @@ const CheckoutForm = () => {
             name: item.foodId.name,
             price: item.foodId.price,
           })),
-          totalAmount: getTotalPrice(),
+          // totalAmount: getTotalPrice(),
+           couponCode: appliedCoupon || null,
+  deliveryFee: 40,
           deliveryAddress: selectedAddress,
         });
 
@@ -243,15 +247,25 @@ const CheckoutForm = () => {
 
             <div className="mt-6 border-t pt-5 space-y-2 border-gray-100 dark:border-[#222]">
               <p className="text-text-subtleLight dark:text-text-subtleDark">
-                Subtotal: ₹{getTotalPrice()}
+                Subtotal: ₹{finalTotal + discount}
               </p>
+
+              {appliedCoupon && (
+                <p className="text-text-subtleLight dark:text-text-subtleDark">
+                  Coupon ({appliedCoupon}): -₹{discount.toFixed(2)}
+                </p>
+              )}
+
               <p className="text-text-subtleLight dark:text-text-subtleDark">
                 Delivery Fee: ₹40
               </p>
+
               <p className="text-xl font-bold text-primary-light dark:text-primary-dark">
-                Total: ₹{getTotalPrice() + 40}
+                Total: ₹{(finalTotal + 40).toFixed(2)}
               </p>
             </div>
+
+
           </motion.div>
 
           {/* Address & Payment */}
