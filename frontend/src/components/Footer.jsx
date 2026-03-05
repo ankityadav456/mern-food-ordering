@@ -43,39 +43,6 @@ const Footer = () => {
       bg-gradient-to-r from-[#FF5722] via-[#FFD54F] to-[#FF5722]
       bg-[length:200%_100%] animate-shimmer" />
 
-      {/* CTA SECTION (2026 trend) */}
-      {isHome && (
-        <div className="relative max-w-6xl mx-auto px-6 pt-16 pb-10">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            className={`rounded-3xl border ${borderColor}
-            backdrop-blur-xl p-10 text-center
-            ${isDark ? "bg-[#1E1E1E]/60" : "bg-white/70"}
-            shadow-xl`}
-          >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Ready to order your favorite food?
-            </h2>
-
-            <p className="text-sm opacity-80 mb-6">
-              Delicious meals from the best restaurants delivered fast.
-            </p>
-
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="px-8 py-3 rounded-xl text-white font-semibold
-              bg-gradient-to-r from-[#FF5722] to-[#FFD54F]
-              shadow-lg hover:opacity-90 transition"
-            >
-              Explore Menu
-            </motion.button>
-          </motion.div>
-        </div>
-      )}
-
       {/* MAIN FOOTER GRID */}
       <div className="max-w-7xl mx-auto px-6 py-14 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-14 relative">
 
