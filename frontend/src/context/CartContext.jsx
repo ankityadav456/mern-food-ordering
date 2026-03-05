@@ -91,7 +91,7 @@ const fetchCartItems = async () => {
         { quantity },
         { withCredentials: true }
       );
-      toast.success("Quantity updated");
+      // toast.success("Quantity updated");
     } catch (error) {
       toast.error("Failed to update quantity");
       fetchCartItems(); // rollback

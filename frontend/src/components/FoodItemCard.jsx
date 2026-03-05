@@ -17,12 +17,12 @@ const FoodItemCard = ({
   return (
     <motion.div
       layout
-      whileHover={{ y: -6, scale: 1.02 }}
-      transition={{ type: "spring", stiffness: 250, damping: 16 }}
-      className={`relative overflow-hidden rounded-2xl border backdrop-blur-md shadow-md transition-all duration-300
-        ${isDark
-          ? "bg-[#1E1E1E]/80 border-[#2C2C2C] hover:shadow-[0_0_25px_rgba(255,87,34,0.25)]"
-          : "bg-white/90 border-gray-200 hover:shadow-[0_0_25px_rgba(255,87,34,0.15)]"
+      whileHover={{ y: -4, scale: 1.015 }}
+      transition={{ type: "spring", stiffness: 220, damping: 20 }}
+      className={`relative overflow-hidden rounded-2xl border backdrop-blur-md transition-all duration-300
+  ${isDark
+          ? "bg-[#1E1E1E]/90 border-[#2C2C2C] shadow-sm hover:shadow-lg hover:shadow-black/30"
+          : "bg-white border-gray-200 shadow-sm hover:shadow-md"
         }`}
     >
       {/* Quantity Badge */}
@@ -41,7 +41,7 @@ const FoodItemCard = ({
       <motion.img
         src={item.image}
         alt={item.name}
-        className="w-full h-44 object-cover rounded-t-2xl transition-transform duration-700 hover:scale-110"
+        className="w-full h-44 object-cover rounded-t-2xl transition-transform duration-700 hover:scale-105"
         loading="lazy"
       />
 
@@ -49,31 +49,28 @@ const FoodItemCard = ({
       <div className="p-4 flex flex-col gap-1">
         <motion.h3
           layout
-          className={`text-lg font-semibold truncate ${
-            isDark ? "text-white" : "text-gray-900"
-          }`}
+          className={`text-lg font-semibold truncate ${isDark ? "text-white" : "text-gray-900"
+            }`}
         >
           {item.name}
         </motion.h3>
 
         <div className="flex items-center justify-between mt-1">
           <p
-            className={`font-bold ${
-              isDark ? "text-primary-dark" : "text-primary-light"
-            }`}
+            className={`font-bold ${isDark ? "text-primary-dark" : "text-primary-light"
+              }`}
           >
             ₹{item.price.toLocaleString("en-IN")}
           </p>
           <p
-            className={`text-xs font-medium ${
-              item.category === "Vegetarian"
+            className={`text-xs font-medium ${item.category === "Vegetarian"
                 ? "text-green-500"
                 : item.category === "Non-Vegetarian"
-                ? "text-red-500"
-                : isDark
-                ? "text-gray-400"
-                : "text-gray-600"
-            }`}
+                  ? "text-red-500"
+                  : isDark
+                    ? "text-gray-400"
+                    : "text-gray-600"
+              }`}
           >
             {item.category}
           </p>
@@ -91,9 +88,8 @@ const FoodItemCard = ({
         </div>
 
         <p
-          className={`text-xs mt-1 ${
-            isDark ? "text-gray-400" : "text-gray-600"
-          }`}
+          className={`text-xs mt-1 ${isDark ? "text-gray-400" : "text-gray-600"
+            }`}
         >
           ⏱ {item.deliveryTime || "25–35 mins"}
         </p>
@@ -123,17 +119,16 @@ const FoodItemCard = ({
           onClick={() => !inCart && handleAddToCart(item)}
           disabled={addLoadingId === item._id || inCart}
           className={`flex-1 py-2 rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm
-            ${
-              addLoadingId === item._id || inCart
-                ? "bg-gray-400 text-white cursor-not-allowed"
-                : "bg-gradient-to-r from-primary-light to-secondary-light dark:from-primary-dark dark:to-secondary-dark text-white hover:opacity-90"
+            ${addLoadingId === item._id || inCart
+              ? "bg-gray-400 text-white cursor-not-allowed"
+              : "bg-gradient-to-r from-primary-light to-secondary-light dark:from-primary-dark dark:to-secondary-dark text-white hover:opacity-90"
             }`}
         >
           {addLoadingId === item._id
             ? "Adding..."
             : inCart
-            ? "In Cart"
-            : "Add"}
+              ? "In Cart"
+              : "Add"}
         </motion.button>
       </div>
     </motion.div>

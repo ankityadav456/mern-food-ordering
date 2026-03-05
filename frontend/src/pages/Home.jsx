@@ -143,11 +143,7 @@ export default function LandingPage() {
           </motion.div>
         </section>
 
-
-
-        {/* HOW IT WORKS – ULTRA ANIMATED 2026 */}
-        <section className="relative py-36 overflow-hidden">
-          {/* Animated Gradient Orbs */}
+        <section className="relative py-24 px-6 text-center overflow-hidden">
           <motion.div
             animate={{ y: [0, -40, 0], x: [0, 30, 0] }}
             transition={{ duration: 14, repeat: Infinity }}
@@ -167,33 +163,29 @@ export default function LandingPage() {
             transition={{ duration: 0.8 }}
             className="text-center text-5xl md:text-6xl font-extrabold mb-24"
           >
-            How{" "}
-            <span className="bg-gradient-to-r from-primary-light to-secondary-light bg-clip-text text-transparent font-bold">
-              Yumigo
-            </span>{" "}
-            Works
+            Get Your Food in{" "}
+            <span className="bg-gradient-to-r from-primary-light to-secondary-light bg-clip-text text-transparent">
+              3 Easy Steps
+            </span>
           </motion.h2>
 
           {/* Steps */}
-          <div className="relative z-10 max-w-7xl mx-auto grid md:grid-cols-3 gap-16 px-6">
+          <div className="relative z-10 max-w-7xl mx-auto grid md:grid-cols-3 gap-10 px-14">
             {[
               {
+                icon: Utensils,
+                title: "Browse the Menu",
+                desc: "Explore a variety of delicious dishes and find what you're craving.",
+              },
+              {
                 icon: ShoppingBag,
-                title: "Choose",
-                desc: "Discover curated dishes made just for you.",
-                glow: "",
+                title: "Add to Cart",
+                desc: "Pick your favorites and add them to your cart in just one click.",
               },
               {
                 icon: Truck,
-                title: "Deliver",
-                desc: "Lightning-fast delivery while food stays hot.",
-                glow: "",
-              },
-              {
-                icon: Smile,
-                title: "Enjoy",
-                desc: "Sit back and enjoy the Yumigo experience.",
-                glow: "",
+                title: "Fast Delivery",
+                desc: "We prepare your order instantly and deliver it fresh to your door.",
               },
             ].map((item, i) => {
               const Icon = item.icon;
@@ -201,50 +193,57 @@ export default function LandingPage() {
               return (
                 <motion.div
                   key={i}
-                  initial={{ opacity: 0, y: 80 }}
+                  initial={{ opacity: 0, y: 60 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: i * 0.3, duration: 0.8 }}
-                  whileHover={{ y: -20 }}
+                  transition={{ delay: i * 0.25, duration: 0.6 }}
+                  whileHover={{ y: -10, scale: 1.02 }}
                   className="group relative"
                 >
-                  {/* Glow ring */}
-                  <div
-                    className={`absolute -inset-1 rounded-3xl bg-gradient-to-br ${item.glow}
-                        opacity-40 blur-2xl group-hover:opacity-80 transition`}
-                  />
+                  {/* Gradient Glow */}
+                  <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r 
+      from-primary-light via-secondary-light to-primary-light 
+      opacity-10 blur-lg group-hover:opacity-30 transition"></div>
 
                   {/* Card */}
-                  <motion.div
-                    animate={{ y: [0, -10, 0] }}
-                    transition={{ duration: 5 + i, repeat: Infinity, ease: "easeInOut" }}
-                    className="relative rounded-3xl p-12 bg-white/60 dark:bg-surface-dark/60
-                       backdrop-blur-2xl border border-white/20
-                       shadow-[0_30px_80px_-30px_rgba(0,0,0,0.4)]"
-                  >
+                  <div className="relative rounded-2xl p-6
+      bg-white/70 dark:bg-surface-dark/60
+      backdrop-blur-lg
+      border border-white/20
+      transition-all duration-300">
+
+                    {/* Step Number */}
+                    <div className="absolute -top-3 -left-3 
+        w-8 h-8 rounded-full 
+        bg-gradient-to-r from-primary-light to-secondary-light
+        text-white text-sm font-semibold flex items-center justify-center shadow-md">
+                      {i + 1}
+                    </div>
+
                     {/* Icon */}
                     <motion.div
-                      animate={{ rotate: [0, 5, -5, 0] }}
-                      transition={{ duration: 6, repeat: Infinity }}
-                      className="mb-8 flex justify-center"
+                      animate={{ scale: [1, 1.05, 1] }}
+                      transition={{ duration: 3, repeat: Infinity }}
+                      className="flex justify-center mb-4"
                     >
-                      <div
-                        className="w-24 h-24 rounded-3xl flex items-center justify-center
-                           bg-gradient-to-br from-primary to-secondary
-                           text-orange-500 shadow-xl"
-                      >
-                        <Icon size={56} strokeWidth={1.5} />
+                      <div className="w-14 h-14 rounded-xl flex items-center justify-center
+          bg-gradient-to-br from-primary-light to-secondary-light
+          text-white shadow-md group-hover:scale-110 transition">
+                        <Icon size={28} strokeWidth={1.8} />
                       </div>
                     </motion.div>
 
-                    {/* Text */}
-                    <h3 className="text-2xl font-bold text-center mb-4">
+                    {/* Title */}
+                    <h3 className="text-lg font-semibold text-center mb-2">
                       {item.title}
                     </h3>
-                    <p className="text-center text-lg text-text-subtleLight dark:text-text-subtleDark">
+
+                    {/* Description */}
+                    <p className="text-center text-sm leading-relaxed 
+        text-text-subtleLight dark:text-text-subtleDark">
                       {item.desc}
                     </p>
-                  </motion.div>
+                  </div>
                 </motion.div>
               );
             })}
@@ -297,11 +296,13 @@ export default function LandingPage() {
                max-w-2xl mx-auto"
           >
             Experience lightning-fast delivery and mouth-watering meals with{" "}
-            <span className="font-semibold">Yumigo</span>.
+            <span className="bg-gradient-to-r from-primary-light to-secondary-light bg-clip-text text-transparent font-bold">
+              Yumigo
+            </span>.
             Your cravings, just a click away.
           </motion.p>
 
-          <Link to="/menu">
+          {/* <Link to="/menu">
             <motion.button
               whileHover={{
                 scale: 1.1,
@@ -318,7 +319,6 @@ export default function LandingPage() {
               <ShoppingBag className="w-5 h-5 text-white dark:text-primary-dark" />
               <span className="relative z-10">Get Started</span>
 
-              {/* Hover shine overlay */}
               <span
                 className="absolute inset-0 rounded-full 
                  bg-gradient-to-r from-primary-light to-secondary-light 
@@ -326,7 +326,18 @@ export default function LandingPage() {
                  opacity-0 hover:opacity-20 transition-opacity duration-300"
               ></span>
             </motion.button>
-          </Link>
+          </Link> */}
+
+          <Link to="/menu">
+              <motion.button
+                whileHover={{ scale: 1.05, boxShadow: "0px 0px 20px rgba(255,87,34,0.6)" }}
+                whileTap={{ scale: 0.95 }}
+                className="px-8 py-3 rounded-full bg-gradient-to-r from-primary-light to-secondary-light text-white font-semibold shadow-lg flex items-center gap-2 mx-auto mt-5"
+              >
+                <ShoppingBag className="w-5 h-5" />
+                Get Started
+              </motion.button>
+            </Link>
 
         </section>
 

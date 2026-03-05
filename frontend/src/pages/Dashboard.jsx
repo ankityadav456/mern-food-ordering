@@ -1,5 +1,6 @@
 import { useAuth } from "../context/AuthContext";
 import { Link } from "react-router-dom";
+import Loader from "../components/Loader";
 import {
   ShoppingCart,
   List,
@@ -48,6 +49,7 @@ const Dashboard = () => {
 
   return (
     <div className="py-16 max-w-7xl mx-auto px-6 text-gray-900 dark:text-white">
+      {(loading) && <Loader />}  
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
