@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
-import cookieParser from "cookie-parser"; // ✅ NEW
+import cookieParser from "cookie-parser"; //  NEW
 import mongoose from "mongoose";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -25,9 +25,9 @@ const __dirname = path.dirname(__filename);
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-app.use(cookieParser()); // ✅ NEW
+app.use(cookieParser()); //  NEW
 
-// ✅ Allow frontend with credentials (cookies)
+//  Allow frontend with credentials (cookies)
 app.use(
   cors({
     origin: process.env.FRONTEND_URL, // dynamic from .env
@@ -48,15 +48,15 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/coupons", couponRoutes);
 // ====== Test Route ======
 app.get("/", (req, res) => {
-  res.send("Server is running ✅");
+  res.send("Server is running ");
 });
 
 // ====== MongoDB Connection ======
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ MongoDB Connected"))
+  .then(() => console.log(" MongoDB Connected"))
   .catch((err) => {
-    console.error("❌ MongoDB Connection Error:", err);
+    console.error(" MongoDB Connection Error:", err);
     process.exit(1);
   });
 

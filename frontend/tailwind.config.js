@@ -19,7 +19,7 @@ export default {
         gold: "#D4AF37",
       },
       animation: {
-        moveGrid: "moveGrid 20s linear infinite", // ✅ animate grid
+        moveGrid: "moveGrid 20s linear infinite", //  animate grid
         fadeIn: "fadeIn 0.6s ease-out",
         slideUp: "slideUp 0.4s ease-out forwards",
         spinSlow: "spin 1.5s linear infinite",

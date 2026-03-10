@@ -1,7 +1,7 @@
 import Coupon from "../models/Coupon.js";
 import User from "../models/User.js";
 
-// ✅ Static coupons
+//  Static coupons
 const staticCoupons = [
   {
     code: "ANKIT100",
@@ -21,7 +21,6 @@ const staticCoupons = [
   },
 ];
 
-// ✅ Apply Coupon
 export const applyCoupon = async (req, res) => {
   try {
     console.log(req.body);
@@ -33,34 +32,28 @@ export const applyCoupon = async (req, res) => {
 
     const upperCode = code.toUpperCase();
 
-    // 🔹 First check in static coupons
     let coupon = staticCoupons.find(
       (c) => c.code === upperCode && c.isActive
     );
 
-    // 🔹 If not found in static list, check in DB
     if (!coupon) {
       coupon = await Coupon.findOne({ code: upperCode, isActive: true });
     }
 
-    // ❌ No coupon found
     if (!coupon) {
       return res.status(404).json({ message: "Invalid or expired coupon." });
     }
 
-    // ❌ Expired coupon
     if (coupon.expiryDate && new Date() > coupon.expiryDate) {
       return res.status(400).json({ message: "Coupon has expired." });
     }
 
-    // ❌ Below minimum order
     if (cartTotal < coupon.minOrderValue) {
       return res.status(400).json({
         message: `Minimum order value should be ₹${coupon.minOrderValue} to use this coupon.`,
       });
     }
 
-    // ✅ Calculate discount
     let discount = 0;
     if (coupon.discountType === "percentage") {
       discount = (cartTotal * coupon.discountValue) / 100;
@@ -73,7 +66,7 @@ export const applyCoupon = async (req, res) => {
 
     const finalTotal = Math.max(cartTotal - discount, 0);
 
-    // ✅ Store in user model
+    //  Store in user model
     await User.findByIdAndUpdate(userId, {
       appliedCoupon: {
         code: coupon.code,
@@ -95,7 +88,7 @@ export const applyCoupon = async (req, res) => {
   }
 };
 
-// ✅ Remove Coupon
+//  Remove Coupon
 export const removeCoupon = async (req, res) => {
   try {
     const { userId } = req.body;

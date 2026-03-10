@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import ScrollProgress from '../components/ScrollProgress'
 export default function LandingPage() {
   const { theme } = useTheme();
-
+const MotionLink = motion(Link);
   return (
     <div className="min-h-screen w-full bg-white relative text-gray-800">
       <div
@@ -112,16 +112,15 @@ export default function LandingPage() {
             transition={{ delay: 1, duration: 1 }}
             className="mt-10 flex flex-col sm:flex-row gap-4"
           >
-            <Link to="/menu">
-              <motion.button
-                whileHover={{ scale: 1.05, boxShadow: "0px 0px 20px rgba(255,87,34,0.6)" }}
-                whileTap={{ scale: 0.95 }}
-                className="px-8 py-3 rounded-full bg-gradient-to-r from-primary-light to-secondary-light text-white font-semibold shadow-lg flex items-center gap-2"
-              >
-                <ShoppingBag className="w-5 h-5" />
-                Order Now
-              </motion.button>
-            </Link>
+              <MotionLink
+  to="/menu"
+  whileTap={{ scale: 0.95 }}
+  whileHover={{ scale: 1.05 }}
+  className="px-8 py-3 rounded-full bg-gradient-to-r from-primary-light to-secondary-light text-white font-semibold shadow-lg flex items-center gap-2"
+>
+  <ShoppingBag className="w-5 h-5" />
+  Order Now
+</MotionLink>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}

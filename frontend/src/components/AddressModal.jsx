@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
-import { Save, XCircle } from "lucide-react"; // ✅ Added icons
+import { Save, XCircle } from "lucide-react"; //  Added icons
 
 const AddressModal = ({ onClose, onAddressAdded, initialAddress = null }) => {
   const { saveAddress } = useAuth();

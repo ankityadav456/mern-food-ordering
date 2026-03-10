@@ -20,7 +20,7 @@ router.post("/login", loginUser);
 
 // Protected
 router.get("/me", protect, getUserProfile);
-router.put("/update-profile", protect, updateUserProfile);            // ✅ Added protect
+router.put("/update-profile", protect, updateUserProfile);            //  Added protect
 router.put("/update-avatar", protect, uploadAvatar.single("avatar"), updateUserAvatar);
 router.put("/save-address", protect, updateAddress);
 router.delete("/delete-address", protect, deleteAddress);

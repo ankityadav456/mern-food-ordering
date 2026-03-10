@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
         avatar: res.data.user.avatar || defaultUserLogo,
       });
 
-      // ✅ auto-fetch all users if logged-in user is admin
+      //  auto-fetch all users if logged-in user is admin
       if (res.data.user.isAdmin) fetchAllUsers();
     } catch (error) {
       console.error("Fetch User Failed:", error.response?.data?.message || error.message);

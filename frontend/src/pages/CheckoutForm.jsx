@@ -30,7 +30,7 @@ const CheckoutForm = () => {
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [editAddress, setEditAddress] = useState(null);
-  const [addressLoading, setAddressLoading] = useState(false); // ✅ new state
+  const [addressLoading, setAddressLoading] = useState(false); //  new state
   const { theme } = useTheme();
   const navigate = useNavigate();
   const stripe = useStripe();
@@ -74,7 +74,7 @@ const CheckoutForm = () => {
     fetchClientSecret();
   }, [cartItems, getTotalPrice]);
 
-  // ✅ Updated function: shows alert when address is missing
+  //  Updated function: shows alert when address is missing
   const handlePlaceOrder = async () => {
     if (!selectedAddress) {
       Swal.fire({
@@ -143,7 +143,7 @@ const CheckoutForm = () => {
     }
   };
 
-  // ✅ Address added handler with loader
+  //  Address added handler with loader
   const handleAddressAdded = (address) => {
     setAddressLoading(true);
     setTimeout(() => {
@@ -378,7 +378,7 @@ const CheckoutForm = () => {
         )}
       </AnimatePresence>
 
-      {/* ✅ Address Saving Loader */}
+      {/*  Address Saving Loader */}
       {addressLoading && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
           <motion.div

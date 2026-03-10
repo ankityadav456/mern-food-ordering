@@ -25,7 +25,7 @@ const fetchCartItems = async () => {
     const res = await axios.get("/cart"); // uses baseURL automatically
     setCartItems(res.data.cart);
   } catch (error) {
-    console.error("❌ Failed to fetch cart:", error.response?.data || error.message);
+    console.error(" Failed to fetch cart:", error.response?.data || error.message);
     toast.error(error.response?.data?.message || "Failed to load cart");
   } finally {
     setLoading(false);
@@ -33,7 +33,7 @@ const fetchCartItems = async () => {
 };
 
 
-  // ✅ Add to Cart
+  //  Add to Cart
   const addToCart = async (foodItem) => {
     // Optimistic UI update
     const existingItem = Array.isArray(cartItems) ? cartItems.find((item) => item.foodId._id === foodItem._id):0;
@@ -63,7 +63,7 @@ const fetchCartItems = async () => {
     }
   };
 
-  // ✅ Remove from Cart
+  //  Remove from Cart
   const removeFromCart = async (foodId) => {
     const previousCart = [...cartItems];
     setCartItems((prev) => prev.filter((item) => item.foodId._id !== foodId));
@@ -77,7 +77,7 @@ const fetchCartItems = async () => {
     }
   };
 
-  // ✅ Update Quantity
+  //  Update Quantity
   const updateItemQuantity = async (foodId, quantity) => {
     setCartItems((prev) =>
       prev.map((item) =>
@@ -98,19 +98,19 @@ const fetchCartItems = async () => {
     }
   };
 
-  // ✅ Clear Cart
+  //  Clear Cart
   const clearCart = async () => {
     try {
       await axios.delete("/cart", { withCredentials: true });
       setCartItems([]);
       toast.success("Cart cleared");
     } catch (error) {
-      console.error("❌ Clear cart error:", error.response?.data || error.message);
+      console.error(" Clear cart error:", error.response?.data || error.message);
       toast.error("Failed to clear cart");
     }
   };
 
-  // ✅ Total Price
+  //  Total Price
   const getTotalPrice = () => {
     return cartItems.reduce(
       (total, item) => total + item.foodId.price * item.quantity,

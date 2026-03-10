@@ -2,7 +2,7 @@
 // import User from "../models/User.js";
 // import FoodItem from "../models/FoodItem.js";
 
-// ✅ Place a new order with delivery address
+//  Place a new order with delivery address
 import Order from "../models/Order.js";
 import User from "../models/User.js";
 import FoodItem from "../models/FoodItem.js";
@@ -130,7 +130,7 @@ export const placeOrder = async (req, res) => {
 };
 
 
-// ✅ Get orders for a user using query param
+//  Get orders for a user using query param
 export const getUserOrders = async (req, res) => {
   try {
     const userId = req.query.userId;

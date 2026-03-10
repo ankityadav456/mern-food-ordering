@@ -1,9 +1,9 @@
 // import express from "express";
-// import protectAdmin from "../middleware/protectAdmin.js"; // ✅ Import Admin Middleware
+// import protectAdmin from "../middleware/protectAdmin.js"; //  Import Admin Middleware
 
 // const router = express.Router();
 
-// // ✅ Example Protected Admin Route
+// //  Example Protected Admin Route
 // router.get("/dashboard", protectAdmin, (req, res) => {
 //   res.json({ message: "Welcome Admin! You have access to this route." });
 // });
@@ -22,7 +22,7 @@ import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// ✅ All admin routes are protected
+//  All admin routes are protected
 router.get("/users", protect, getAllUsers);            // GET /api/admin/users
 router.put("/users/:id", protect, updateUser);         // PUT /api/admin/users/:id
 router.put("/users/:id/status", protect, toggleUserStatus); // PUT /api/admin/users/:id/status

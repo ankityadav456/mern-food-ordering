@@ -10,7 +10,7 @@ export const FoodProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const { user } = useAuth();
 
-  // ✅ Fetch all food items
+  //  Fetch all food items
   const fetchFoodItems = useCallback(async () => {
     // Prevent re-fetch if already loaded
     if (foodItems.length > 0) return;
@@ -26,7 +26,7 @@ export const FoodProvider = ({ children }) => {
     }
   }, [foodItems.length]);
 
-  // ✅ Add a new food item (Admin Only)
+  //  Add a new food item (Admin Only)
   const addFoodItem = useCallback(
     async (foodData) => {
       if (!user?.isAdmin) {
@@ -51,7 +51,7 @@ export const FoodProvider = ({ children }) => {
     [user]
   );
 
-  // ✅ Update a food item (Admin Only)
+  //  Update a food item (Admin Only)
   const updateFoodItem = useCallback(
     async (id, updatedData) => {
       if (!user?.isAdmin) {
@@ -79,7 +79,7 @@ export const FoodProvider = ({ children }) => {
     [user]
   );
 
-  // ✅ Delete a food item (Admin Only)
+  //  Delete a food item (Admin Only)
   const deleteFoodItem = useCallback(
     async (id) => {
       if (!user?.isAdmin) {
@@ -103,7 +103,7 @@ export const FoodProvider = ({ children }) => {
     [user]
   );
 
-  // ✅ Auto fetch when mounted (only once)
+  //  Auto fetch when mounted (only once)
   useEffect(() => {
     fetchFoodItems();
   }, [fetchFoodItems]);

@@ -7,7 +7,7 @@ const router = express.Router();
 // Place Order
 router.post("/", protect, placeOrder);
 
-// ✅ Get User Orders (query param)
+//  Get User Orders (query param)
 router.get("/user-orders", protect, getUserOrders);
 
 export default router;
