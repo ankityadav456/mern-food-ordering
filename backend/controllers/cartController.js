@@ -1,7 +1,7 @@
 import User from "../models/User.js";
 import FoodItem from "../models/FoodItem.js";
 
-// 📌 Get Cart Items
+//  Get Cart Items
 export const getCart = async (req, res) => {
   try {
     if (!req.user) {
@@ -20,7 +20,7 @@ export const getCart = async (req, res) => {
 };
 
 
-// 📌 Add Item to Cart
+//  Add Item to Cart
 export const addToCart = async (req, res) => {
   try {
     const { foodId } = req.body;
@@ -57,7 +57,7 @@ export const addToCart = async (req, res) => {
   }
 };
 
-// 📌 Update Quantity
+//  Update Quantity
 export const updateCartItemQuantity = async (req, res) => {
   try {
     const { foodId } = req.params;
@@ -88,7 +88,7 @@ export const updateCartItemQuantity = async (req, res) => {
   }
 };
 
-// 📌 Remove Item
+//  Remove Item
 export const removeFromCart = async (req, res) => {
   try {
     const { foodId } = req.params;
@@ -107,7 +107,7 @@ export const removeFromCart = async (req, res) => {
   }
 };
 
-// 📌 Clear Cart
+//  Clear Cart
 export const clearCart = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
