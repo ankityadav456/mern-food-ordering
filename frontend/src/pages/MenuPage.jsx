@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import { SearchContext } from "../context/SearchContext";
-import { ChevronDownIcon, XMarkIcon,XCircleIcon, CheckCircleIcon } from "@heroicons/react/20/solid";
+import { ChevronDownIcon, XMarkIcon, XCircleIcon, CheckCircleIcon } from "@heroicons/react/20/solid";
 import { useCart } from "../context/CartContext";
 import Loader from "../components/Loader";
 import { useTheme } from "../context/ThemeContext";
@@ -19,7 +19,7 @@ import SkeletonCard from "../components/SkeletonCard";
 import FoodCard from "../components/FoodItemCard";
 import { SlidersHorizontal, ArrowDownAZ } from "lucide-react";
 const MenuPage = () => {
-  const { updateItemQuantity } = useCart();
+  const { updateItemQuantity, removeFromCart } = useCart();
   const [loading1, setLoading1] = useState(false);
   const { foodItems, loading, setLoading } = useFood();
   const { searchQuery } = useContext(SearchContext);
@@ -35,8 +35,7 @@ const MenuPage = () => {
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [addLoadingId, setAddLoadingId] = useState(null);
   const [modalLoading, setModalLoading] = useState(false);
-  const didInitialRender = useRef(false);
-
+  // const didInitialRender = useRef(false);
   const categories = [
     { name: "All", image: All },
     { name: "Pizza", image: pizza },
@@ -46,7 +45,6 @@ const MenuPage = () => {
     { name: "Chicken", image: chicken },
   ];
 
-  // filtered results (memoized)
   const filteredResults = useMemo(() => {
     if (!foodItems || foodItems.length === 0) return [];
     let result = [...foodItems];
@@ -94,6 +92,7 @@ const MenuPage = () => {
   };
 
   const handleAddToCart = async (food, fromModal = false) => {
+    setLoading1(true);
     if (!fromModal && addLoadingId) return;
     if (fromModal && modalLoading) return;
     if (fromModal) setModalLoading(true);
@@ -102,11 +101,10 @@ const MenuPage = () => {
     try {
       await addToCart(food);
       setQuickViewItem(null);
-      // toast.success(`${food.name} added to cart`);
     } catch (error) {
       console.error("Cart Error", error);
-      // toast.error("Failed to add item to cart.");
     } finally {
+      setLoading1(false);
       if (fromModal) setModalLoading(false);
       else setAddLoadingId(null);
     }
@@ -118,10 +116,31 @@ const MenuPage = () => {
     try {
       await updateItemQuantity(id, qty);
       setQuickViewItem(null);
-      // toast.success("Quantity updated");
     } catch (err) {
-      // toast.error("Failed to update quantity");
+      console.log(err)
     } finally {
+      setLoading1(false);
+    }
+  };
+
+  const handleIncrease = async (item) => {
+    setLoading1(true);
+    const currentQty = getItemQuantity(item._id);
+    await updateItemQuantity(item._id, currentQty + 1);
+    toast.success(`${item.name} quantity increased`);
+    setLoading1(false);
+  };
+
+  const handleDecrease = async (item) => {
+    setLoading1(true);
+    const currentQty = getItemQuantity(item._id);
+
+    if (currentQty <= 1) {
+      await removeFromCart(item._id);
+      setLoading1(false);
+    } else {
+      await updateItemQuantity(item._id, currentQty - 1);
+      toast.success(`${item.name} quantity decrease`);
       setLoading1(false);
     }
   };
@@ -195,70 +214,69 @@ const MenuPage = () => {
             </div>
           </div> */}
 
+          <motion.div
+            className="flex flex-wrap items-center justify-between gap-3 sm:gap-5 mb-4 px-2"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            {/* Category Display */}
             <motion.div
-      className="flex flex-wrap items-center justify-between gap-3 sm:gap-5 mb-4 px-2"
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-    >
-      {/* Category Display */}
-      <motion.div
-        className="flex items-center gap-2 bg-surface-light dark:bg-surface-dark px-4 py-2 rounded-xl shadow-sm border border-gray-200 dark:border-[#333]"
-        whileHover={{ scale: 1.02 }}
-      >
-        <SlidersHorizontal
-          className={`w-4 h-4 ${theme === "dark" ? "text-amber-400" : "text-orange-500"}`}
-        />
-        <div className="text-sm text-gray-700 dark:text-gray-300">
-          Showing{" "}
-          <span className="font-semibold text-primary-light dark:text-primary-dark">
-            {selectedCategory}
-          </span>
-        </div>
-      </motion.div>
+              className="flex items-center gap-2 bg-surface-light dark:bg-surface-dark px-4 py-2 rounded-xl shadow-sm border border-gray-200 dark:border-[#333]"
+              whileHover={{ scale: 1.02 }}
+            >
+              <SlidersHorizontal
+                className={`w-4 h-4 ${theme === "dark" ? "text-amber-400" : "text-orange-500"}`}
+              />
+              <div className="text-sm text-gray-700 dark:text-gray-300">
+                Showing{" "}
+                <span className="font-semibold text-primary-light dark:text-primary-dark">
+                  {selectedCategory}
+                </span>
+              </div>
+            </motion.div>
 
-      {/* Sorting */}
-      <motion.div
-        className="flex items-center gap-2 bg-surface-light dark:bg-surface-dark px-4 py-2 rounded-xl shadow-sm border border-gray-200 dark:border-[#333]"
-        whileHover={{ scale: 1.02 }}
-      >
-        <ArrowDownAZ
-          className={`w-4 h-4 ${theme === "dark" ? "text-amber-400" : "text-orange-500"}`}
-        />
-        <div className="text-sm text-gray-700 dark:text-gray-300">Sort</div>
-        <select
-          value={sortOrder}
-          onChange={(e) => handleSortChange(e.target.value)}
-          className={`px-3 py-1.5 rounded-lg border text-sm focus:ring-2 transition-all ${
-            theme === "dark"
-              ? "bg-[#1a1a1a] border-[#333] text-white focus:ring-amber-500"
-              : "bg-white border-gray-300 text-gray-800 focus:ring-orange-500"
-          }`}
-          aria-label="Sort foods"
-        >
-          <option value="">Default</option>
-          <option value="asc">Price: Low → High</option>
-          <option value="desc">Price: High → Low</option>
-        </select>
-      </motion.div>
+            {/* Sorting */}
+            <motion.div
+              className="flex items-center gap-2 bg-surface-light dark:bg-surface-dark px-4 py-2 rounded-xl shadow-sm border border-gray-200 dark:border-[#333]"
+              whileHover={{ scale: 1.02 }}
+            >
+              <ArrowDownAZ
+                className={`w-4 h-4 ${theme === "dark" ? "text-amber-400" : "text-orange-500"}`}
+              />
+              <div className="text-sm text-gray-700 dark:text-gray-300">Sort</div>
+              <select
+                value={sortOrder}
+                onChange={(e) => handleSortChange(e.target.value)}
+                className={`px-3 py-1.5 rounded-lg border text-sm focus:ring-2 transition-all ${theme === "dark"
+                  ? "bg-[#1a1a1a] border-[#333] text-white focus:ring-amber-500"
+                  : "bg-white border-gray-300 text-gray-800 focus:ring-orange-500"
+                  }`}
+                aria-label="Sort foods"
+              >
+                <option value="">Default</option>
+                <option value="asc">Price: Low → High</option>
+                <option value="desc">Price: High → Low</option>
+              </select>
+            </motion.div>
 
-      {/* Price Limit */}
-      <motion.div
-        className="flex items-center gap-2 bg-surface-light dark:bg-surface-dark px-4 py-2 rounded-xl shadow-sm border border-gray-200 dark:border-[#333]"
-        whileHover={{ scale: 1.02 }}
-      >
-        <div className="text-sm text-gray-700 dark:text-gray-300">Max ₹</div>
-        <motion.div
-          key={priceLimit}
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.3 }}
-          className="text-sm font-semibold text-primary-light dark:text-primary-dark"
-        >
-          {priceLimit}
-        </motion.div>
-      </motion.div>
-    </motion.div>
+            {/* Price Limit */}
+            <motion.div
+              className="flex items-center gap-2 bg-surface-light dark:bg-surface-dark px-4 py-2 rounded-xl shadow-sm border border-gray-200 dark:border-[#333]"
+              whileHover={{ scale: 1.02 }}
+            >
+              <div className="text-sm text-gray-700 dark:text-gray-300">Max ₹</div>
+              <motion.div
+                key={priceLimit}
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                className="text-sm font-semibold text-primary-light dark:text-primary-dark"
+              >
+                {priceLimit}
+              </motion.div>
+            </motion.div>
+          </motion.div>
 
         </div>
 
@@ -279,7 +297,7 @@ const MenuPage = () => {
                   aria-label={`Category ${category.name}`}
                 >
                   <div
-                    className={`w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden shadow-inner ${active ? "border-2 border-[#FFD700]" : "border border-transparent"}`}
+                    className={`w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden shadow-inner ${active ? (theme === "dark" ? "border-2 border-[#FFD700]" : "border-2 border-primary-light") : "border border-transparent"}`}
                     style={{ background: theme === "dark" ? "#0b0b0b" : "#fff" }}
                   >
                     <img
@@ -289,7 +307,7 @@ const MenuPage = () => {
                       loading="lazy"
                     />
                   </div>
-                  <span className={`text-sm font-semibold ${active ? "text-[#FFD700]" : "text-gray-700 dark:text-gray-200"}`}>
+                  <span className={`text-sm font-semibold ${active ? (theme === "dark" ? "text-[#FFD700]" : "text-primary-light") : "text-gray-700 dark:text-gray-200"}`}>
                     {category.name}
                   </span>
                 </button>
@@ -311,7 +329,9 @@ const MenuPage = () => {
                 <motion.div
                   key={item._id}
                   whileHover={{ y: -6, scale: 1.02 }}
-                  transition={{ type: "spring", stiffness: 250, damping: 20 }}
+                  // transition={{ type: "spring", stiffness: 250, damping: 20 }}
+                  layout
+                  transition={{ layout: { duration: 0.3 } }}
                   className="rounded-xl"
                 >
                   <FoodCard
@@ -320,6 +340,8 @@ const MenuPage = () => {
                     theme={theme}
                     getItemQuantity={getItemQuantity}
                     handleAddToCart={handleAddToCart}
+                    handleIncrease={handleIncrease}
+                    handleDecrease={handleDecrease}
                     setQuickViewItem={setQuickViewItem}
                     addLoadingId={addLoadingId}
                   />
@@ -391,24 +413,24 @@ const MenuPage = () => {
               </div>
 
               <div className="flex justify-between items-center mt-4">
-  {/* Clear Filters Button */}
-  <button
-    onClick={handleClearFilters}
-    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-orange-500 text-white font-semibold shadow-md hover:opacity-95 transition-all transform hover:-translate-y-0.5 active:translate-y-0.5"
-  >
-    <XCircleIcon className="w-5 h-5" />
-    Clear
-  </button>
+                {/* Clear Filters Button */}
+                <button
+                  onClick={handleClearFilters}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-orange-500 text-white font-semibold shadow-md hover:opacity-95 transition-all transform hover:-translate-y-0.5 active:translate-y-0.5"
+                >
+                  <XCircleIcon className="w-5 h-5" />
+                  Clear
+                </button>
 
-  {/* Done Button */}
-  <button
-    onClick={() => setShowFilterModal(false)}
-    className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 font-semibold text-gray-800 hover:bg-gray-100 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-700 transition-all transform hover:-translate-y-0.5 active:translate-y-0.5"
-  >
-    <CheckCircleIcon className="w-5 h-5" />
-    Done
-  </button>
-</div>
+                {/* Done Button */}
+                <button
+                  onClick={() => setShowFilterModal(false)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 font-semibold text-gray-800 hover:bg-gray-100 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-700 transition-all transform hover:-translate-y-0.5 active:translate-y-0.5"
+                >
+                  <CheckCircleIcon className="w-5 h-5" />
+                  Done
+                </button>
+              </div>
             </motion.div>
           </motion.div>
         )}
@@ -418,106 +440,126 @@ const MenuPage = () => {
       <AnimatePresence>
         {quickViewItem && (
           <motion.div
-            className="fixed inset-0 z-50 grid place-items-center bg-black/60 px-4 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md px-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setQuickViewItem(null)}
-            aria-modal="true"
-            role="dialog"
           >
             <motion.div
-              className={`relative w-full max-w-2xl rounded-3xl p-6 md:p-8 shadow-[0_8px_40px_rgba(0,0,0,0.3)] backdrop-blur-2xl border 
-          ${theme === "dark"
-                  ? "bg-gradient-to-br from-[#121212]/70 via-[#1E1E1E]/50 to-[#121212]/70 border-[#2A2A2A]"
-                  : "bg-gradient-to-br from-white/90 via-white/80 to-white/80 border-white/30 shadow-lg"
-                } transition-all`}
               onClick={(e) => e.stopPropagation()}
-              initial={{ scale: 0.95, y: 20, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.95, y: 20, opacity: 0 }}
+              initial={{ scale: 0.9, opacity: 0, y: 30 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 30 }}
+              transition={{ type: "spring", stiffness: 120 }}
+              className={`relative w-full max-w-3xl rounded-3xl overflow-hidden border backdrop-blur-xl
+        ${theme === "dark"
+                  ? "bg-[#121212]/90 border-[#2A2A2A]"
+                  : "bg-white/90 border-gray-200"
+                } shadow-[0_10px_50px_rgba(0,0,0,0.35)]`}
             >
               {/* Close Button */}
               <button
                 onClick={() => setQuickViewItem(null)}
-                className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors"
-                aria-label="Close quick view"
+                className="absolute top-4 right-4 z-10 bg-black/30 hover:bg-red-500 p-2 rounded-full transition"
               >
-                <XMarkIcon className="w-6 h-6" />
+                <XMarkIcon className="w-5 h-5 text-white" />
               </button>
 
-              {/* Modal Content */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-center">
-                {/* Image Section */}
-                <motion.img
-                  src={quickViewItem.image}
-                  alt={quickViewItem.name}
-                  className="w-full h-56 md:h-64 rounded-2xl object-cover shadow-md ring-1 ring-white/20"
+              <div className="grid md:grid-cols-2 gap-6 p-6 md:p-8 items-center">
+
+                {/* Image */}
+                <motion.div
+                  className="overflow-hidden rounded-2xl"
                   whileHover={{ scale: 1.03 }}
-                  transition={{ type: "spring", stiffness: 150 }}
-                />
+                >
+                  <img
+                    src={quickViewItem.image}
+                    alt={quickViewItem.name}
+                    className="w-full h-60 object-cover rounded-2xl"
+                  />
+                </motion.div>
 
-                {/* Details Section */}
-                <div className="flex flex-col justify-between gap-4">
-                  <div>
-                    <h3 className="text-2xl md:text-3xl font-bold tracking-tight text-primary-light dark:text-primary-dark">
-                      {quickViewItem.name}
-                    </h3>
-                    <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
-                      {quickViewItem.description || "Tasty choice — chef's special crafted with love."}
-                    </p>
-                  </div>
+                {/* Details */}
+                <div className="flex flex-col gap-4">
 
-                  {/* Price, Rating, and Info */}
-                  <div className="mt-3 flex items-center justify-between">
+                  {/* Title */}
+                  <h3 className="text-2xl md:text-3xl font-bold text-primary-light dark:text-primary-dark">
+                    {quickViewItem.name}
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    {quickViewItem.description ||
+                      "Tasty choice — chef's special crafted with love."}
+                  </p>
+
+                  {/* Price + Rating */}
+                  <div className="flex items-center justify-between">
+
                     <div>
-                      <div className="text-xl font-semibold">₹{quickViewItem.price}</div>
+                      <div className="text-2xl font-bold text-orange-500">
+                        ₹{quickViewItem.price}
+                      </div>
+
                       <div className="text-sm text-gray-500 mt-1">
                         ⏱ {quickViewItem.deliveryTime || "25–35 mins"}
                       </div>
-                      <div className="mt-2">{renderStars(quickViewItem.rating || 4.5)}</div>
+
+                      <div className="mt-2">
+                        {renderStars(quickViewItem.rating || 4.5)}
+                      </div>
                     </div>
 
-                    <div className="text-sm text-gray-500 text-right">
-                      In Cart:{" "}
-                      <span className="font-semibold text-gray-800 dark:text-gray-200">
+                    {/* Cart Badge */}
+                    <div className="text-center">
+                      <div className="text-xs text-gray-500">In Cart</div>
+                      <div className="text-lg font-bold text-primary-light dark:text-primary-dark">
                         {getItemQuantity(quickViewItem._id) || 0}
-                      </span>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Quantity Selector & Button */}
-                  <div className="mt-5 flex flex-col sm:flex-row items-center gap-4">
-                    <div className={`flex items-center justify-between gap-2 border px-3 py-1 rounded-lg bg-gray-100/60 dark:bg-gray-800/60 backdrop-blur-sm border-gray-300/40 dark:border-gray-700/40 w-full sm:w-auto ${quantity == 0 ? "hidden" : ""}`}>
-                      <button
-                        onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
-                        className="text-xl font-bold px-2"
-                        aria-label="Decrease quantity"
-                      >
-                        −
-                      </button>
-                      <span className="min-w-[32px] text-center">{quantity}</span>
-                      <button
-                        onClick={() => setQuantity((prev) => prev + 1)}
-                        className="text-xl font-bold px-2"
-                        aria-label="Increase quantity"
-                      >
-                        +
-                      </button>
-                    </div>
+                  {/* Quantity + Add */}
+                  <div className="flex items-center gap-4 mt-3">
 
+                    {/* Quantity Controller */}
+                    {quantity > 0 && (
+                      <div className="flex items-center gap-3 px-3 py-1.5 rounded-xl border bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700">
+
+                        <button
+                          onClick={() =>
+                            setQuantity((prev) => Math.max(1, prev - 1))
+                          }
+                          className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 font-bold text-lg hover:scale-110 transition"
+                        >
+                          −
+                        </button>
+
+                        <span className="font-semibold text-lg">{quantity}</span>
+
+                        <button
+                          onClick={() => setQuantity((prev) => prev + 1)}
+                          className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 font-bold text-lg hover:scale-110 transition"
+                        >
+                          +
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Add / Update Button */}
                     <motion.button
+                      whileTap={{ scale: 0.95 }}
+                      disabled={modalLoading}
                       onClick={() =>
                         quantity > 0
                           ? handleQuantityChange(quickViewItem._id, quantity)
                           : handleAddToCart(quickViewItem, true)
                       }
-                      disabled={modalLoading}
-                      whileTap={{ scale: 0.96 }}
-                      className={`w-full sm:w-auto px-6 py-2.5 rounded-xl font-semibold tracking-wide shadow-md transition-all
-                  ${theme === "dark"
-                          ? "bg-gradient-to-r from-[#FF5722] to-[#FFD54F] text-black hover:shadow-[0_0_20px_rgba(255,215,79,0.3)]"
-                          : "bg-gradient-to-r from-[#FF5722] to-[#FFC107] text-white hover:shadow-[0_0_20px_rgba(255,193,7,0.3)]"
+                      className={`flex-1 px-6 py-3 rounded-xl font-semibold shadow-md transition
+                ${theme === "dark"
+                          ? "bg-gradient-to-r from-orange-500 to-yellow-400 text-black"
+                          : "bg-gradient-to-r from-orange-500 to-yellow-500 text-white"
                         }`}
                     >
                       {modalLoading

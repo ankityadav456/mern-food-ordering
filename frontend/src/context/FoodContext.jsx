@@ -7,14 +7,11 @@ const FoodContext = createContext();
 export const FoodProvider = ({ children }) => {
   const [foodItems, setFoodItems] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState(null); 
   const { user } = useAuth();
 
-  //  Fetch all food items
   const fetchFoodItems = useCallback(async () => {
-    // Prevent re-fetch if already loaded
     if (foodItems.length > 0) return;
-
     try {
       setLoading(true);
       const res = await axios.get("/food");
@@ -26,7 +23,6 @@ export const FoodProvider = ({ children }) => {
     }
   }, [foodItems.length]);
 
-  //  Add a new food item (Admin Only)
   const addFoodItem = useCallback(
     async (foodData) => {
       if (!user?.isAdmin) {
@@ -51,7 +47,6 @@ export const FoodProvider = ({ children }) => {
     [user]
   );
 
-  //  Update a food item (Admin Only)
   const updateFoodItem = useCallback(
     async (id, updatedData) => {
       if (!user?.isAdmin) {
@@ -79,7 +74,6 @@ export const FoodProvider = ({ children }) => {
     [user]
   );
 
-  //  Delete a food item (Admin Only)
   const deleteFoodItem = useCallback(
     async (id) => {
       if (!user?.isAdmin) {
@@ -103,7 +97,6 @@ export const FoodProvider = ({ children }) => {
     [user]
   );
 
-  //  Auto fetch when mounted (only once)
   useEffect(() => {
     fetchFoodItems();
   }, [fetchFoodItems]);
@@ -126,5 +119,4 @@ export const FoodProvider = ({ children }) => {
   );
 };
 
-// Custom Hook
 export const useFood = () => useContext(FoodContext);

@@ -9,6 +9,7 @@ import {
   FaCheckCircle,
 } from "react-icons/fa";
 import { motion } from "framer-motion";
+import { Truck,Clock,CheckCircle  } from "lucide-react";
 import { useLocation } from "react-router-dom";
 
 const Footer = () => {
@@ -143,16 +144,16 @@ const Footer = () => {
       <div className={`py-4 px-6 border-y ${borderColor}
       flex flex-wrap justify-center gap-6 text-sm`}>
 
-        <motion.div whileHover={{ scale: 1.05 }}>
-          🚚 Free delivery on orders over ₹500
+        <motion.div whileHover={{ scale: 1.05 }} className="flex item-center">
+          <Truck className="w-5 h-5 text-[#FFD54F] me-1" /> Free delivery on orders over ₹500
         </motion.div>
 
-        <motion.div whileHover={{ scale: 1.05 }}>
-          ⏱ 30 minutes or less
+        <motion.div whileHover={{ scale: 1.05 }} className="flex item-center">
+          <Clock className="w-4 h-4 text-[#FFD54F] me-1" /> 30 minutes or less
         </motion.div>
 
         <motion.div className="flex items-center gap-1" whileHover={{ scale: 1.05 }}>
-          <FaCheckCircle className="text-green-500" />
+          <CheckCircle className="text-green-500 w-5 h-5" />
           100% satisfaction guaranteed
         </motion.div>
       </div>

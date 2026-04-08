@@ -1,12 +1,23 @@
 import { motion } from "framer-motion";
 import { useTheme } from "../context/ThemeContext";
 import heroImg from "../assets/Images/heroImage.png";
-import { Star, Zap, Headphones, ShoppingBag, Truck, Smile, Rocket, Utensils, MessageCircle, ChevronDown } from "lucide-react";
+import {
+  Star,
+  Zap,
+  Headphones,
+  ShoppingBag,
+  Truck,
+  Smile,
+  Rocket,
+  Utensils,
+  MessageCircle,
+  ChevronDown,
+} from "lucide-react";
 import { Link } from "react-router-dom";
-import ScrollProgress from '../components/ScrollProgress'
+import ScrollProgress from "../components/ScrollProgress";
 export default function LandingPage() {
   const { theme } = useTheme();
-const MotionLink = motion(Link);
+  const MotionLink = motion(Link);
   return (
     <div className="min-h-screen w-full bg-white relative text-gray-800">
       <div
@@ -50,7 +61,6 @@ const MotionLink = motion(Link);
         }}
       />
 
-
       <div className="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark overflow-hidden">
         <ScrollProgress />
 
@@ -62,32 +72,40 @@ const MotionLink = motion(Link);
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 0.6, y: 0 }}
-            transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              repeatType: "reverse",
+            }}
             className="absolute top-20 left-10 w-40 h-40 bg-gradient-to-r from-primary-light to-secondary-light rounded-full blur-2xl opacity-40"
           />
           <motion.div
             initial={{ opacity: 0, y: -40 }}
             animate={{ opacity: 0.6, y: 0 }}
-            transition={{ duration: 2.5, repeat: Infinity, repeatType: "reverse" }}
+            transition={{
+              duration: 2.5,
+              repeat: Infinity,
+              repeatType: "reverse",
+            }}
             className="absolute bottom-20 right-10 w-52 h-52 bg-gradient-to-r from-secondary-light to-primary-light rounded-full blur-2xl opacity-30"
           />
 
           {/* Hero Content */}
-          <motion.h1
+          <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1 }}
-            className="text-5xl md:text-7xl font-extrabold leading-tight"
+            className="text-5xl md:text-7xl font-extrabold leading-tight gap-4"
           >
             Say Hello to{" "}
             <span className="bg-gradient-to-r from-primary-light to-secondary-light bg-clip-text text-transparent">
               Yumigo
             </span>
             <br />
-            <span className="text-text-light dark:text-text-dark">
+            <span className="text-text-light dark:text-text-dark pt-10">
               The Smarter Way to Order Food
             </span>
-          </motion.h1>
+          </motion.div>
 
           {/* Subheadline */}
           <motion.p
@@ -100,10 +118,9 @@ const MotionLink = motion(Link);
             <span className="bg-gradient-to-r from-primary-light to-secondary-light bg-clip-text text-transparent font-bold">
               Yumigo
             </span>
-            , enjoy fresh meals, lightning-fast delivery, and a seamless ordering
-            experience — anytime, anywhere.
+            , enjoy fresh meals, lightning-fast delivery, and a seamless
+            ordering experience — anytime, anywhere.
           </motion.p>
-
 
           {/* CTA Buttons */}
           <motion.div
@@ -112,23 +129,24 @@ const MotionLink = motion(Link);
             transition={{ delay: 1, duration: 1 }}
             className="mt-10 flex flex-col sm:flex-row gap-4"
           >
-              <MotionLink
-  to="/menu"
-  whileTap={{ scale: 0.95 }}
-  whileHover={{ scale: 1.05 }}
-  className="px-8 py-3 rounded-full bg-gradient-to-r from-primary-light to-secondary-light text-white font-semibold shadow-lg flex items-center gap-2"
->
-  <ShoppingBag className="w-5 h-5" />
-  Order Now
-</MotionLink>
-            <motion.button
+            <MotionLink
+              to="/menu"
+              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.05 }}
+              className="px-8 py-3 rounded-full bg-gradient-to-r from-primary-light to-secondary-light text-white font-semibold shadow-lg flex items-center gap-2"
+            >
+              <ShoppingBag className="w-5 h-5 pointer-events-none" />
+              Order Now
+            </MotionLink>
+
+            {/* <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="px-8 py-3 rounded-full border border-primary-light text-primary-light dark:text-primary-dark font-semibold shadow-lg flex items-center gap-2"
             >
-              <Star className="w-5 h-5" />
+              <Star className="w-5 h-5 pointer-events-none" />
               Learn More
-            </motion.button>
+            </motion.button> */}
           </motion.div>
           {/* Scroll hint */}
           <motion.div
@@ -138,7 +156,9 @@ const MotionLink = motion(Link);
             className="absolute bottom-10 flex flex-col items-center"
           >
             <ChevronDown className="w-6 h-6 text-primary-light animate-bounce" />
-            <span className="text-xs text-text-subtleLight mt-1">Scroll Down</span>
+            <span className="text-xs text-text-subtleLight mt-1">
+              Scroll Down
+            </span>
           </motion.div>
         </section>
 
@@ -200,22 +220,27 @@ const MotionLink = motion(Link);
                   className="group relative"
                 >
                   {/* Gradient Glow */}
-                  <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r 
+                  <div
+                    className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r 
       from-primary-light via-secondary-light to-primary-light 
-      opacity-10 blur-lg group-hover:opacity-30 transition"></div>
+      opacity-10 blur-lg group-hover:opacity-30 transition"
+                  ></div>
 
                   {/* Card */}
-                  <div className="relative rounded-2xl p-6
+                  <div
+                    className="relative rounded-2xl p-6
       bg-white/70 dark:bg-surface-dark/60
       backdrop-blur-lg
       border border-white/20
-      transition-all duration-300">
-
+      transition-all duration-300"
+                  >
                     {/* Step Number */}
-                    <div className="absolute -top-3 -left-3 
+                    <div
+                      className="absolute -top-3 -left-3 
         w-8 h-8 rounded-full 
         bg-gradient-to-r from-primary-light to-secondary-light
-        text-white text-sm font-semibold flex items-center justify-center shadow-md">
+        text-white text-sm font-semibold flex items-center justify-center shadow-md"
+                    >
                       {i + 1}
                     </div>
 
@@ -225,9 +250,11 @@ const MotionLink = motion(Link);
                       transition={{ duration: 3, repeat: Infinity }}
                       className="flex justify-center mb-4"
                     >
-                      <div className="w-14 h-14 rounded-xl flex items-center justify-center
+                      <div
+                        className="w-14 h-14 rounded-xl flex items-center justify-center
           bg-gradient-to-br from-primary-light to-secondary-light
-          text-white shadow-md group-hover:scale-110 transition">
+          text-white shadow-md group-hover:scale-110 transition"
+                      >
                         <Icon size={28} strokeWidth={1.8} />
                       </div>
                     </motion.div>
@@ -238,8 +265,10 @@ const MotionLink = motion(Link);
                     </h3>
 
                     {/* Description */}
-                    <p className="text-center text-sm leading-relaxed 
-        text-text-subtleLight dark:text-text-subtleDark">
+                    <p
+                      className="text-center text-sm leading-relaxed 
+        text-text-subtleLight dark:text-text-subtleDark"
+                    >
                       {item.desc}
                     </p>
                   </div>
@@ -255,21 +284,27 @@ const MotionLink = motion(Link);
             <div className="w-full h-full bg-gradient-to-r from-orange-400 via-amber-400 to-orange-500 dark:from-primary-dark dark:via-secondary-dark dark:to-primary-dark animate-gradient-x"></div>
           </div>
 
-          {/* Floating Glow Elements (only show in dark mode) */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 0.25, scale: 1 }}
-            transition={{ duration: 3, repeat: Infinity, repeatType: "reverse" }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              repeatType: "reverse",
+            }}
             className="hidden dark:block absolute top-20 left-10 w-40 h-40 bg-white rounded-full blur-3xl"
           />
           <motion.div
             initial={{ opacity: 0, scale: 1.2 }}
             animate={{ opacity: 0.25, scale: 1 }}
-            transition={{ duration: 4, repeat: Infinity, repeatType: "reverse" }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              repeatType: "reverse",
+            }}
             className="hidden dark:block absolute bottom-20 right-10 w-52 h-52 bg-yellow-300 rounded-full blur-3xl"
           />
 
-          {/* Headline */}
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -284,7 +319,6 @@ const MotionLink = motion(Link);
             </span>
           </motion.h2>
 
-          {/* Subheadline */}
           <motion.p
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -297,51 +331,25 @@ const MotionLink = motion(Link);
             Experience lightning-fast delivery and mouth-watering meals with{" "}
             <span className="bg-gradient-to-r from-primary-light to-secondary-light bg-clip-text text-transparent font-bold">
               Yumigo
-            </span>.
-            Your cravings, just a click away.
+            </span>
+            . Your cravings, just a click away.
           </motion.p>
 
-          {/* <Link to="/menu">
+          <Link to="/menu">
             <motion.button
               whileHover={{
-                scale: 1.1,
-                boxShadow: "0px 0px 30px rgba(0,0,0,0.2)",
+                scale: 1.05,
+                boxShadow: "0px 0px 20px rgba(255,87,34,0.6)",
               }}
               whileTap={{ scale: 0.95 }}
-              className="relative mt-8 px-10 py-3 rounded-full 
-              bg-gradient-to-r from-primary-light to-secondary-light
-               bg-surface-light dark:bg-surface-dark 
-               text-white dark:text-primary-dark 
-               font-bold text-lg shadow-lg flex items-center gap-2 mx-auto 
-               overflow-hidden transition-colors duration-300"
+              className="px-8 py-3 rounded-full bg-gradient-to-r from-primary-light to-secondary-light text-white font-semibold shadow-lg flex items-center gap-2 mx-auto mt-5"
             >
-              <ShoppingBag className="w-5 h-5 text-white dark:text-primary-dark" />
-              <span className="relative z-10">Get Started</span>
-
-              <span
-                className="absolute inset-0 rounded-full 
-                 bg-gradient-to-r from-primary-light to-secondary-light 
-                 dark:from-primary-dark dark:to-secondary-dark 
-                 opacity-0 hover:opacity-20 transition-opacity duration-300"
-              ></span>
+              <ShoppingBag className="w-5 h-5 pointer-events-none" />
+              Get Started
             </motion.button>
-          </Link> */}
-
-          <Link to="/menu">
-              <motion.button
-                whileHover={{ scale: 1.05, boxShadow: "0px 0px 20px rgba(255,87,34,0.6)" }}
-                whileTap={{ scale: 0.95 }}
-                className="px-8 py-3 rounded-full bg-gradient-to-r from-primary-light to-secondary-light text-white font-semibold shadow-lg flex items-center gap-2 mx-auto mt-5"
-              >
-                <ShoppingBag className="w-5 h-5" />
-                Get Started
-              </motion.button>
-            </Link>
-
+          </Link>
         </section>
-
       </div>
     </div>
-
   );
 }

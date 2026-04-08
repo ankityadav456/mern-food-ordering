@@ -1,11 +1,10 @@
-// models/CartItem.js
 import mongoose from "mongoose";
 
 const cartItemSchema = new mongoose.Schema(
   {
     foodId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "FoodItem", // Make sure this matches your food item model
+      ref: "FoodItem",
       required: true,
     },
     quantity: {
@@ -13,7 +12,7 @@ const cartItemSchema = new mongoose.Schema(
       default: 1,
     },
   },
-  { _id: false } // Prevents MongoDB from auto-adding _id to each cart item
+  { _id: false }
 );
 
 export default cartItemSchema;

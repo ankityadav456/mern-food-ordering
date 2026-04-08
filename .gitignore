@@ -1,24 +1,92 @@
-# Root .gitignore
+# ======================================================
+# ROOT .GITIGNORE (MERN / React / Vite / Node Production)
+# ======================================================
 
-# Node
+# -----------------------
+# Dependencies
+# -----------------------
 node_modules/
+
+# -----------------------
+# Build Outputs
+# -----------------------
 dist/
+build/
+out/
+coverage/
+dist-ssr/
 
-# System
-.DS_Store
+# -----------------------
+# Vite / Cache
+# -----------------------
+.vite/
+node_modules/.cache/
+.eslintcache
+
+# -----------------------
+# Environment Variables
+# -----------------------
 .env
+.env.*
+!.env.example
 
+# -----------------------
 # Logs
-logs
+# -----------------------
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 pnpm-debug.log*
 
-# IDE
+# -----------------------
+# Package Managers
+# (REMOVE if working in TEAM)
+# -----------------------
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# -----------------------
+# IDE / Editor Files
+# -----------------------
 .vscode/
 .idea/
-
-# OS
-Thumbs.db
 *.swp
+*.swo
+
+# -----------------------
+# OS Files
+# -----------------------
+.DS_Store
+Thumbs.db
+
+# -----------------------
+# Temporary Files
+# -----------------------
+tmp/
+temp/
+*.tmp
+
+# -----------------------
+# Testing
+# -----------------------
+coverage/
+*.lcov
+
+# -----------------------
+# Database / Local Storage
+# -----------------------
+*.sqlite
+*.db
+
+# -----------------------
+# Uploads / Generated Files
+# -----------------------
+uploads/
+public/uploads/
+
+# -----------------------
+# Misc
+# -----------------------
+.cache/

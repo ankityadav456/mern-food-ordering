@@ -72,7 +72,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen px-6 py-10 max-w-7xl mx-auto">
-      {/* ---------- HEADER ---------- */}
       <motion.h1
         initial={{ opacity: 0, y: -25 }}
         animate={{ opacity: 1, y: 0 }}

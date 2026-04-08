@@ -20,11 +20,10 @@ router.post("/login", loginUser);
 
 // Protected
 router.get("/me", protect, getUserProfile);
-router.put("/update-profile", protect, updateUserProfile);            //  Added protect
+router.put("/update-profile", protect, updateUserProfile);
 router.put("/update-avatar", protect, uploadAvatar.single("avatar"), updateUserAvatar);
 router.put("/save-address", protect, updateAddress);
 router.delete("/delete-address", protect, deleteAddress);
 router.delete("/delete-avatar", protect, deleteAvatar);
-// router.get("/users", protect, fetchAllUsers); // GET /api/auth/users
 
 export default router;
