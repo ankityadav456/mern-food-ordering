@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { motion } from "framer-motion";
-import toast from "react-hot-toast";
+import { showToast } from "../utils/showToast.jsx";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
 import { Upload, Trash2, ArrowLeft, Check } from "lucide-react";
@@ -64,9 +64,9 @@ const ProfilePage = () => {
     setIsSaving(true);
     try {
       await updateProfile(formData);
-      // toast.success("Profile updated successfully!");
+      // showToast("Profile updated successfully!", "success");
     } catch (error) {
-      toast.error("Failed to update profile.");
+      showToast("Failed to update profile.", "error");
     } finally {
       setIsSaving(false);
     }

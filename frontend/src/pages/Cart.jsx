@@ -13,7 +13,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import Loader from "../components/Loader";
 import { motion, AnimatePresence } from "framer-motion";
-import toast from "react-hot-toast";
+import { showToast } from "../utils/showToast.jsx";
 import { useTheme } from "../context/ThemeContext";
 import Lottie from "lottie-react";
 import emptyCartAnim from "../assets/lottieIJson/Empty red.json";
@@ -102,7 +102,7 @@ useEffect(() => {
 
   const handleQuantityChange = async (id, quantity) => {
     if (quantity < 1) return;
-    await updateItemQuantity(id, quantity);
+    await updateItemQuantity(id, quantity, true);
   };
 
   const handleClearCart = async () => {
@@ -194,12 +194,12 @@ const stopHold = async (id, quantity, type) => {
 
   const handleApplyCoupon = async () => {
     if (!coupon.trim()) {
-      toast.error("Enter a valid code");
+      showToast("Enter a valid code", "error");
       return;
     }
 
     if (discount > 0) {
-      toast.error("Coupon already applied");
+      showToast("Coupon already applied", "error");
       return;
     }
 
@@ -213,13 +213,13 @@ const stopHold = async (id, quantity, type) => {
       if (data.success) {
         setDiscount(data.discount);
         setAppliedCoupon(data.appliedCoupon);
-        toast.success(data.message);
+        showToast(data.message, "success");
       } else {
-        toast.error(data.message);
+        showToast(data.message, "error");
       }
     } catch (err) {
       console.error("Coupon Apply Error:", err);
-      toast.error("Something went wrong while applying coupon");
+      showToast("Something went wrong while applying coupon", "error");
     } finally {
       setLoading(false);
     }
@@ -229,7 +229,7 @@ const stopHold = async (id, quantity, type) => {
     setCoupon('');
     setDiscount(0);
     setAppliedCoupon(null);
-    toast.success("Coupon removed");
+    showToast("Coupon removed", "success");
   };
 
   const estimatedTime = new Date(

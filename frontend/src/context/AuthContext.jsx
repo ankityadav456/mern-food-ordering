@@ -12,7 +12,7 @@ import {
 import axios from "../utils/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { toast } from "react-hot-toast";
+import { showToast } from "../utils/showToast.jsx"
 import defaultUserLogo from "../assets/Images/profile.png";
 
 const AuthContext = createContext();
@@ -20,244 +20,179 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
-  /* ================= STATES ================= */
+  /* ================= STATE ================= */
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const [allUsers, setAllUsers] = useState([]);
-  const [loadingUsers, setLoadingUsers] = useState(false);
+  /* ================= FORMAT USER ================= */
+
+  const formatUser = useCallback((userData) => {
+    if (!userData) return null;
+
+    return {
+      _id: userData._id,
+      name: userData.name,
+      email: userData.email,
+      isAdmin: userData.isAdmin,
+      address: userData.address || null,
+      avatar: userData.avatar || defaultUserLogo,
+    };
+  }, []);
 
   /* ================= FETCH USER ================= */
 
   const fetchUser = useCallback(async () => {
     try {
       const { data } = await axios.get("/auth/me");
-
-      const loggedUser = {
-        _id: data.user._id,
-        name: data.user.name,
-        email: data.user.email,
-        isAdmin: data.user.isAdmin,
-        address: data.user.address || null,
-        avatar: data.user.avatar || defaultUserLogo,
-      };
-
-      setUser(loggedUser);
-
-      // fetch admin users only once
-      if (loggedUser.isAdmin) {
-        fetchAllUsers();
-      }
-    } catch (error) {
-      console.error(
-        "Fetch User Failed:",
-        error.response?.data?.message || error.message
-      );
-      logout(false);
+      setUser(formatUser(data.user));
+    } catch {
+      setUser(null);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [formatUser]);
 
-  /* ================= INITIAL AUTH LOAD ================= */
+  /* ================= INITIAL AUTH CHECK ================= */
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      setLoading(false);
-      return;
-    }
-
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    fetchUser();
+    fetchUser(); // cookie auto sent
   }, [fetchUser]);
-
-  /* ================= SET TOKEN ================= */
-
-  const setAuthData = (token) => {
-    localStorage.setItem("token", token);
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    fetchUser();
-  };
 
   /* ================= AUTH ================= */
 
   const signup = async (name, email, password) => {
-    const { data } = await axios.post("/auth/register", {
-      name,
-      email,
-      password,
-    });
+    try {
+      setLoading(true);
 
-    if (data.token) {
-      setAuthData(data.token);
+      const { data } = await axios.post("/auth/register", {
+        name,
+        email,
+        password,
+      });
+
+      setUser(formatUser(data.user));
       navigate("/");
+    } catch (error) {
+      showToast(error.response?.data?.message || "Signup failed", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
   const login = async (email, password) => {
-    const { data } = await axios.post("/auth/login", {
-      email,
-      password,
-    });
+    try {
+      setLoading(true);
 
-    if (data.token) {
-      setAuthData(data.token);
+      const { data } = await axios.post("/auth/login", {
+        email,
+        password,
+      });
+
+      // ✅ cookie already set by backend
+      setUser(formatUser(data.user));
+
       navigate("/");
+    } catch (error) {
+      showToast(error.response?.data?.message || "Login failed","error");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const logout = useCallback(
-    (redirect = true) => {
-      setUser(null);
-      localStorage.removeItem("token");
-      delete axios.defaults.headers.common["Authorization"];
+  const logout = useCallback(async () => {
+    try {
+      await axios.post("/auth/logout"); // clears cookie
+    } catch {}
 
-      if (redirect) navigate("/login");
-    },
-    [navigate]
-  );
+    setUser(null);
+    navigate("/login");
+  }, [navigate]);
 
   /* ================= PROFILE ================= */
 
   const updateProfile = async (formData) => {
-    const { data } = await axios.put("/auth/update-profile", formData);
+    try {
+      const { data } = await axios.put("/auth/update-profile", formData);
 
-    Swal.fire(data.message);
-
-    setUser((prev) => ({
-      ...prev,
-      name: data.user.name,
-      email: data.user.email,
-    }));
+      Swal.fire(data.message);
+      setUser(formatUser(data.user));
+    } catch {
+      showToast("Profile update failed");
+    }
   };
 
   /* ================= AVATAR ================= */
 
   const updateAvatar = async (file) => {
-    const formData = new FormData();
-    formData.append("avatar", file);
+    try {
+      const formData = new FormData();
+      formData.append("avatar", file);
 
-    const { data } = await axios.put(
-      "/auth/update-avatar",
-      formData,
-      {
+      const { data } = await axios.put("/auth/update-avatar", formData, {
         headers: { "Content-Type": "multipart/form-data" },
-      }
-    );
+      });
 
-    Swal.fire(data.message);
+      Swal.fire(data.message);
 
-    setUser((prev) => ({
-      ...prev,
-      avatar: data.avatar,
-    }));
+      setUser((prev) => ({
+        ...prev,
+        avatar: data.avatar,
+      }));
+    } catch {
+      showToast("Avatar update failed");
+    }
   };
 
-  const handleDeleteAvatar = async () => {
-    await axios.delete("/auth/delete-avatar");
+  const deleteAvatar = async () => {
+    try {
+      await axios.delete("/auth/delete-avatar");
 
-    toast.success("Avatar removed");
+      showToast("Avatar removed");
 
-    // ❌ no fetchUser()
-    setUser((prev) => ({
-      ...prev,
-      avatar: defaultUserLogo,
-    }));
+      setUser((prev) => ({
+        ...prev,
+        avatar: defaultUserLogo,
+      }));
+    } catch {
+      showToast("Delete avatar failed");
+    }
   };
 
   /* ================= ADDRESS ================= */
 
   const saveAddress = async (addressData) => {
-    const { data } = await axios.put(
-      "/auth/save-address",
-      addressData
-    );
+    try {
+      const { data } = await axios.put("/auth/save-address", addressData);
 
-    if (data.success) {
-      setUser((prev) => ({
-        ...prev,
-        address: data.address,
-      }));
-
-      return data.address;
+      if (data.success) {
+        setUser((prev) => ({
+          ...prev,
+          address: data.address,
+        }));
+        return data.address;
+      }
+    } catch {
+      showToast("Address save failed");
     }
   };
 
   const deleteAddress = async () => {
-    const { data } = await axios.delete("/auth/delete-address");
-
-    if (data.success) {
-      setUser((prev) => ({
-        ...prev,
-        address: null,
-      }));
-    }
-  };
-
-  /* ================= ADMIN ================= */
-
-  const fetchAllUsers = async () => {
     try {
-      setLoadingUsers(true);
+      const { data } = await axios.delete("/auth/delete-address");
 
-      const { data } = await axios.get("/admin/users");
-
-      if (data.success) setAllUsers(data.users);
-    } catch (error) {
-      toast.error(
-        error.response?.data?.message || "Fetch users failed"
-      );
-    } finally {
-      setLoadingUsers(false);
+      if (data.success) {
+        setUser((prev) => ({
+          ...prev,
+          address: null,
+        }));
+      }
+    } catch {
+      showToast("Delete address failed");
     }
   };
 
-  const deleteUser = async (id) => {
-    await axios.delete(`/admin/users/${id}`);
-
-    toast.success("User deleted");
-
-    setAllUsers((prev) =>
-      prev.filter((u) => u._id !== id)
-    );
-  };
-
-  const toggleUserStatus = async (id, currentStatus) => {
-    const { data } = await axios.put(
-      `/admin/users/${id}/status`,
-      {
-        status: currentStatus === "Active" ? "Blocked" : "Active",
-      }
-    );
-
-    toast.success("Status updated");
-
-    setAllUsers((prev) =>
-      prev.map((u) =>
-        u._id === id ? { ...u, status: data.status } : u
-      )
-    );
-  };
-
-  const updateUser = async (id, updatedFields) => {
-    const { data } = await axios.put(
-      `/admin/users/${id}`,
-      updatedFields
-    );
-
-    toast.success("User updated");
-
-    setAllUsers((prev) =>
-      prev.map((u) =>
-        u._id === id ? { ...u, ...data.user } : u
-      )
-    );
-  };
-
-  /* ================= MEMOIZED VALUE ================= */
+  /* ================= CONTEXT VALUE ================= */
 
   const value = useMemo(
     () => ({
@@ -266,23 +201,16 @@ export const AuthProvider = ({ children }) => {
       signup,
       login,
       logout,
+      fetchUser,
       updateProfile,
       updateAvatar,
-      handleDeleteAvatar,
+      deleteAvatar,
       saveAddress,
       deleteAddress,
-      allUsers,
-      loadingUsers,
-      fetchAllUsers,  
-      deleteUser,
-      toggleUserStatus,
-      updateUser,
-      fetchUser,
+      isAuthenticated: !!user,
     }),
-    [user, loading, allUsers, loadingUsers]
+    [user, loading, logout, fetchUser]
   );
-
-  /* ================= PROVIDER ================= */
 
   return (
     <AuthContext.Provider value={value}>

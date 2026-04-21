@@ -215,14 +215,14 @@ const MenuPage = () => {
           </div> */}
 
           <motion.div
-            className="flex flex-wrap items-center justify-between gap-3 sm:gap-5 mb-4 px-2"
+            className="flex flex-wrap items-center justify-between gap-3 sm:gap-2 mb-4 px-2"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
           >
             {/* Category Display */}
             <motion.div
-              className="flex items-center gap-2 bg-surface-light dark:bg-surface-dark px-4 py-2 rounded-xl shadow-sm border border-gray-200 dark:border-[#333]"
+              className="flex items-center gap-2 bg-surface-light dark:bg-surface-dark px-4 py-3 rounded-xl shadow-sm border border-gray-200 dark:border-[#333]"
               whileHover={{ scale: 1.02 }}
             >
               <SlidersHorizontal
@@ -248,7 +248,7 @@ const MenuPage = () => {
               <select
                 value={sortOrder}
                 onChange={(e) => handleSortChange(e.target.value)}
-                className={`px-3 py-1.5 rounded-lg border text-sm focus:ring-2 transition-all ${theme === "dark"
+                className={`px-3 py-1 rounded-lg border text-sm focus:ring-2 transition-all ${theme === "dark"
                   ? "bg-[#1a1a1a] border-[#333] text-white focus:ring-amber-500"
                   : "bg-white border-gray-300 text-gray-800 focus:ring-orange-500"
                   }`}
@@ -262,7 +262,7 @@ const MenuPage = () => {
 
             {/* Price Limit */}
             <motion.div
-              className="flex items-center gap-2 bg-surface-light dark:bg-surface-dark px-4 py-2 rounded-xl shadow-sm border border-gray-200 dark:border-[#333]"
+              className="flex items-center gap-2 bg-surface-light dark:bg-surface-dark px-4 py-3 rounded-xl shadow-sm border border-gray-200 dark:border-[#333]"
               whileHover={{ scale: 1.02 }}
             >
               <div className="text-sm text-gray-700 dark:text-gray-300">Max ₹</div>

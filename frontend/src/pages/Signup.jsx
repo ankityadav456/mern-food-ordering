@@ -177,7 +177,7 @@ const Signup = () => {
               onClick={() => setShowPassword((prev) => !prev)}
               className="absolute right-3 top-4 text-gray-400 hover:text-orange-500 transition"
             >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
             </button>
           </div>
 

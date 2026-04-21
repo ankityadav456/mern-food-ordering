@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     isAdmin: { type: Boolean, default: false },
-    avatar: { type: String, default: "" },
+    avatar: { type: String, default: "/uploads/avatars/default-avatar.png" },
 
     status: {
       type: String,
@@ -19,13 +19,13 @@ const userSchema = new mongoose.Schema(
     cart: [cartItemSchema],
     orders: [{ type: mongoose.Schema.Types.ObjectId, ref: "Order" }],
     address: {
-      fullName: { type: String },
-      mobileNumber: { type: String },
-      roomNumber: { type: String },
-      street: { type: String },
-      city: { type: String },
-      state: { type: String },
-      pincode: { type: String },
+        fullName: { type: String },
+        mobileNumber: { type: String },
+        roomNumber: { type: String },
+        street: { type: String },
+        city: { type: String },
+        state: { type: String },
+        pincode: { type: String },
     },
 
     appliedCoupon: {

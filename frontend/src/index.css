@@ -221,7 +221,7 @@ body {
   background: linear-gradient(to right, #DC2626, #FACC15); /* Red to Yellow */
 }
 
-@keyframes toast-progress {
+/* @keyframes toast-progress {
   from {
     width: 100%;
   }
@@ -237,8 +237,17 @@ body {
   to {
     width: 0%;
   }
+} */
+
+@keyframes progress {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
 }
 
-body {
-  @apply font-sans;
+.animate-progress {
+  animation: progress linear forwards;
 }

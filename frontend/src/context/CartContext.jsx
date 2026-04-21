@@ -9,7 +9,7 @@ import {
 } from "react";
 import axios from "../utils/axiosInstance";
 import { useAuth } from "./AuthContext";
-import { toast } from "react-hot-toast";
+import { showToast } from "../utils/showToast.jsx";
 
 const CartContext = createContext();
 
@@ -87,9 +87,9 @@ export const CartProvider = ({ children }) => {
 
       try {
         await axios.post("/cart", { foodId: foodItem._id });
-        toast.success(`${foodItem.name} added`);
+        showToast(`${foodItem.name} added`, "success");
       } catch {
-        toast.error("Failed to add item");
+        showToast("Failed to add item", "error");
         fetchCartItems();
       }
     },
@@ -109,9 +109,9 @@ export const CartProvider = ({ children }) => {
 
       try {
         await axios.delete(`/cart/${foodId}`);
-        toast.success("Item removed");
+        showToast("Item removed", "success");
       } catch {
-        toast.error("Remove failed");
+        showToast("Remove failed", "error");
         setCartItems(backup);
       }
     },
@@ -122,7 +122,7 @@ export const CartProvider = ({ children }) => {
      UPDATE QUANTITY
   =============================== */
   const updateItemQuantity = useCallback(
-    async (foodId, quantity) => {
+    async (foodId, quantity, showMessage = false) => {
       setCartItems((prev) =>
         prev.map((item) =>
           item.foodId._id === foodId
@@ -133,8 +133,13 @@ export const CartProvider = ({ children }) => {
 
       try {
         await axios.put(`/cart/${foodId}`, { quantity });
+        if (showMessage) {
+      showToast("Quantity Updated", "success");
+    }
       } catch {
-        toast.error("Update failed");
+      if (showMessage) {
+      showToast("Update failed", "error");
+    }
         fetchCartItems();
       }
     },
@@ -148,9 +153,9 @@ export const CartProvider = ({ children }) => {
     try {
       await axios.delete("/cart");
       setCartItems([]);
-      toast.success("Cart cleared");
+      showToast("Cart cleared", "success");
     } catch {
-      toast.error("Failed to clear cart");
+      showToast("Failed to clear cart", "error");
     }
   }, []);
 

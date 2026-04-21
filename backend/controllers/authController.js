@@ -7,14 +7,11 @@ import User from "../models/User.js";
 ====================================================== */
 
 const generateToken = (userId) => {
-  if (!process.env.JWT_SECRET) {
-    console.error("Missing JWT_SECRET");
-    return null;
-  }
-
-  return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
-    expiresIn: "7d",
-  });
+  return jwt.sign(
+    { id: userId },
+    process.env.JWT_SECRET,
+    { expiresIn: "1d" }
+  );
 };
 
 const sendTokenResponse = (res, user, message) => {
@@ -27,10 +24,10 @@ const sendTokenResponse = (res, user, message) => {
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
+  // ✅ TOKEN NOT SENT TO FRONTEND
   res.status(200).json({
     success: true,
     message,
-    token,
     user: {
       _id: user._id,
       name: user.name,
@@ -43,7 +40,7 @@ const sendTokenResponse = (res, user, message) => {
 };
 
 /* ======================================================
-   AUTH
+   REGISTER
 ====================================================== */
 
 export const registerUser = async (req, res) => {
@@ -61,10 +58,13 @@ export const registerUser = async (req, res) => {
 
     sendTokenResponse(res, user, "User registered successfully");
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 };
+
+/* ======================================================
+   LOGIN
+====================================================== */
 
 export const loginUser = async (req, res) => {
   try {
@@ -79,32 +79,42 @@ export const loginUser = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
 
     sendTokenResponse(res, user, "Login successful");
-  } catch (err) {
-    console.error(err);
+  } catch {
     res.status(500).json({ message: "Server error" });
   }
 };
 
+/* ======================================================
+   LOGOUT
+====================================================== */
+
 export const logoutUser = (req, res) => {
-  res.clearCookie("token");
-  res.json({ success: true, message: "Logged out successfully" });
+  res.clearCookie("token", {
+    httpOnly: true,
+    sameSite: "strict",
+    secure: process.env.NODE_ENV === "production",
+  });
+
+  res.json({
+    success: true,
+    message: "Logged out successfully",
+  });
 };
 
 /* ======================================================
-   PROFILE
+   GET PROFILE (/auth/me)
 ====================================================== */
 
 export const getUserProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select(
-      "_id name email isAdmin address avatar"
-    );
+    const user = await User.findById(req.user.id)
+      .select("_id name email isAdmin address avatar");
 
     res.json({
       success: true,
       user,
     });
-  } catch (err) {
+  } catch {
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -120,16 +130,15 @@ export const updateUserProfile = async (req, res) => {
     const user = await User.findByIdAndUpdate(
       req.user.id,
       { name, mobile },
-      { new: true, select: "_id name mobile" }
-    );
+      { new: true }
+    ).select("_id name mobile");
 
     res.json({
       success: true,
       message: "Profile updated",
-      name: user.name,
-      mobile: user.mobile,
+      user,
     });
-  } catch (err) {
+  } catch {
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -154,7 +163,7 @@ export const updateUserAvatar = async (req, res) => {
       message: "Avatar updated",
       avatar: avatarPath,
     });
-  } catch (err) {
+  } catch {
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -172,13 +181,13 @@ export const deleteAvatar = async (req, res) => {
       message: "Avatar removed",
       avatar: defaultAvatar,
     });
-  } catch (err) {
+  } catch {
     res.status(500).json({ message: "Failed to delete avatar" });
   }
 };
 
 /* ======================================================
-   ADDRESS (🔥 FIXED PART)
+   ADDRESS
 ====================================================== */
 
 export const updateAddress = async (req, res) => {
@@ -187,13 +196,12 @@ export const updateAddress = async (req, res) => {
       address: req.body,
     });
 
-    // ✅ ONLY SEND UPDATED FIELD
     res.json({
       success: true,
       message: "Address updated successfully",
       address: req.body,
     });
-  } catch (err) {
+  } catch {
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -204,13 +212,12 @@ export const deleteAddress = async (req, res) => {
       address: null,
     });
 
-    // ✅ NO USER OBJECT RETURNED
     res.json({
       success: true,
       message: "Address deleted successfully",
       address: null,
     });
-  } catch (err) {
+  } catch {
     res.status(500).json({ message: "Server error" });
   }
 };
