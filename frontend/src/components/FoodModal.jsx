@@ -107,7 +107,7 @@ const FoodModal = ({ isOpen, onClose, onSubmit, initialData, categories, theme =
             <div className="px-6 py-4 overflow-y-auto scrollbar-thin scrollbar-thumb-rounded-lg scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 flex-1">
               {/* Image Preview */}
                 <motion.img
-                 src={`${import.meta.env.VITE_API_URL}${foodData.image}`}
+                 src={`${import.meta.env.VITE_BACKEND_URL}${foodData.image}`}
                   alt="Food Preview"
                   className="w-full h-40 sm:h-48 object-cover rounded-lg mb-4 shadow"
                   initial={{ scale: 0.95, opacity: 0 }}

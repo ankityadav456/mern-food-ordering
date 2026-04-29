@@ -145,7 +145,7 @@ export default function AdminFoodPage() {
               className="bg-white dark:bg-[#1c1c1c] border border-gray-200 dark:border-gray-700 rounded-xl shadow-md hover:shadow-xl transition duration-300 flex flex-col"
             >
               <img
-                   src={`${import.meta.env.VITE_API_URL}${item.image}`}
+                   src={`${import.meta.env.VITE_BACKEND_URL}${item.image}`}
                 alt={item.name}
                 className="w-full h-44 object-cover rounded-t-xl border-b border-gray-200 dark:border-gray-700"
               />

@@ -469,7 +469,7 @@ const MenuPage = () => {
                   bg-gradient-to-tr from-orange-500 to-yellow-400"></div>
 
                   <motion.img
-                    src={`${import.meta.env.VITE_API_URL}${quickViewItem.image}`}
+                    src={`${import.meta.env.VITE_BACKEND_URL}${quickViewItem.image}`}
                     alt={quickViewItem.name}
                     className="relative w-full h-60 object-cover rounded-2xl
                shadow-2xl"
