@@ -7,7 +7,7 @@ import { useTheme } from "../context/ThemeContext";
 import { Upload, Trash2, ArrowLeft, Check } from "lucide-react";
 
 const ProfilePage = () => {
-  const { user, updateProfile, updateAvatar, handleDeleteAvatar } = useAuth();
+  const { user, updateProfile, updateAvatar, deleteAvatar } = useAuth();
   const { theme } = useTheme();
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
@@ -54,7 +54,7 @@ const ProfilePage = () => {
   };
 
   const handleDeleteAvatarBtn = async () => {
-    const response = await handleDeleteAvatar();
+    const response = await deleteAvatar();
     const newAvatarUrl = `${backendUrl}${response}`;
     setAvatarPreview(newAvatarUrl);
   };

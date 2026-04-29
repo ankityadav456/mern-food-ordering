@@ -103,7 +103,9 @@ export const AuthProvider = ({ children }) => {
   const logout = useCallback(async () => {
     try {
       await axios.post("/auth/logout"); // clears cookie
-    } catch {}
+    } catch {
+      showToast("Logout failed", "error");
+    }
 
     setUser(null);
     navigate("/login");
@@ -118,7 +120,7 @@ export const AuthProvider = ({ children }) => {
       Swal.fire(data.message);
       setUser(formatUser(data.user));
     } catch {
-      showToast("Profile update failed");
+      showToast("Profile update failed","error");
     }
   };
 
@@ -140,7 +142,7 @@ export const AuthProvider = ({ children }) => {
         avatar: data.avatar,
       }));
     } catch {
-      showToast("Avatar update failed");
+      showToast("Avatar update failed", "error");
     }
   };
 
@@ -148,14 +150,14 @@ export const AuthProvider = ({ children }) => {
     try {
       await axios.delete("/auth/delete-avatar");
 
-      showToast("Avatar removed");
+      showToast("Avatar removed", "success");
 
       setUser((prev) => ({
         ...prev,
         avatar: defaultUserLogo,
       }));
     } catch {
-      showToast("Delete avatar failed");
+      showToast("Delete avatar failed", "error");
     }
   };
 
@@ -173,7 +175,7 @@ export const AuthProvider = ({ children }) => {
         return data.address;
       }
     } catch {
-      showToast("Address save failed");
+      showToast("Address save failed", "error");
     }
   };
 
@@ -188,7 +190,7 @@ export const AuthProvider = ({ children }) => {
         }));
       }
     } catch {
-      showToast("Delete address failed");
+      showToast("Delete address failed", "error");
     }
   };
 

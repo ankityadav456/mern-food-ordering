@@ -16,11 +16,11 @@ const generateToken = (userId) => {
 const sendTokenResponse = (res, user, message) => {
   const token = generateToken(user._id);
 
-  res.cookie("token", token, {
+    res.cookie("token", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    maxAge: 1* 24 * 60 * 60 * 1000,
+    secure: true,      // always true in production HTTPS
+    sameSite: "None",  // ⭐ REQUIRED
+    maxAge: 1 * 24 * 60 * 60 * 1000,
   });
 
   res.status(200).json({
@@ -94,11 +94,11 @@ export const loginUser = async (req, res) => {
 ====================================================== */
 
 export const logoutUser = (req, res) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    sameSite: "strict",
-    secure: process.env.NODE_ENV === "production",
-  });
+res.clearCookie("token", {
+  httpOnly: true,
+  secure: true,
+  sameSite: "None",
+});
 
   res.json({
     success: true,

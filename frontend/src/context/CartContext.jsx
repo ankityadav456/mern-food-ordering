@@ -34,9 +34,7 @@ export const CartProvider = ({ children }) => {
       setCartItems(res.data.cart || []);
     } catch (error) {
       console.error(error);
-      toast.error(
-        error.response?.data?.message || "Failed to load cart"
-      );
+      showToast(error.response?.data?.message || "Failed to load cart", "error");
     } finally {
       setLoading(false);
     }
