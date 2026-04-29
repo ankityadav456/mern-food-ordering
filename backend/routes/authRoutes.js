@@ -1,4 +1,4 @@
-import express from "express";
+import {Router} from "express";
 import {
   registerUser,
   loginUser,
@@ -12,18 +12,17 @@ import {
 import { protect } from "../middleware/authMiddleware.js";
 import { uploadAvatar } from "../middleware/multer.js";
 
-const router = express.Router();
+const authRouter = Router();
 
 // Public
-router.post("/register", registerUser);
-router.post("/login", loginUser);
+authRouter.post("/register", registerUser);
+authRouter.post("/login", loginUser);
 
-// Protected
-router.get("/me", protect, getUserProfile);
-router.put("/update-profile", protect, updateUserProfile);
-router.put("/update-avatar", protect, uploadAvatar.single("avatar"), updateUserAvatar);
-router.put("/save-address", protect, updateAddress);
-router.delete("/delete-address", protect, deleteAddress);
-router.delete("/delete-avatar", protect, deleteAvatar);
+authRouter.get("/me", protect, getUserProfile);
+authRouter.put("/update-profile", protect, updateUserProfile);
+authRouter.put("/update-avatar", protect, uploadAvatar.single("avatar"), updateUserAvatar);
+authRouter.put("/save-address", protect, updateAddress);
+authRouter.delete("/delete-address", protect, deleteAddress);
+authRouter.delete("/delete-avatar", protect, deleteAvatar);
 
-export default router;
+export default authRouter;

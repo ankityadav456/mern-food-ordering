@@ -1,6 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    @apply bg-background-light text-text-light transition-colors duration-300;
+  }
 
 /* ==== Custom Styles ==== */
 @layer components {
@@ -250,4 +267,53 @@ body {
 
 .animate-progress {
   animation: progress linear forwards;
+}
+
+
+  .dark body {
+    @apply bg-background-dark text-text-dark;
+  }
+
+  ::selection {
+    background-color: rgba(255, 87, 34, 0.2);
+    color: inherit;
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes moveGrid {
+  0% { background-position: 0 0; }
+  100% { background-position: 30px 30px; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(255, 87, 34, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(255, 87, 34, 0.6); }
+}
+
+@layer utilities {
+  .animate-shimmer {
+    animation: shimmer 3s linear infinite;
+  }
+
+  .animate-moveGrid {
+    animation: moveGrid 4s linear infinite;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
 }

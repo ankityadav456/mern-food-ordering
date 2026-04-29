@@ -6,6 +6,7 @@ const FoodModal = ({ isOpen, onClose, onSubmit, initialData, categories, theme =
   const [foodData, setFoodData] = useState({
     name: "",
     price: "",
+    rating: 0,
     image: "",
     category: "",
   });
@@ -16,7 +17,6 @@ const FoodModal = ({ isOpen, onClose, onSubmit, initialData, categories, theme =
     if (isOpen) {
       if (initialData) {
         setFoodData(initialData);
-        setPreviewImage(initialData.image || "");
       } else {
         resetForm();
       }
@@ -24,8 +24,7 @@ const FoodModal = ({ isOpen, onClose, onSubmit, initialData, categories, theme =
   }, [isOpen, initialData]);
 
   const resetForm = () => {
-    setFoodData({ name: "", price: "", image: "", category: "" });
-    setPreviewImage("");
+    setFoodData({ name: "", price: "", image: "", category: "", rating: 0 });
   };
 
   const handleChange = (e) => {
@@ -37,7 +36,6 @@ const FoodModal = ({ isOpen, onClose, onSubmit, initialData, categories, theme =
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setPreviewImage(reader.result);
         setFoodData({ ...foodData, image: reader.result });
       };
       reader.readAsDataURL(file);
@@ -108,9 +106,8 @@ const FoodModal = ({ isOpen, onClose, onSubmit, initialData, categories, theme =
             {/* Scrollable Content */}
             <div className="px-6 py-4 overflow-y-auto scrollbar-thin scrollbar-thumb-rounded-lg scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 flex-1">
               {/* Image Preview */}
-              {previewImage ? (
                 <motion.img
-                  src={previewImage}
+                 src={`${import.meta.env.VITE_API_URL}${foodData.image}`}
                   alt="Food Preview"
                   className="w-full h-40 sm:h-48 object-cover rounded-lg mb-4 shadow"
                   initial={{ scale: 0.95, opacity: 0 }}
@@ -118,13 +115,6 @@ const FoodModal = ({ isOpen, onClose, onSubmit, initialData, categories, theme =
                   transition={{ duration: 0.3 }}
                   onError={(e) => (e.target.src = "https://via.placeholder.com/150")}
                 />
-              ) : (
-                <div
-                  className={`w-full h-40 sm:h-48 ${isDark ? "bg-gray-800" : "bg-gray-100"} flex items-center justify-center rounded-lg mb-4`}
-                >
-                  <ImageIcon size={48} className={uploadText} />
-                </div>
-              )}
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -137,6 +127,7 @@ const FoodModal = ({ isOpen, onClose, onSubmit, initialData, categories, theme =
                     className={`w-full p-3 border ${inputBorder} rounded-lg ${inputBg} ${textColor} focus:ring-2 ${inputFocusRing} outline-none`}
                     required
                   />
+                  <input type="text" name="rating" placeholder="rating"   onChange={handleChange} value={foodData.rating}  className={`w-full p-3 border ${inputBorder} rounded-lg ${inputBg} ${textColor} focus:ring-2 ${inputFocusRing} outline-none`}/>
                   <input
                     type="number"
                     name="price"
@@ -161,7 +152,13 @@ const FoodModal = ({ isOpen, onClose, onSubmit, initialData, categories, theme =
                     type="file"
                     accept="image/*"
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    onChange={handleFileChange}
+                      onChange={(e) =>
+                        setFoodData({
+                          ...foodData,
+                          image: e.target.files[0],
+                        })
+                      }
+
                   />
                 </div>
 

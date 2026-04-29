@@ -23,40 +23,49 @@ export default function AdminFoodPage() {
     setModalOpen(true);
   };
 
-  const handleSubmit = async (foodData) => {
-    // setLoading(true); // show loader
-    try {
-      if (selectedFood) {
-        await updateFoodItem(selectedFood._id, foodData);
-        Swal.fire({
-          title: "Updated!",
-          text: "Food item updated successfully!",
-          icon: "success",
-          confirmButtonColor: "#3085d6",
-          confirmButtonText: "OK",
-        });
-      } else {
-        await addFoodItem(foodData);
-        Swal.fire({
-          title: "Success!",
-          text: "New food item added!",
-          icon: "success",
-          confirmButtonColor: "#3085d6",
-          confirmButtonText: "OK",
-        });
-      }
-      setModalOpen(false);
-    } catch (error) {
-      Swal.fire({
-        title: "Error!",
-        text: "Something went wrong, please try again.",
-        icon: "error",
-        confirmButtonColor: "#3085d6",
-      });
-    } finally {
-      // setLoading(false); // hide loader
+ const handleSubmit = async (foodData) => {
+  try {
+    const formData = new FormData();
+
+    formData.append("name", foodData.name);
+    formData.append("category", foodData.category);
+    formData.append("price", foodData.price);
+
+    if (foodData.rating)
+      formData.append("rating", foodData.rating);
+
+    // IMPORTANT → file upload
+    if (foodData.image instanceof File) {
+      formData.append("image", foodData.image);
     }
-  };
+
+    if (selectedFood) {
+      await updateFoodItem(selectedFood._id, formData);
+
+      Swal.fire({
+        title: "Updated!",
+        text: "Food item updated successfully!",
+        icon: "success",
+      });
+    } else {
+      await addFoodItem(formData);
+
+      Swal.fire({
+        title: "Success!",
+        text: "New food item added!",
+        icon: "success",
+      });
+    }
+
+    setModalOpen(false);
+  } catch (error) {
+    Swal.fire({
+      title: "Error!",
+      text: "Something went wrong.",
+      icon: "error",
+    });
+  }
+};
 
   const handleDelete = async (item) => {
     const result = await Swal.fire({
@@ -136,7 +145,7 @@ export default function AdminFoodPage() {
               className="bg-white dark:bg-[#1c1c1c] border border-gray-200 dark:border-gray-700 rounded-xl shadow-md hover:shadow-xl transition duration-300 flex flex-col"
             >
               <img
-                src={item.image}
+                   src={`${import.meta.env.VITE_API_URL}${item.image}`}
                 alt={item.name}
                 className="w-full h-44 object-cover rounded-t-xl border-b border-gray-200 dark:border-gray-700"
               />

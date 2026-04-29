@@ -42,10 +42,10 @@ const FoodItemCard = ({
 
       <div className="relative w-full h-44 overflow-hidden rounded-t-2xl bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
         <motion.img
-          src={item.image}
+          src={`${import.meta.env.VITE_API_URL}${item.image}`}
           alt={item.name}
           loading="lazy"
-          className="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-110"
+          className="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-95"
         />
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
@@ -89,27 +89,7 @@ const FoodItemCard = ({
           </span>
         </div>
 
-        <div className="flex items-center gap-1">
-          {[...Array(5)].map((_, i) => {
-            if (i + 1 <= Math.floor(rating)) {
-              return (
-                <Star
-                  key={i}
-                  className="w-4 h-4 text-yellow-400 fill-yellow-400"
-                />
-              );
-            } else if (i + 1 === Math.ceil(rating) && rating % 1 !== 0) {
-              return (
-                <StarHalf
-                  key={i}
-                  className="w-4 h-4 text-yellow-400 fill-yellow-400"
-                />
-              );
-            } else {
-              return <Star key={i} className="w-4 h-4 text-yellow-400" />;
-            }
-          })}
-        </div>
+            
 
         <div
           className={`flex items-center gap-1 text-xs ${

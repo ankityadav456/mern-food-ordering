@@ -1,5 +1,6 @@
 // src/pages/MenuPage.jsx
 import React, { useMemo, useState, useEffect, useRef, useContext } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useFood } from "../context/FoodContext";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
@@ -17,8 +18,10 @@ import chicken from "../assets/Images/chicken.png";
 import biryani from "../assets/Images/biryani.png";
 import SkeletonCard from "../components/SkeletonCard";
 import FoodCard from "../components/FoodItemCard";
-import { SlidersHorizontal, ArrowDownAZ } from "lucide-react";
+import { SlidersHorizontal, ArrowDownAZ, Clock } from "lucide-react";
 const MenuPage = () => {
+  const [searchParams] = useSearchParams();
+  const categoryFromURL = searchParams.get("category");
   const { updateItemQuantity, removeFromCart } = useCart();
   const [loading1, setLoading1] = useState(false);
   const { foodItems, loading, setLoading } = useFood();
@@ -62,6 +65,16 @@ const MenuPage = () => {
 
     return result;
   }, [foodItems, searchQuery, selectedCategory, priceLimit, sortOrder]);
+
+  useEffect(() => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}, []);
+
+  useEffect(() => {
+  if (categoryFromURL) {
+    setSelectedCategory(categoryFromURL);
+  }
+}, [categoryFromURL]);
 
   useEffect(() => {
     if (foodItems && foodItems.length > 0) {
@@ -184,36 +197,6 @@ const MenuPage = () => {
             </p>
           </div>
 
-          {/* summary chips */}
-          {/* <div className="flex items-center gap-3">
-            <div className="text-sm text-gray-600 dark:text-gray-300">
-              Showing{" "}
-              <span className="font-semibold text-primary-light dark:text-primary-dark">
-                {selectedCategory}
-              </span>
-            </div>
-
-            <div className="hidden md:flex items-center gap-2">
-              <div className="text-sm text-gray-600 dark:text-gray-300">Sort</div>
-              <select
-                value={sortOrder}
-                onChange={(e) => handleSortChange(e.target.value)}
-                className={`px-3 py-2 rounded-lg border focus:outline-none text-sm ${theme === "dark" ? "bg-[#111] border-[#333] text-white" : "bg-white border-gray-300 text-gray-800"
-                  }`}
-                aria-label="Sort foods"
-              >
-                <option value="">Default</option>
-                <option value="asc">Price: Low → High</option>
-                <option value="desc">Price: High → Low</option>
-              </select>
-            </div>
-
-            <div className="hidden md:flex items-center gap-2">
-              <div className="text-sm text-gray-600 dark:text-gray-300">Max ₹</div>
-              <div className="text-sm font-semibold">{priceLimit}</div>
-            </div>
-          </div> */}
-
           <motion.div
             className="flex flex-wrap items-center justify-between gap-3 sm:gap-2 mb-4 px-2"
             initial={{ opacity: 0, y: -10 }}
@@ -328,8 +311,8 @@ const MenuPage = () => {
               ? filteredFoods.map((item) => (
                 <motion.div
                   key={item._id}
-                  whileHover={{ y: -6, scale: 1.02 }}
-                  // transition={{ type: "spring", stiffness: 250, damping: 20 }}
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ type: "spring", stiffness: 250, damping: 20 }}
                   layout
                   transition={{ layout: { duration: 0.3 } }}
                   className="rounded-xl"
@@ -440,70 +423,92 @@ const MenuPage = () => {
       <AnimatePresence>
         {quickViewItem && (
           <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md px-4"
+            className="fixed inset-0 z-50 flex items-center justify-center
+             bg-black/80 backdrop-blur-xl px-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
             onClick={() => setQuickViewItem(null)}
           >
             <motion.div
               onClick={(e) => e.stopPropagation()}
-              initial={{ scale: 0.9, opacity: 0, y: 30 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 30 }}
-              transition={{ type: "spring", stiffness: 120 }}
-              className={`relative w-full max-w-3xl rounded-3xl overflow-hidden border backdrop-blur-xl
-        ${theme === "dark"
-                  ? "bg-[#121212]/90 border-[#2A2A2A]"
-                  : "bg-white/90 border-gray-200"
-                } shadow-[0_10px_50px_rgba(0,0,0,0.35)]`}
+              initial={{ opacity: 0, scale: 0.85, y: 80 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.85, y: 60 }}
+              transition={{ type: "spring", stiffness: 140, damping: 18 }}
+              className={`relative w-full max-w-4xl rounded-3xl overflow-hidden
+  border backdrop-blur-2xl
+  ${theme === "dark"
+                  ? "bg-[#121212]/80 border-white/10"
+                  : "bg-white/80 border-gray-200"}
+  shadow-[0_20px_80px_rgba(0,0,0,0.45)]`}
             >
               {/* Close Button */}
               <button
                 onClick={() => setQuickViewItem(null)}
-                className="absolute top-4 right-4 z-10 bg-black/30 hover:bg-red-500 p-2 rounded-full transition"
+                className="absolute top-5 right-5 z-20
+             bg-black/40 hover:bg-red-500
+             backdrop-blur-md
+             p-2 rounded-full
+             transition-all duration-300 hover:scale-110"
               >
                 <XMarkIcon className="w-5 h-5 text-white" />
               </button>
 
-              <div className="grid md:grid-cols-2 gap-6 p-6 md:p-8 items-center">
+              <div className="grid md:grid-cols-2 gap-10 p-7 md:p-10 items-center">
 
-                {/* Image */}
                 <motion.div
-                  className="overflow-hidden rounded-2xl"
-                  whileHover={{ scale: 1.03 }}
+                  className="relative group"
+                  initial={{ x: -60, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay: 0.1 }}
                 >
-                  <img
-                    src={quickViewItem.image}
+                  {/* Glow background */}
+                  <div className="absolute inset-0 rounded-2xl blur-2xl opacity-30
+                  bg-gradient-to-tr from-orange-500 to-yellow-400"></div>
+
+                  <motion.img
+                    src={`${import.meta.env.VITE_API_URL}${quickViewItem.image}`}
                     alt={quickViewItem.name}
-                    className="w-full h-60 object-cover rounded-2xl"
+                    className="relative w-full h-60 object-cover rounded-2xl
+               shadow-2xl"
+                    whileHover={{ scale: 0.9 }}
+                    transition={{ duration: 0.4 }}
                   />
                 </motion.div>
-
                 {/* Details */}
-                <div className="flex flex-col gap-4">
+                <motion.div
+                  className="flex flex-col gap-5"
+                  initial={{ x: 60, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                >
 
                   {/* Title */}
-                  <h3 className="text-2xl md:text-3xl font-bold text-primary-light dark:text-primary-dark">
+                  <h3 className="text-3xl font-bold tracking-tight">
                     {quickViewItem.name}
                   </h3>
 
                   {/* Description */}
-                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                  <p className="text-sm leading-relaxed text-gray-500 dark:text-gray-300">
                     {quickViewItem.description ||
-                      "Tasty choice — chef's special crafted with love."}
+                      "Chef crafted delight prepared with premium ingredients and rich flavors."}
                   </p>
 
                   {/* Price + Rating */}
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mt-2">
 
                     <div>
-                      <div className="text-2xl font-bold text-orange-500">
+                      <div className="text-3xl font-bold text-orange-500">
                         ₹{quickViewItem.price}
                       </div>
 
-                      <div className="text-sm text-gray-500 mt-1">
-                        ⏱ {quickViewItem.deliveryTime || "25–35 mins"}
+
+                      <div
+                        className={`flex items-center gap-1 text-xs`}
+                      >
+                        <Clock size={14} />{quickViewItem.deliveryTime || "25–35 mins"}
                       </div>
 
                       <div className="mt-2">
@@ -511,13 +516,14 @@ const MenuPage = () => {
                       </div>
                     </div>
 
-                    {/* Cart Badge */}
-                    <div className="text-center">
+                    <div className="text-center px-4 py-2 rounded-xl
+                  bg-orange-500/10 border border-orange-400/20">
                       <div className="text-xs text-gray-500">In Cart</div>
-                      <div className="text-lg font-bold text-primary-light dark:text-primary-dark">
+                      <div className="text-xl font-bold text-orange-500">
                         {getItemQuantity(quickViewItem._id) || 0}
                       </div>
                     </div>
+
                   </div>
 
                   {/* Quantity + Add */}
@@ -525,13 +531,15 @@ const MenuPage = () => {
 
                     {/* Quantity Controller */}
                     {quantity > 0 && (
-                      <div className="flex items-center gap-3 px-3 py-1.5 rounded-xl border bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700">
+                      <div className="flex items-center gap-3
+                px-4 py-2 rounded-xl
+                bg-surface border border-gray-300 dark:border-gray-700">
 
                         <button
-                          onClick={() =>
-                            setQuantity((prev) => Math.max(1, prev - 1))
-                          }
-                          className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 font-bold text-lg hover:scale-110 transition"
+                          onClick={() => setQuantity((p) => Math.max(1, p - 1))}
+                          className="w-9 h-9 rounded-full
+             bg-gray-200 dark:bg-gray-700
+             hover:scale-110 transition"
                         >
                           −
                         </button>
@@ -539,37 +547,46 @@ const MenuPage = () => {
                         <span className="font-semibold text-lg">{quantity}</span>
 
                         <button
-                          onClick={() => setQuantity((prev) => prev + 1)}
-                          className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 font-bold text-lg hover:scale-110 transition"
+                          onClick={() => setQuantity((p) => p + 1)}
+                          className="w-9 h-9 rounded-full
+             bg-gray-200 dark:bg-gray-700
+             hover:scale-110 transition"
                         >
                           +
                         </button>
+
                       </div>
                     )}
 
                     {/* Add / Update Button */}
                     <motion.button
-                      whileTap={{ scale: 0.95 }}
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.96 }}
                       disabled={modalLoading}
                       onClick={() =>
                         quantity > 0
                           ? handleQuantityChange(quickViewItem._id, quantity)
                           : handleAddToCart(quickViewItem, true)
                       }
-                      className={`flex-1 px-6 py-3 rounded-xl font-semibold shadow-md transition
-                ${theme === "dark"
-                          ? "bg-gradient-to-r from-orange-500 to-yellow-400 text-black"
-                          : "bg-gradient-to-r from-orange-500 to-yellow-500 text-white"
-                        }`}
+                      className="flex-1 relative overflow-hidden
+             px-7 py-3 rounded-xl font-semibold
+             bg-gradient-to-r from-orange-500 to-yellow-400
+             text-black shadow-lg
+             hover:shadow-orange-500/40 transition"
                     >
-                      {modalLoading
-                        ? "Processing..."
-                        : quantity > 0
-                          ? `Update (${quantity})`
-                          : "Add to Cart"}
+                      <span className="relative z-10">
+                        {modalLoading
+                          ? "Processing..."
+                          : quantity > 0
+                            ? `Update (${quantity})`
+                            : "Add to Cart"}
+                      </span>
+
+                      <div className="absolute inset-0 opacity-0 hover:opacity-100
+                  transition bg-white/10"></div>
                     </motion.button>
                   </div>
-                </div>
+                </motion.div>
               </div>
             </motion.div>
           </motion.div>
@@ -578,7 +595,6 @@ const MenuPage = () => {
 
 
 
-      {/* Floating Filter FAB */}
       <button
         onClick={() => setShowFilterModal(true)}
         aria-label="Open filters"

@@ -37,60 +37,68 @@ export const FoodProvider = ({ children }) => {
 
   /* ================= ADD FOOD ================= */
 
-  const addFoodItem = useCallback(
-    async (foodData) => {
-      if (!user?.isAdmin)
-        throw new Error("Only admins can add food items");
+const addFoodItem = useCallback(
+  async (formData) => {
+    if (!user?.isAdmin)
+      throw new Error("Only admins can add food items");
 
-      try {
-        setLoading(true);
+    try {
+      setLoading(true);
 
-        const { data } = await axios.post("/food", foodData);
+      const { data } = await axios.post("/food", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
-        // optimistic update
-        setFoodItems((prev) => [...prev, data.foodItem]);
+      // optimistic update
+      setFoodItems((prev) => [...prev, data.foodItem]);
 
-        return data.message;
-      } catch (err) {
-        throw new Error(
-          err.response?.data?.message || "Failed to add food item"
-        );
-      } finally {
-        setLoading(false);
-      }
-    },
-    [user]
-  );
+      return data.message;
+    } catch (err) {
+      throw new Error(
+        err.response?.data?.message || "Failed to add food item"
+      );
+    } finally {
+      setLoading(false);
+    }
+  },
+  [user]
+);
 
   /* ================= UPDATE FOOD ================= */
 
-  const updateFoodItem = useCallback(
-    async (id, updatedData) => {
-      if (!user?.isAdmin)
-        throw new Error("Only admins can update food items");
+ const updateFoodItem = useCallback(
+  async (id, formData) => {
+    if (!user?.isAdmin)
+      throw new Error("Only admins can update food items");
 
-      try {
-        setLoading(true);
+    try {
+      setLoading(true);
 
-        const { data } = await axios.put(`/food/${id}`, updatedData);
+      const { data } = await axios.put(`/food/${id}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
-        setFoodItems((prev) =>
-          prev.map((item) =>
-            item._id === id ? data.foodItem : item
-          )
-        );
+      setFoodItems((prev) =>
+        prev.map((item) =>
+          item._id === id ? data.foodItem : item
+        )
+      );
 
-        return data.message;
-      } catch (err) {
-        throw new Error(
-          err.response?.data?.message || "Failed to update food item"
-        );
-      } finally {
-        setLoading(false);
-      }
-    },
-    [user]
-  );
+      return data.message;
+    } catch (err) {
+      throw new Error(
+        err.response?.data?.message || "Failed to update food item"
+      );
+    } finally {
+      setLoading(false);
+    }
+  },
+  [user]
+);
 
   /* ================= DELETE FOOD ================= */
 

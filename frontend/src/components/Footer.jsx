@@ -9,7 +9,7 @@ import {
   FaCheckCircle,
 } from "react-icons/fa";
 import { motion } from "framer-motion";
-import { Truck,Clock,CheckCircle  } from "lucide-react";
+import { Truck, Clock, CheckCircle } from "lucide-react";
 import { useLocation } from "react-router-dom";
 
 const Footer = () => {
@@ -36,18 +36,14 @@ const Footer = () => {
   return (
     <footer className={`relative overflow-hidden ${bgMain} ${textMain}`}>
 
-      {/* Floating Glow Background */}
       <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[700px] bg-gradient-to-r from-[#FF5722]/20 to-[#FFD54F]/20 blur-[120px] rounded-full opacity-40 pointer-events-none" />
 
-      {/* Animated Gradient Border */}
       <div className="absolute top-0 left-0 w-full h-[1px]
       bg-gradient-to-r from-[#FF5722] via-[#FFD54F] to-[#FF5722]
       bg-[length:200%_100%] animate-shimmer" />
 
-      {/* MAIN FOOTER GRID */}
       <div className="max-w-7xl mx-auto px-6 py-14 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-14 relative">
 
-        {/* BRAND */}
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -81,7 +77,6 @@ const Footer = () => {
           </div>
         </motion.div>
 
-        {/* CONTACT */}
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -111,7 +106,6 @@ const Footer = () => {
           </ul>
         </motion.div>
 
-        {/* QUICK LINKS */}
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -140,7 +134,6 @@ const Footer = () => {
         </motion.div>
       </div>
 
-      {/* FEATURES BAR */}
       <div className={`py-4 px-6 border-y ${borderColor}
       flex flex-wrap justify-center gap-6 text-sm`}>
 
@@ -158,24 +151,16 @@ const Footer = () => {
         </motion.div>
       </div>
 
-      {/* LEGAL */}
-   <div className={`text-xs py-5 text-center border-t ${borderColor}`}>
+     <div className={`text-xs py-5 text-center border-t ${borderColor}`}>
   © {new Date().getFullYear()}{" "}
-  <span className={`font-semibold ${goldText}`}>Yumigo</span>. 
-  All rights reserved • 
-  <span className="opacity-70 ml-1">v{__APP_VERSION__}</span>
-
-  <span className="ml-3 opacity-70 hover:opacity-100 cursor-pointer">
-    Privacy
-  </span>{" "}
-  |{" "}
-  <span className="opacity-70 hover:opacity-100 cursor-pointer">
-    Terms
-  </span>{" "}
-  |{" "}
-  <span className="opacity-70 hover:opacity-100 cursor-pointer">
-    Cookie
-  </span>
+  <span className={`font-semibold ${goldText}`}>Yumigo</span>.
+  All rights reserved •
+  <span className="opacity-70 ml-1">v{__APP_VERSION__}</span> •
+  Crafted with ❤️ by{" "}
+  <span className={`font-semibold ${goldText}`}>Ankit Yadav</span> • {""}
+  <span className="opacity-70 hover:opacity-100 cursor-pointer">Privacy</span> |
+  <span className="opacity-70 hover:opacity-100 cursor-pointer"> Terms</span> |
+  <span className="opacity-70 hover:opacity-100 cursor-pointer"> Cookie</span>
 </div>
     </footer>
   );

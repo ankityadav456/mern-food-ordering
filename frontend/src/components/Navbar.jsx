@@ -29,6 +29,48 @@ const Navbar = () => {
   const userMenuRef = useRef(null);
   const navigate = useNavigate();
   const avatarUrl = user?.avatar ? `${import.meta.env.VITE_BACKEND_URL}${user.avatar}` : "";
+  const [scrolled, setScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState('home');
+  const dark = theme === "dark"
+
+  // detect active route
+  const isActive = (path) => {
+    if (path === "/") return location.pathname === "/";
+    return location.pathname.startsWith(path);
+  };
+
+  const isHome = location.pathname === "/";
+  const isMenu = location.pathname === "/menu";
+
+  useEffect(() => {
+
+    const scrollLimit = 40;
+
+    const onScroll = () => {
+
+      // Navbar background change
+      setScrolled(window.scrollY > scrollLimit);
+
+      // Active section highlight (ONLY for Home page)
+      if (!isHome) return;
+
+      const sections = ["home", "menu", "specials", "reviews", "contact"];
+
+      for (const id of [...sections].reverse()) {
+        const el = document.getElementById(id);
+
+        if (el && window.scrollY >= el.offsetTop - 120) {
+          setActiveSection(id);
+          break;
+        }
+      }
+    };
+
+    window.addEventListener("scroll", onScroll);
+
+    return () => window.removeEventListener("scroll", onScroll);
+
+  }, [isHome]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -47,14 +89,6 @@ const Navbar = () => {
   const textColor = theme === "dark" ? "text-white" : "text-[#333]";
   const gold = theme === "dark" ? "#FFB300" : "#FF5722";
 
-  // detect active route
-  const isActive = (path) => {
-    if (path === "/") return location.pathname === "/";
-    return location.pathname.startsWith(path);
-  };
-
-  const isHome = location.pathname === "/";
-  const isMenu = location.pathname === "/menu";
 
 
   // nav button
@@ -86,55 +120,20 @@ const Navbar = () => {
   );
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 ${bgColor} backdrop-blur-lg`}>
-      {isHome && (
-        <div
-          className="absolute inset-0 z-0 pointer-events-none animate-moveGrid"
-          style={{
-            backgroundImage: `
-      repeating-linear-gradient(
-        0deg, 
-        transparent, transparent 5px, 
-        ${theme === "dark" ? "rgba(255,255,255,0.06)" : "rgba(75,85,99,0.06)"} 5px, 
-        ${theme === "dark" ? "rgba(255,255,255,0.06)" : "rgba(75,85,99,0.06)"} 6px, 
-        transparent 6px, 
-        transparent 15px
-      ),
-      repeating-linear-gradient(
-        90deg, 
-        transparent, transparent 5px, 
-        ${theme === "dark" ? "rgba(255,255,255,0.06)" : "rgba(75,85,99,0.06)"} 5px, 
-        ${theme === "dark" ? "rgba(255,255,255,0.06)" : "rgba(75,85,99,0.06)"} 6px, 
-        transparent 6px, 
-        transparent 15px
-      ),
-      repeating-linear-gradient(
-        0deg, 
-        transparent, transparent 10px, 
-        ${theme === "dark" ? "rgba(255,255,255,0.04)" : "rgba(107,114,128,0.04)"} 10px, 
-        ${theme === "dark" ? "rgba(255,255,255,0.04)" : "rgba(107,114,128,0.04)"} 11px, 
-        transparent 11px, 
-        transparent 30px
-      ),
-      repeating-linear-gradient(
-        90deg, 
-        transparent, transparent 10px, 
-        ${theme === "dark" ? "rgba(255,255,255,0.04)" : "rgba(107,114,128,0.04)"} 10px, 
-        ${theme === "dark" ? "rgba(255,255,255,0.04)" : "rgba(107,114,128,0.04)"} 11px, 
-        transparent 11px, 
-        transparent 30px
-      )
-    `,
-            backgroundSize: "30px 30px, 30px 30px, 60px 60px, 60px 60px",
-          }}
-        />
-      )}
-      {/* glowing animated underline */}
-      <div
-        className="absolute bottom-0 left-0 w-full   opacity-50
-             bg-gradient-to-r from-[#FF5722] via-[#FFD54F] to-[#FF5722] 
-             bg-[length:200%_100%] bg-left animate-shimmer"
-      />
+    <motion.nav
+      // initial={{ y: -1 }}
+      // animate={{ y: 0 }}
+      transition={{ duration: 0.6, ease: 'easeOut' }}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled
+          ? 'bg-white/40 dark:bg-[#0d0d0d]/40 backdrop-blur-xl shadow-lg shadow-black/5 dark:shadow-black/20'
+          : `${isHome ? "bg-[#fff] dark:bg-[#000]" : "bg-white dark:bg-black"}`
+        }`}
+    >
+      {/* Animated grid background on hero */}
+
+
+      {/* Shimmer underline */}
+      <div className="absolute bottom-0 left-0 w-full h-[2px] opacity-60 bg-gradient-to-r from-primary via-secondary-dark to-primary bg-[length:200%_100%] animate-shimmer" />
 
 
       <div className="w-full max-w-[1440px] mx-auto flex items-center justify-between px-4 py-3 gap-4">
@@ -314,7 +313,7 @@ const Navbar = () => {
           </motion.div>
         )}
       </AnimatePresence>
-    </nav>
+    </motion.nav>
   );
 };
 
