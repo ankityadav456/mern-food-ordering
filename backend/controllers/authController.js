@@ -19,8 +19,8 @@ const sendTokenResponse = (res, user, message) => {
     res.cookie("token", token, {
     httpOnly: true,
     secure: true,      // always true in production HTTPS
-    sameSite: "None",  // ⭐ REQUIRED
-    domain: ".onrender.com",
+    sameSite: "Lax",  // ⭐ REQUIRED
+    path: "/", 
     maxAge: 1 * 24 * 60 * 60 * 1000,
   });
 
@@ -98,7 +98,7 @@ export const logoutUser = (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
     secure: true,
-    sameSite: "None",
+    sameSite: "Lax",
     path: "/",
   });
 
