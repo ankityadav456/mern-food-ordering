@@ -2,6 +2,7 @@ import {Router} from "express";
 import {
   registerUser,
   loginUser,
+    logoutUser,  
   getUserProfile,
   updateUserProfile,
   updateUserAvatar,
@@ -17,6 +18,7 @@ const authRouter = Router();
 // Public
 authRouter.post("/register", registerUser);
 authRouter.post("/login", loginUser);
+authRouter.post("/logout", logoutUser); 
 
 authRouter.get("/me", protect, getUserProfile);
 authRouter.put("/update-profile", protect, updateUserProfile);

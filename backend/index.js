@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
-import cookieParser from "cookie-parser"; //  NEW
+import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -21,11 +21,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // ====== Middleware ======
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true, limit: "10mb" }));
-// app.use("/uploads", express.static("uploads"));
-app.use(cookieParser());
 
+// 1. CORS first
 app.use(
   cors({
     origin: process.env.FRONTEND_URL,
@@ -33,6 +30,14 @@ app.use(
   })
 );
 
+// 2. Body parsers
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+// 3. Cookie parser
+app.use(cookieParser());
+
+// 4. Static files
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ====== Routes ======
@@ -43,17 +48,20 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/coupons", couponRoutes);
+
 app.get("/", (req, res) => {
-  res.send("Server is running ");
+  res.send("Server is running");
 });
 
+// ====== Database ======
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => console.log(" MongoDB Connected"))
+  .then(() => console.log("MongoDB Connected"))
   .catch((err) => {
-    console.error(" MongoDB Connection Error:", err);
+    console.error("MongoDB Connection Error:", err);
     process.exit(1);
   });
 
+// ====== Start Server ======
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
