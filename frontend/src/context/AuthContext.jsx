@@ -116,8 +116,10 @@ export const AuthProvider = ({ children }) => {
   const updateProfile = async (formData) => {
     try {
       const { data } = await axios.put("/auth/update-profile", formData);
-
-      Swal.fire(data.message);
+      Swal.fire({
+        title: data.message,
+        icon: "success",
+      });
       setUser(formatUser(data.user));
     } catch {
       showToast("Profile update failed","error");
@@ -135,7 +137,10 @@ export const AuthProvider = ({ children }) => {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      Swal.fire(data.message);
+      Swal.fire({
+        title: data.message,
+        icon: "success",
+      });
 
       setUser((prev) => ({
         ...prev,
