@@ -71,6 +71,8 @@ export const AuthProvider = ({ children }) => {
         password,
       });
 
+       localStorage.setItem("token", data.token);
+
       setUser(formatUser(data.user));
       navigate("/");
     } catch (error) {
@@ -88,6 +90,7 @@ export const AuthProvider = ({ children }) => {
         email,
         password,
       });
+        localStorage.setItem("token", data.token);
 
       // ✅ cookie already set by backend
       setUser(formatUser(data.user));
@@ -101,6 +104,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = useCallback(async () => {
+     localStorage.removeItem("token"); // ← remove token
     try {
       await axios.post("/auth/logout"); // clears cookie
     } catch {

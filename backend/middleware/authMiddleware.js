@@ -3,10 +3,12 @@ import User from "../models/User.js";
 
 export const protect = async (req, res, next) => {
   try {
-        console.log("All cookies:", req.cookies);
-    console.log("Headers:", req.headers);
-    console.log("Origin:", req.headers.origin);
-    const token = req.cookies.token;
+    // console.log(req.headers.authorization);
+    const authHeader = req.headers.authorization;
+
+    const token = authHeader?.startsWith("Bearer ")
+      ? authHeader.split(" ")[1]
+      : null;
 
     if (!token) {
       return res.status(401).json({
@@ -14,13 +16,9 @@ export const protect = async (req, res, next) => {
       });
     }
 
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET
-    );
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const user = await User.findById(decoded.id)
-      .select("-password");
+    const user = await User.findById(decoded.id).select("-password");
 
     if (!user) {
       return res.status(401).json({
@@ -29,11 +27,9 @@ export const protect = async (req, res, next) => {
     }
 
     req.user = user;
-
     next();
   } catch (error) {
     console.error("Auth Error:", error.message);
-
     return res.status(401).json({
       message: "Unauthorized, invalid token",
     });

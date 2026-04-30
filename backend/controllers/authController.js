@@ -16,17 +16,11 @@ const generateToken = (userId) => {
 const sendTokenResponse = (res, user, message) => {
   const token = generateToken(user._id);
 
-    res.cookie("token", token, {
-    httpOnly: true,
-    secure: true,      // always true in production HTTPS
-    sameSite: "None",  // ⭐ REQUIRED
-    path: "/", 
-    maxAge: 1 * 24 * 60 * 60 * 1000,
-  });
 
   res.status(200).json({
     success: true,
     message,
+    token,
     user: {
       _id: user._id,
       name: user.name,
