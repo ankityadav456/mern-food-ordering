@@ -40,6 +40,14 @@ app.use(cookieParser());
 // 4. Static files
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+// TEMP DEBUG ROUTE
+app.get("/api/debug", (req, res) => {
+  res.json({
+    cookies: req.cookies,
+    origin: req.headers.origin,
+  });
+});
+
 // ====== Routes ======
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
