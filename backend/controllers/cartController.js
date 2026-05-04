@@ -51,8 +51,6 @@ export const updateCartItemQuantity = async (req, res) => {
   try {
     const { foodId } = req.params;
     const { quantity } = req.body;
-    console.log(req.params);
-    console.log(req.body);
     if (quantity < 1)
       return res.status(400).json({ message: "Invalid quantity" });
 

@@ -18,6 +18,7 @@ import chicken from "../assets/Images/chicken.png";
 import biryani from "../assets/Images/biryani.png";
 import SkeletonCard from "../components/SkeletonCard";
 import FoodCard from "../components/FoodItemCard";
+import { showToast } from "../utils/showToast.jsx";
 import { SlidersHorizontal, ArrowDownAZ, Clock } from "lucide-react";
 const MenuPage = () => {
   const [searchParams] = useSearchParams();
@@ -140,7 +141,7 @@ const MenuPage = () => {
     setLoading1(true);
     const currentQty = getItemQuantity(item._id);
     await updateItemQuantity(item._id, currentQty + 1);
-    toast.success(`${item.name} quantity increased`);
+    showToast(`${item.name} quantity increased`, "success");
     setLoading1(false);
   };
 
@@ -153,7 +154,7 @@ const MenuPage = () => {
       setLoading1(false);
     } else {
       await updateItemQuantity(item._id, currentQty - 1);
-      toast.success(`${item.name} quantity decrease`);
+       showToast(`${item.name} quantity decreased`, "success");
       setLoading1(false);
     }
   };
@@ -469,7 +470,7 @@ const MenuPage = () => {
                   bg-gradient-to-tr from-orange-500 to-yellow-400"></div>
 
                   <motion.img
-                    src={`${import.meta.env.VITE_BACKEND_URL}${quickViewItem.image}`}
+                    src={`${quickViewItem.image}`}
                     alt={quickViewItem.name}
                     className="relative w-full h-60 object-cover rounded-2xl
                shadow-2xl"

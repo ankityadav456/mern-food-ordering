@@ -42,7 +42,7 @@ const FoodItemCard = ({
 
       <div className="relative w-full h-44 overflow-hidden rounded-t-2xl bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
         <motion.img
-          src={`${import.meta.env.VITE_BACKEND_URL}${item.image}`}
+          src={`${item.image}`}
           alt={item.name}
           loading="lazy"
           className="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-95"

@@ -14,11 +14,10 @@ const FoodModal = ({
     name: "",
     price: "",
     rating: 0,
-    image: "",
     category: "",
+    image: null,
   });
 
-  // ⭐ preview state (important)
   const [previewImage, setPreviewImage] = useState("");
 
   /* ================= LOAD DATA ================= */
@@ -26,12 +25,16 @@ const FoodModal = ({
     if (!isOpen) return;
 
     if (initialData) {
-      setFoodData(initialData);
+      setFoodData({
+        name: initialData.name || "",
+        price: initialData.price || "",
+        rating: initialData.rating || "",
+        category: initialData.category || "",
+        image: null,
+      });
 
-      // show saved backend image
-      setPreviewImage(
-        `${import.meta.env.VITE_BACKEND_URL}${initialData.image}`
-      );
+      // existing cloudinary image
+      setPreviewImage(initialData.image || "");
     } else {
       resetForm();
     }
@@ -51,36 +54,52 @@ const FoodModal = ({
     setFoodData({
       name: "",
       price: "",
-      rating: 0,
-      image: "",
+      rating: "",
       category: "",
+      image: null,
     });
     setPreviewImage("");
   };
 
   /* ================= INPUT CHANGE ================= */
   const handleChange = (e) => {
-    setFoodData({ ...foodData, [e.target.name]: e.target.value });
+    setFoodData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   };
 
-  /* ================= IMAGE CHANGE (MAIN FIX) ================= */
+  /* ================= IMAGE CHANGE ================= */
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    setFoodData({
-      ...foodData,
+    setFoodData((prev) => ({
+      ...prev,
       image: file,
-    });
+    }));
 
-    // instant preview
     setPreviewImage(URL.createObjectURL(file));
   };
 
-  /* ================= SUBMIT ================= */
+  /* ================= SUBMIT (MAIN FIX) ================= */
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(foodData);
+
+    const formData = new FormData();
+
+    formData.append("name", foodData.name);
+    formData.append("price", foodData.price);
+    formData.append("rating", foodData.rating);
+    formData.append("category", foodData.category);
+
+    // append image ONLY if new file selected
+    if (foodData.image instanceof File) {
+      formData.append("image", foodData.image);
+    }
+
+    onSubmit(formData);
+
     resetForm();
     onClose();
   };
@@ -98,9 +117,6 @@ const FoodModal = ({
   const textColor = isDark ? "text-gray-100" : "text-gray-900";
   const inputBg = isDark ? "bg-gray-800" : "bg-white";
   const inputBorder = isDark ? "border-gray-700" : "border-gray-300";
-  const inputFocusRing = isDark
-    ? "focus:ring-yellow-400"
-    : "focus:ring-blue-400";
   const borderDashed = isDark ? "border-gray-600" : "border-gray-300";
   const uploadText = isDark ? "text-gray-400" : "text-gray-600";
 
@@ -121,11 +137,8 @@ const FoodModal = ({
           transition={{ duration: 0.3 }}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* ===== HEADER ===== */}
-          <div
-            className={`flex justify-between items-center px-6 py-4 border-b ${isDark ? "border-gray-800" : "border-gray-200"
-              }`}
-          >
+          {/* HEADER */}
+          <div className="flex justify-between items-center px-6 py-4 border-b">
             <h2 className={`text-lg font-semibold ${textColor}`}>
               {initialData ? "Edit Food Item" : "Add Food Item"}
             </h2>
@@ -135,16 +148,15 @@ const FoodModal = ({
             </button>
           </div>
 
-          {/* ===== BODY ===== */}
+          {/* BODY */}
           <div className="px-6 py-4 overflow-y-auto flex-1 space-y-5">
-            {/* IMAGE PREVIEW */}
             {previewImage && (
               <motion.img
                 src={previewImage}
-                alt="Food Preview"
-                className="w-full h-44 object-cover rounded-lg shadow"
-                initial={{ scale: 0.95, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
+                alt="preview"
+                className="w-full h-44 object-cover rounded-lg"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
               />
             )}
 
@@ -156,7 +168,7 @@ const FoodModal = ({
                   onChange={handleChange}
                   placeholder="Food Name"
                   required
-                  className={`p-3 border rounded-lg ${inputBg} ${inputBorder} ${textColor} focus:ring-2 ${inputFocusRing}`}
+                  className={`p-3 border rounded-lg ${inputBg} ${inputBorder} ${textColor}`}
                 />
 
                 <input
@@ -178,7 +190,7 @@ const FoodModal = ({
                 />
               </div>
 
-              {/* UPLOAD */}
+              {/* IMAGE UPLOAD */}
               <label className={`block text-sm ${textColor}`}>
                 Upload Image
               </label>
@@ -215,14 +227,11 @@ const FoodModal = ({
             </form>
           </div>
 
-          {/* ===== FOOTER ===== */}
-          <div
-            className={`flex justify-end gap-3 px-6 py-4 border-t ${isDark ? "border-gray-800" : "border-gray-200"
-              }`}
-          >
+          {/* FOOTER */}
+          <div className="flex justify-end gap-3 px-6 py-4 border-t">
             <button
               onClick={handleClose}
-              className="flex items-center gap-2 px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
+              className="flex items-center gap-2 px-5 py-2 rounded-lg bg-gray-200"
             >
               <XCircle size={18} /> Cancel
             </button>

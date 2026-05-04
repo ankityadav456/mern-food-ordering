@@ -298,7 +298,7 @@ const stopHold = async (id, quantity, type) => {
                     >
                       <div className="flex items-center gap-4 w-full sm:w-auto">
                         <img
-                          src={`${import.meta.env.VITE_BACKEND_URL}${item.foodId.image}`}
+                          src={`${item.foodId.image}`}
                           alt={item.foodId.name}
                           className="h-20 w-20 object-cover rounded-xl border-2 border-[#FFD54F]"
                         />
@@ -410,7 +410,7 @@ const stopHold = async (id, quantity, type) => {
                       appliedCoupon,
                       finalTotal: Math.max(totalPrice - discount, 0),
                     }}
-                    onClick={() => toast.success("Proceeding to checkout...")}
+                    onClick={() => showToast("Proceeding to checkout...", "success")}
                     className="flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-[#FFD54F] to-[#FF5722] text-white font-semibold rounded-full shadow-md hover:scale-105 transition-transform"
                   >
                     <CreditCard size={18} /> Checkout

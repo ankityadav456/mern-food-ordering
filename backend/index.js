@@ -1,10 +1,12 @@
 import dotenv from "dotenv";
+// dotenv.config({ path: "./.env" });
+dotenv.config();
 import express from "express";
 import cors from "cors";
-import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 import path from "path";
 import { fileURLToPath } from "url";
+import cloudinary from "./config/cloudinary.js";
 
 import authRoutes from "./routes/authRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
@@ -14,7 +16,6 @@ import paymentRoutes from "./routes/paymentRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import couponRoutes from "./routes/couponRoutes.js";
 
-dotenv.config();
 const app = express();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -34,19 +35,8 @@ app.use(
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// 3. Cookie parser
-app.use(cookieParser());
-
-// 4. Static files
+// 3. Static files
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
-// TEMP DEBUG ROUTE
-app.get("/api/debug", (req, res) => {
-  res.json({
-    cookies: req.cookies,
-    origin: req.headers.origin,
-  });
-});
 
 // ====== Routes ======
 app.use("/api/auth", authRoutes);

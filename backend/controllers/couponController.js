@@ -23,7 +23,6 @@ const staticCoupons = [
 
 export const applyCoupon = async (req, res) => {
   try {
-    // console.log(req.body);
     const { userId, code, cartTotal } = req.body;
 
     if (!code) {

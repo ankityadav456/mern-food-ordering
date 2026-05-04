@@ -13,7 +13,6 @@ const ManageUser = () => {
     toggleUserStatus,
     updateUser,
     user,
-    loadingUsers,
     loading,
   } = useAuth();
 
@@ -31,7 +30,7 @@ const ManageUser = () => {
     );
   }
 
-  if (loading || loadingUsers) {
+  if (loading) {
     return (
       <div className="flex justify-center items-center h-[70vh] text-text-light dark:text-text-dark text-lg font-medium">
         <Loader2 size={28} className="animate-spin mr-2" /> Loading users...
@@ -46,7 +45,7 @@ const ManageUser = () => {
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-3xl font-bold text-text-light dark:text-text-dark">Manage Users</h1>
           <div className="text-sm text-text-subtleLight dark:text-text-subtleDark">
-            Total Users: <span className="font-semibold">{allUsers.length}</span>
+            Total Users: <span className="font-semibold">{allUsers?.length || 0}</span>
           </div>
         </div>
 
@@ -66,17 +65,17 @@ const ManageUser = () => {
 
               <tbody>
                 <AnimatePresence>
-                  {allUsers.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan="5"
-                        className="text-center p-6 text-text-subtleLight dark:text-text-subtleDark"
-                      >
-                        No users found.
-                      </td>
-                    </tr>
-                  ) : (
-                    allUsers.map((u) => (
+                   {!allUsers?.length ? (
+    <tr>
+      <td
+        colSpan="5"
+        className="text-center p-6 text-text-subtleLight dark:text-text-subtleDark"
+      >
+        No users found.
+      </td>
+    </tr>
+  ) : (
+    allUsers?.map((u) => (
                       <motion.tr
                         key={u._id}
                         initial={{ opacity: 0, y: 10 }}

@@ -24,6 +24,8 @@ export const AuthProvider = ({ children }) => {
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+    const [allUsers, setAllUsers] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
 
   /* ================= FORMAT USER ================= */
 
@@ -203,6 +205,57 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  
+  // 🔹 Admin actions
+  const fetchAllUsers = async () => {
+    if (!user?.isAdmin) return;
+    try {
+      setLoadingUsers(true);
+      const { data } = await axios.get("/admin/users"); // admin endpoint
+      if (data.success) setAllUsers(data.users);
+    } catch (error) {
+      showToast(error.response?.data?.message || "Failed to fetch users", "error");
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
+  const deleteUser = async (id) => {
+    try {
+      await axios.delete(`/admin/users/${id}`);
+      showToast("User deleted successfully", "success");
+      setAllUsers((prev) => prev.filter((u) => u._id !== id));
+    } catch (error) {
+      showToast(error.response?.data?.message || "Failed to delete user", "error");
+    }
+  };
+
+  const toggleUserStatus = async (id, currentStatus) => {
+    try {
+      const { data } = await axios.put(`/admin/users/${id}/status`, {
+        status: currentStatus === "Active" ? "Blocked" : "Active",
+      });
+      showToast("User status updated", "success");
+      setAllUsers((prev) =>
+        prev.map((u) => (u._id === id ? { ...u, status: data.status } : u))
+      );
+    } catch (error) {
+      showToast(error.response?.data?.message || "Failed to update status", "error");
+    }
+  };
+
+  const updateUser = async (id, updatedFields) => {
+    try {
+      const { data } = await axios.put(`/admin/users/${id}`, updatedFields);
+      showToast("User updated successfully", "success");
+      setAllUsers((prev) =>
+        prev.map((u) => (u._id === id ? { ...u, ...data.user } : u))
+      );
+    } catch (error) {
+      showToast(error.response?.data?.message || "Failed to update user", "error");
+    }
+  };
+
   /* ================= CONTEXT VALUE ================= */
 
   const value = useMemo(
@@ -219,8 +272,14 @@ export const AuthProvider = ({ children }) => {
       saveAddress,
       deleteAddress,
       isAuthenticated: !!user,
+      allUsers,
+      loadingUsers,
+      fetchAllUsers,
+      deleteUser,
+      toggleUserStatus,
+      updateUser,
     }),
-    [user, loading, logout, fetchUser]
+    [user, loading, logout, fetchUser, allUsers, loadingUsers]
   );
 
   return (

@@ -45,11 +45,7 @@ const addFoodItem = useCallback(
     try {
       setLoading(true);
 
-      const { data } = await axios.post("/food", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const { data } = await axios.post("/food", formData);
 
       // optimistic update
       setFoodItems((prev) => [...prev, data.foodItem]);
@@ -76,11 +72,7 @@ const addFoodItem = useCallback(
     try {
       setLoading(true);
 
-      const { data } = await axios.put(`/food/${id}`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const { data } = await axios.put(`/food/${id}`, formData);
 
       setFoodItems((prev) =>
         prev.map((item) =>
