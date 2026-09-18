@@ -1,20 +1,17 @@
 // src/components/ScrollToTop.jsx
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
-import { gsap } from "gsap";
-import { ScrollToPlugin } from "gsap/ScrollToPlugin";
-
-gsap.registerPlugin(ScrollToPlugin);
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
+  const isFirstMount = useRef(true);
 
   useEffect(() => {
-    gsap.to(window, {
-      duration: 0.3,
-      scrollTo: { y: 0 },
-      ease: "power3.out",
-    });
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      return;
+    }
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }, [pathname]);
 
   return null;

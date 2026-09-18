@@ -8,16 +8,31 @@
   * {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    box-sizing: border-box;
   }
 
   html {
-    scroll-behavior: smooth;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
   }
 
   body {
     font-family: 'Poppins', sans-serif;
     @apply bg-background-light text-text-light transition-colors duration-300;
+    overflow-x: hidden;
+    min-height: 100vh;
   }
+}
+
+/* Hide scrollbars while preserving scrolling */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 
 /* ==== Custom Styles ==== */
 @layer components {
@@ -278,7 +293,6 @@ body {
     background-color: rgba(255, 87, 34, 0.2);
     color: inherit;
   }
-}
 
 @keyframes shimmer {
   0% { background-position: 200% 0; }

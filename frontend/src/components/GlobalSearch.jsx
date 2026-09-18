@@ -7,7 +7,7 @@ const GlobalSearch = ({ query, setQuery, theme }) => {
   useEffect(() => {
     if (query) {
       setLoading(true);
-      const timeout = setTimeout(() => setLoading(false), 500);
+      const timeout = setTimeout(() => setLoading(false), 300);
       return () => clearTimeout(timeout);
     } else {
       setLoading(false);
@@ -20,43 +20,34 @@ const GlobalSearch = ({ query, setQuery, theme }) => {
   };
 
   return (
-    <div className="relative w-full max-w-md animate-slideUp">
+    <div className="relative w-full max-w-md">
       <input
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search food items..."
-        className={`w-full py-2.5 pr-12 pl-10 rounded-full border-[1.5px] text-sm md:text-base focus:outline-none focus:ring-2 transition
-          ${
-            theme === "dark"
-              ? "bg-[#1A1A1A] text-white border-[#FFB300] placeholder-gray-400 focus:ring-[#FF5722]"
-              : "bg-white text-black border-[#FFB300] placeholder-gray-500 focus:ring-[#FF5722]"
-          }`}
-        style={{
-          boxShadow:
-            theme === "dark"
-              ? "0 0 6px rgba(255, 87, 34, 0.4)"
-              : "0 0 4px rgba(255, 87, 34, 0.2)",
-        }}
+        className={`w-full py-2 pl-10 pr-10 rounded-full text-sm border transition-all duration-200 focus:outline-none focus:ring-2 ${
+          theme === "dark"
+            ? "bg-white/[0.06] hover:bg-white/[0.08] focus:bg-white/[0.1] border-white/10 text-white placeholder-neutral-400 focus:border-orange-500/60 focus:ring-orange-500/20"
+            : "bg-gray-100/80 hover:bg-gray-100 focus:bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-orange-500 focus:ring-orange-500/20"
+        }`}
       />
 
-      {/* Search Icon (Left - Centered) */}
-      <Search
-        className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#ff562294] dark:text-[#eec461b6]"
-      />
+      {/* Search Icon */}
+      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
 
-      {/* Loader or Clear Icon (Right - Centered) */}
+      {/* Loading or Clear Icon */}
       {loading ? (
-     <Loader2
-  className="absolute right-4 top-3.5 -translate-y-1/2 w-5 h-5 text-[#ff562294] dark:text-[#eec461b6] animate-spinSlowReverse"
-/>
-
+        <Loader2 className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-orange-500 animate-spin" />
       ) : (
         query && (
-          <X
+          <button
+            type="button"
             onClick={clearSearch}
-            className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 cursor-pointer text-[#ff562294] dark:text-[#eec461b6] hover:text-red-500 transition"
-          />
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 text-gray-400 hover:text-gray-600 dark:hover:text-white transition"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
         )
       )}
     </div>

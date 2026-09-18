@@ -126,13 +126,16 @@ export const getUserProfile = async (req, res) => {
 
 export const updateUserProfile = async (req, res) => {
   try {
-    const { name, mobile } = req.body;
+    const updateData = {};
+    if (req.body.name !== undefined) updateData.name = req.body.name;
+    if (req.body.mobile !== undefined) updateData.mobile = req.body.mobile;
+    if (req.body.address !== undefined) updateData.address = req.body.address;
 
     const user = await User.findByIdAndUpdate(
       req.user.id,
-      { name, mobile },
+      updateData,
       { new: true }
-    ).select("_id name mobile");
+    ).select("_id name email isAdmin address avatar mobile");
 
     res.json({
       success: true,

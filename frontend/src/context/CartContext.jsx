@@ -107,7 +107,7 @@ export const CartProvider = ({ children }) => {
 
       try {
         await axios.delete(`/cart/${foodId}`);
-        showToast("Item removed", "success");
+        // showToast("Item removed", "success");
       } catch {
         showToast("Remove failed", "error");
         setCartItems(backup);

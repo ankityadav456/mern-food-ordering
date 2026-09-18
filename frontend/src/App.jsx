@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { FoodProvider } from "./context/FoodContext";
 import { CartProvider } from "./context/CartContext";
+import { WishlistProvider } from "./context/WishlistContext";
 import { SearchProvider } from "./context/SearchContext";
 
 import Layout from "./components/Layout";
@@ -15,6 +16,7 @@ import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import MenuPage from "./pages/MenuPage";
+import WishlistPage from "./pages/WishlistPage";
 import AddFoodPage from "./pages/AddFoodPage";
 import Cart from "./pages/Cart";
 import CheckoutPage from "./pages/CheckoutPage";
@@ -22,6 +24,7 @@ import OrderSuccessPage from "./pages/OrderSuccessPage";
 import OrderSummary from "./pages/OrderSummary";
 import ProfilePage from "./pages/ProfilePage";
 import ManageUser from "./pages/ManageUser";
+import TrackOrderPage from "./pages/TrackOrderPage";
 
 import { Toaster } from "react-hot-toast";
 
@@ -29,7 +32,9 @@ const Providers = ({ children }) => (
   <AuthProvider>
     <FoodProvider>
       <CartProvider>
-        <SearchProvider>{children}</SearchProvider>
+        <WishlistProvider>
+          <SearchProvider>{children}</SearchProvider>
+        </WishlistProvider>
       </CartProvider>
     </FoodProvider>
   </AuthProvider>
@@ -67,7 +72,11 @@ const App = () => {
             />
             <Route
               path="menu"
-              element={<ProtectedRoute><MenuPage /></ProtectedRoute>}
+              element={<MenuPage />}
+            />
+            <Route
+              path="wishlist"
+              element={<WishlistPage />}
             />
             <Route
               path="food-management"
@@ -84,6 +93,14 @@ const App = () => {
             <Route
               path="orders"
               element={<ProtectedRoute><OrderSummary /></ProtectedRoute>}
+            />
+            <Route
+              path="track-order"
+              element={<ProtectedRoute><TrackOrderPage /></ProtectedRoute>}
+            />
+            <Route
+              path="track-order/:orderId"
+              element={<ProtectedRoute><TrackOrderPage /></ProtectedRoute>}
             />
             <Route
               path="checkout"

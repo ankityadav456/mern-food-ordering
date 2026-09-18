@@ -15,7 +15,7 @@ export const FoodProvider = ({ children }) => {
   const { user } = useAuth();
 
   const [foodItems, setFoodItems] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   /* ================= FETCH FOOD ================= */

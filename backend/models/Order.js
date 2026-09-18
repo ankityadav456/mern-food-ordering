@@ -90,6 +90,13 @@ const orderSchema = new mongoose.Schema(
       default: "Paid",
     },
 
+    /* ---------- ORDER STATUS ---------- */
+    orderStatus: {
+      type: String,
+      enum: ["Confirmed", "Preparing", "Out for Delivery", "Delivered", "Cancelled"],
+      default: "Confirmed",
+    },
+
     /* ---------- DELIVERY ---------- */
     deliveryAddress: {
       type: addressSchema,

@@ -1,12 +1,9 @@
 // src/pages/MenuPage.jsx
-import React, { useMemo, useState, useEffect, useRef, useContext } from "react";
+import React, { useMemo, useState, useEffect, useContext } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useFood } from "../context/FoodContext";
-import { motion, AnimatePresence } from "framer-motion";
-import toast from "react-hot-toast";
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import { SearchContext } from "../context/SearchContext";
-import { ChevronDownIcon, XMarkIcon, XCircleIcon, CheckCircleIcon } from "@heroicons/react/20/solid";
 import { useCart } from "../context/CartContext";
 import Loader from "../components/Loader";
 import { useTheme } from "../context/ThemeContext";
@@ -18,86 +15,59 @@ import chicken from "../assets/Images/chicken.png";
 import biryani from "../assets/Images/biryani.png";
 import SkeletonCard from "../components/SkeletonCard";
 import FoodCard from "../components/FoodItemCard";
+import { useWishlist } from "../context/WishlistContext";
+import {
+  SlidersHorizontal,
+  Search,
+  X,
+  RotateCcw,
+  Star,
+  Clock,
+  ChevronDown,
+  Heart,
+} from "lucide-react";
 import { showToast } from "../utils/showToast.jsx";
-import { SlidersHorizontal, ArrowDownAZ, Clock } from "lucide-react";
-const MenuPage = () => {
-  const [searchParams] = useSearchParams();
-  const categoryFromURL = searchParams.get("category");
-  const { updateItemQuantity, removeFromCart } = useCart();
-  const [loading1, setLoading1] = useState(false);
-  const { foodItems, loading, setLoading } = useFood();
-  const { searchQuery } = useContext(SearchContext);
-  const { cartItems, addToCart } = useCart();
-  const { theme } = useTheme();
 
-  const [filteredFoods, setFilteredFoods] = useState([]);
+const MenuPage = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const categoryFromURL = searchParams.get("category");
+  const { updateItemQuantity, removeFromCart, cartItems, addToCart } = useCart();
+  const { isInWishlist, toggleWishlist } = useWishlist();
+  const [loadingAction, setLoadingAction] = useState(false);
+  const { foodItems, loading } = useFood();
+  const { searchQuery, setSearchQuery } = useContext(SearchContext);
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortOrder, setSortOrder] = useState("");
   const [priceLimit, setPriceLimit] = useState(1000);
+  const [minRating, setMinRating] = useState(0);
   const [quickViewItem, setQuickViewItem] = useState(null);
   const [quantity, setQuantity] = useState(0);
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [addLoadingId, setAddLoadingId] = useState(null);
   const [modalLoading, setModalLoading] = useState(false);
-  // const didInitialRender = useRef(false);
+
   const categories = [
-    { name: "All", image: All },
-    { name: "Pizza", image: pizza },
-    { name: "Burger", image: burger },
-    { name: "Chinese", image: chinese },
-    { name: "Biryani", image: biryani },
-    { name: "Chicken", image: chicken },
+    { name: "All", label: "All Items", image: All },
+    { name: "Pizza", label: "Pizza", image: pizza },
+    { name: "Burger", label: "Burger", image: burger },
+    { name: "Chinese", label: "Chinese", image: chinese },
+    { name: "Biryani", label: "Biryani", image: biryani },
+    { name: "Chicken", label: "Chicken", image: chicken },
   ];
 
-  const filteredResults = useMemo(() => {
-    if (!foodItems || foodItems.length === 0) return [];
-    let result = [...foodItems];
-
-    const q = searchQuery ? searchQuery.trim().toLowerCase() : "";
-    if (q) {
-      result = result.filter((item) => item.name.toLowerCase().includes(q));
+  // Sync category with URL
+  useEffect(() => {
+    if (categoryFromURL) {
+      setSelectedCategory(categoryFromURL);
     }
-    if (selectedCategory !== "All") {
-      result = result.filter((item) => item.category === selectedCategory);
-    }
-    result = result.filter((item) => Number(item.price) <= Number(priceLimit));
-    if (sortOrder === "asc") result.sort((a, b) => a.price - b.price);
-    if (sortOrder === "desc") result.sort((a, b) => b.price - a.price);
-
-    return result;
-  }, [foodItems, searchQuery, selectedCategory, priceLimit, sortOrder]);
+  }, [categoryFromURL]);
 
   useEffect(() => {
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}, []);
-
-  useEffect(() => {
-  if (categoryFromURL) {
-    setSelectedCategory(categoryFromURL);
-  }
-}, [categoryFromURL]);
-
-  useEffect(() => {
-    if (foodItems && foodItems.length > 0) {
-      setFilteredFoods(filteredResults);
-    }
-  }, [filteredResults, foodItems]);
-
-  useEffect(() => {
-    if (quickViewItem) {
-      setQuantity(getItemQuantity(quickViewItem._id) || 0);
-    }
-  }, [quickViewItem, cartItems]);
-
-  const handleSortChange = (value) => setSortOrder(value);
-  const handlePriceChange = (e) => setPriceLimit(parseInt(e.target.value, 10));
-  const handleCategoryChange = (cat) => setSelectedCategory(cat);
-  const handleClearFilters = () => {
-    setSortOrder("");
-    setPriceLimit(1000);
-    setSelectedCategory("All");
-    setShowFilterModal(false);
-  };
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   const getItemQuantity = (id) => {
     if (!Array.isArray(cartItems)) return 0;
@@ -105,8 +75,84 @@ const MenuPage = () => {
     return item ? item.quantity : 0;
   };
 
+  useEffect(() => {
+    if (quickViewItem) {
+      setQuantity(getItemQuantity(quickViewItem._id) || 0);
+    }
+  }, [quickViewItem, cartItems]);
+
+  // Filtered & Sorted Foods
+  const filteredResults = useMemo(() => {
+    if (!foodItems || foodItems.length === 0) return [];
+    let result = [...foodItems];
+
+    const q = searchQuery ? searchQuery.trim().toLowerCase() : "";
+    if (q) {
+      result = result.filter(
+        (item) =>
+          item.name?.toLowerCase().includes(q) ||
+          item.category?.toLowerCase().includes(q) ||
+          (item.description && item.description.toLowerCase().includes(q))
+      );
+    }
+
+    if (selectedCategory !== "All") {
+      result = result.filter((item) => item.category === selectedCategory);
+    }
+
+    result = result.filter((item) => Number(item.price) <= Number(priceLimit));
+
+    if (minRating > 0) {
+      result = result.filter((item) => (Number(item.rating) || 4.2) >= minRating);
+    }
+
+    if (sortOrder === "asc") {
+      result.sort((a, b) => Number(a.price) - Number(b.price));
+    } else if (sortOrder === "desc") {
+      result.sort((a, b) => Number(b.price) - Number(a.price));
+    } else if (sortOrder === "rating") {
+      result.sort((a, b) => (Number(b.rating) || 0) - (Number(a.rating) || 0));
+    }
+
+    return result;
+  }, [foodItems, searchQuery, selectedCategory, priceLimit, minRating, sortOrder]);
+
+  const hasActiveFilters =
+    Boolean(searchQuery && searchQuery.trim().length > 0) ||
+    selectedCategory !== "All" ||
+    sortOrder !== "" ||
+    priceLimit < 1000 ||
+    minRating > 0;
+
+  const activeFiltersCount = [
+    Boolean(searchQuery && searchQuery.trim().length > 0),
+    selectedCategory !== "All",
+    Boolean(sortOrder),
+    priceLimit < 1000,
+    minRating > 0,
+  ].filter(Boolean).length;
+
+  const handleClearFilters = () => {
+    setSortOrder("");
+    setPriceLimit(1000);
+    setSelectedCategory("All");
+    setMinRating(0);
+    if (setSearchQuery) setSearchQuery("");
+    setShowFilterModal(false);
+    setSearchParams({});
+  };
+
+  const handleCategoryChange = (cat) => {
+    setSelectedCategory(cat);
+    if (cat === "All") {
+      setSearchParams({});
+    } else {
+      setSearchParams({ category: cat });
+    }
+  };
+
   const handleAddToCart = async (food, fromModal = false) => {
-    setLoading1(true);
+    setLoadingAction(true);
     if (!fromModal && addLoadingId) return;
     if (fromModal && modalLoading) return;
     if (fromModal) setModalLoading(true);
@@ -114,11 +160,11 @@ const MenuPage = () => {
 
     try {
       await addToCart(food);
-      setQuickViewItem(null);
+      if (fromModal) setQuickViewItem(null);
     } catch (error) {
       console.error("Cart Error", error);
     } finally {
-      setLoading1(false);
+      setLoadingAction(false);
       if (fromModal) setModalLoading(false);
       else setAddLoadingId(null);
     }
@@ -126,491 +172,574 @@ const MenuPage = () => {
 
   const handleQuantityChange = async (id, qty) => {
     if (qty < 1) return;
-    setLoading1(true);
+    setLoadingAction(true);
     try {
       await updateItemQuantity(id, qty);
       setQuickViewItem(null);
     } catch (err) {
-      console.log(err)
+      console.error(err);
     } finally {
-      setLoading1(false);
+      setLoadingAction(false);
     }
   };
 
   const handleIncrease = async (item) => {
-    setLoading1(true);
+    setLoadingAction(true);
     const currentQty = getItemQuantity(item._id);
     await updateItemQuantity(item._id, currentQty + 1);
-    showToast(`${item.name} quantity increased`, "success");
-    setLoading1(false);
+    showToast(`${item.name} added`, "success");
+    setLoadingAction(false);
   };
 
   const handleDecrease = async (item) => {
-    setLoading1(true);
+    setLoadingAction(true);
     const currentQty = getItemQuantity(item._id);
 
     if (currentQty <= 1) {
       await removeFromCart(item._id);
-      setLoading1(false);
+      showToast(`${item.name} removed`, "info");
+      setLoadingAction(false);
     } else {
       await updateItemQuantity(item._id, currentQty - 1);
-       showToast(`${item.name} quantity decreased`, "success");
-      setLoading1(false);
+      setLoadingAction(false);
     }
   };
 
   const renderStars = (rating) => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
-      if (rating >= i) stars.push(<FaStar key={i} className="text-yellow-400" />);
-      else if (rating >= i - 0.5) stars.push(<FaStarHalfAlt key={i} className="text-yellow-400" />);
-      else stars.push(<FaRegStar key={i} className="text-yellow-400" />);
+      if (rating >= i) stars.push(<FaStar key={i} className="text-amber-400" />);
+      else if (rating >= i - 0.5) stars.push(<FaStarHalfAlt key={i} className="text-amber-400" />);
+      else stars.push(<FaRegStar key={i} className="text-neutral-400" />);
     }
-    return <div className="flex items-center gap-1 mt-1">{stars}</div>;
+    return <div className="flex items-center gap-1">{stars}</div>;
   };
 
   return (
     <div
-      className={`min-h-screen py-8 px-4 md:px-6 lg:px-8 transition-colors duration-300 ${theme === "dark"
-        ? "text-white"
-        : "text-gray-900"
-        }`}
+      className={`min-h-screen pb-16 px-4 sm:px-6 lg:px-8 transition-colors ${
+        isDark ? "bg-[#0f0f11] text-white" : "bg-[#f8f9fa] text-gray-900"
+      }`}
     >
-      {loading1 && <Loader />}
+      {loadingAction && <Loader />}
 
-      {/* Header / Hero */}
-      <motion.div
-        initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className={`max-w-7xl mx-auto rounded-2xl border px-6 py-6 shadow-xl backdrop-blur-md ${theme === "dark"
-          ? "bg-black/50 border-[#2a2a2a]"
-          : "bg-white/60 border-gray-200"
+      <div className="max-w-7xl mx-auto pt-6 space-y-6">
+        {/* ================= HEADER & CATEGORIES CARD ================= */}
+        <div
+          className={`rounded-2xl border p-5 sm:p-7 ${
+            isDark
+              ? "bg-[#161619] border-neutral-800"
+              : "bg-white border-gray-200 shadow-sm"
           }`}
-      >
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-primary-light dark:text-primary-dark">
-              Discover delicious flavors
-            </h1>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300 max-w-lg">
-              Browse categories, pick your favorites, and add to the cart. Enjoy the playful Yumigo experience.
-            </p>
+        >
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-primary-light dark:text-primary-dark">
+                Discover delicious flavors
+              </h1>
+              <p
+                className={`mt-1 text-sm ${
+                  isDark ? "text-neutral-400" : "text-gray-600"
+                }`}
+              >
+                Browse categories, pick your favorites, and add to the cart. Enjoy the playful Yumigo experience.
+              </p>
+            </div>
+
+            {/* Quick Filter Status Badges */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span
+                className={`text-xs font-medium px-3 py-1.5 rounded-lg border ${
+                  isDark
+                    ? "bg-neutral-800 border-neutral-700 text-neutral-300"
+                    : "bg-gray-100 border-gray-200 text-gray-700"
+                }`}
+              >
+                Category: <strong className="text-primary-light dark:text-primary-dark">{selectedCategory}</strong>
+              </span>
+
+              {priceLimit < 1000 && (
+                <span
+                  className={`text-xs font-medium px-3 py-1.5 rounded-lg border ${
+                    isDark
+                      ? "bg-neutral-800 border-neutral-700 text-neutral-300"
+                      : "bg-gray-100 border-gray-200 text-gray-700"
+                  }`}
+                >
+                  Max: <strong className="text-primary-light dark:text-primary-dark">₹{priceLimit}</strong>
+                </span>
+              )}
+
+              {sortOrder && (
+                <span
+                  className={`text-xs font-medium px-3 py-1.5 rounded-lg border ${
+                    isDark
+                      ? "bg-neutral-800 border-neutral-700 text-neutral-300"
+                      : "bg-gray-100 border-gray-200 text-gray-700"
+                  }`}
+                >
+                  Sort:{" "}
+                  <strong className="text-primary-light dark:text-primary-dark">
+                    {sortOrder === "asc"
+                      ? "Low to High"
+                      : sortOrder === "desc"
+                      ? "High to Low"
+                      : "Rating"}
+                  </strong>
+                </span>
+              )}
+
+              {hasActiveFilters && (
+                <button
+                  onClick={handleClearFilters}
+                  className="text-xs font-semibold text-red-500 hover:text-red-600 px-2 py-1 flex items-center gap-1 cursor-pointer"
+                >
+                  <RotateCcw size={13} />
+                  <span>Reset</span>
+                </button>
+              )}
+            </div>
           </div>
 
-          <motion.div
-            className="flex flex-wrap items-center justify-between gap-3 sm:gap-2 mb-4 px-2"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-          >
-            {/* Category Display */}
-            <motion.div
-              className="flex items-center gap-2 bg-surface-light dark:bg-surface-dark px-4 py-3 rounded-xl shadow-sm border border-gray-200 dark:border-[#333]"
-              whileHover={{ scale: 1.02 }}
-            >
-              <SlidersHorizontal
-                className={`w-4 h-4 ${theme === "dark" ? "text-amber-400" : "text-orange-500"}`}
-              />
-              <div className="text-sm text-gray-700 dark:text-gray-300">
-                Showing{" "}
-                <span className="font-semibold text-primary-light dark:text-primary-dark">
-                  {selectedCategory}
-                </span>
-              </div>
-            </motion.div>
+          {/* ================= CATEGORIES ROW ================= */}
+          <div className="mt-6 pt-4 border-t border-gray-100 dark:border-neutral-800">
+            <div className="flex gap-4 sm:gap-6 overflow-x-auto py-3 px-2 scroll-smooth no-scrollbar">
+              {categories.map((cat) => {
+                const isActive = selectedCategory === cat.name;
+                return (
+                  <button
+                    key={cat.name}
+                    onClick={() => handleCategoryChange(cat.name)}
+                    className="flex flex-col items-center gap-2 group flex-shrink-0 cursor-pointer p-1.5 focus:outline-none"
+                  >
+                    <div
+                      className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full p-1 transition-all duration-200 ${
+                        isActive
+                          ? "ring-2 ring-primary-light dark:ring-primary-dark ring-offset-2 ring-offset-white dark:ring-offset-[#161619]"
+                          : "border border-gray-200 dark:border-neutral-700 group-hover:border-gray-400"
+                      }`}
+                    >
+                      <div className="w-full h-full rounded-full overflow-hidden bg-gray-100 dark:bg-neutral-800">
+                        <img
+                          src={cat.image}
+                          alt={cat.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                        />
+                      </div>
+                    </div>
+                    <span
+                      className={`text-xs sm:text-sm font-medium transition-colors ${
+                        isActive
+                          ? "text-primary-light dark:text-primary-dark font-bold"
+                          : isDark
+                          ? "text-neutral-300 group-hover:text-white"
+                          : "text-gray-700 group-hover:text-black"
+                      }`}
+                    >
+                      {cat.name}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
 
-            {/* Sorting */}
-            <motion.div
-              className="flex items-center gap-2 bg-surface-light dark:bg-surface-dark px-4 py-2 rounded-xl shadow-sm border border-gray-200 dark:border-[#333]"
-              whileHover={{ scale: 1.02 }}
+        {/* ================= CONTROLS & STATUS ROW ================= */}
+        <div className="flex flex-wrap items-center justify-between gap-3 px-1">
+          <div className="text-sm font-semibold text-gray-700 dark:text-neutral-300">
+            Showing{" "}
+            <span className="text-primary-light dark:text-primary-dark font-bold">
+              {filteredResults.length}
+            </span>{" "}
+            {filteredResults.length === 1 ? "item" : "items"}
+            {selectedCategory !== "All" && (
+              <span className="text-gray-500 dark:text-neutral-400 font-normal"> in {selectedCategory}</span>
+            )}
+          </div>
+
+          {/* Controls: Sort & Filter Button */}
+          <div className="flex items-center gap-2">
+            {/* Sort select */}
+            <div
+              className={`relative flex items-center px-3 py-2 rounded-xl border text-xs font-medium ${
+                isDark
+                  ? "bg-[#161619] border-neutral-800 text-neutral-200"
+                  : "bg-white border-gray-200 text-gray-800 shadow-sm"
+              }`}
             >
-              <ArrowDownAZ
-                className={`w-4 h-4 ${theme === "dark" ? "text-amber-400" : "text-orange-500"}`}
-              />
-              <div className="text-sm text-gray-700 dark:text-gray-300">Sort</div>
+              <span className="text-gray-500 dark:text-neutral-400 mr-1.5 font-normal">Sort:</span>
               <select
                 value={sortOrder}
-                onChange={(e) => handleSortChange(e.target.value)}
-                className={`px-3 py-1 rounded-lg border text-sm focus:ring-2 transition-all ${theme === "dark"
-                  ? "bg-[#1a1a1a] border-[#333] text-white focus:ring-amber-500"
-                  : "bg-white border-gray-300 text-gray-800 focus:ring-orange-500"
-                  }`}
-                aria-label="Sort foods"
+                onChange={(e) => setSortOrder(e.target.value)}
+                className="bg-transparent text-xs font-semibold focus:outline-none cursor-pointer pr-4"
               >
-                <option value="">Default</option>
-                <option value="asc">Price: Low → High</option>
-                <option value="desc">Price: High → Low</option>
+                <option value="" className={isDark ? "bg-neutral-900 text-white" : "bg-white text-gray-900"}>
+                  Default
+                </option>
+                <option value="asc" className={isDark ? "bg-neutral-900 text-white" : "bg-white text-gray-900"}>
+                  Price: Low to High
+                </option>
+                <option value="desc" className={isDark ? "bg-neutral-900 text-white" : "bg-white text-gray-900"}>
+                  Price: High to Low
+                </option>
+                <option value="rating" className={isDark ? "bg-neutral-900 text-white" : "bg-white text-gray-900"}>
+                  Top Rated
+                </option>
               </select>
-            </motion.div>
+              <ChevronDown size={14} className="pointer-events-none absolute right-2 text-gray-400" />
+            </div>
 
-            {/* Price Limit */}
-            <motion.div
-              className="flex items-center gap-2 bg-surface-light dark:bg-surface-dark px-4 py-3 rounded-xl shadow-sm border border-gray-200 dark:border-[#333]"
-              whileHover={{ scale: 1.02 }}
+            {/* Filter modal toggle */}
+            <button
+              onClick={() => setShowFilterModal(true)}
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-xs font-semibold transition cursor-pointer ${
+                activeFiltersCount > 0
+                  ? "bg-primary-light dark:bg-primary-dark text-white border-transparent shadow-sm"
+                  : isDark
+                  ? "bg-[#161619] border-neutral-800 text-neutral-200 hover:border-neutral-700"
+                  : "bg-white border-gray-200 text-gray-800 hover:bg-gray-50 shadow-sm"
+              }`}
             >
-              <div className="text-sm text-gray-700 dark:text-gray-300">Max ₹</div>
-              <motion.div
-                key={priceLimit}
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.3 }}
-                className="text-sm font-semibold text-primary-light dark:text-primary-dark"
-              >
-                {priceLimit}
-              </motion.div>
-            </motion.div>
-          </motion.div>
-
-        </div>
-
-        {/* Categories */}
-        <div className="mt-6 overflow-x-auto p-3">
-          <div className="flex gap-4 items-center">
-            {categories.map((category) => {
-              const active = selectedCategory === category.name;
-              return (
-                <button
-                  key={category.name}
-                  onClick={() => handleCategoryChange(category.name)}
-                  className={`flex-shrink-0 w-28 md:w-32 flex flex-col items-center gap-0 p-2 rounded-2xl transition-transform transform ${active
-                    ? "scale-105"
-                    : "hover:scale-105"
-                    }`}
-                  aria-pressed={active}
-                  aria-label={`Category ${category.name}`}
-                >
-                  <div
-                    className={`w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden shadow-inner ${active ? (theme === "dark" ? "border-2 border-[#FFD700]" : "border-2 border-primary-light") : "border border-transparent"}`}
-                    style={{ background: theme === "dark" ? "#0b0b0b" : "#fff" }}
-                  >
-                    <img
-                      src={category.image}
-                      alt={category.name}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                  </div>
-                  <span className={`text-sm font-semibold ${active ? (theme === "dark" ? "text-[#FFD700]" : "text-primary-light") : "text-gray-700 dark:text-gray-200"}`}>
-                    {category.name}
-                  </span>
-                </button>
-              );
-            })}
+              <SlidersHorizontal size={14} />
+              <span>Filter</span>
+              {activeFiltersCount > 0 && (
+                <span className="w-4 h-4 rounded-full bg-white text-primary-light text-[10px] font-bold flex items-center justify-center">
+                  {activeFiltersCount}
+                </span>
+              )}
+            </button>
           </div>
         </div>
-      </motion.div>
 
-      {/* Food Grid */}
-      <div className="max-w-7xl mx-auto mt-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {loading
-            ? Array.from({ length: 8 }).map((_, idx) => (
-              <SkeletonCard key={idx} theme={theme} />
-            ))
-            : filteredFoods && filteredFoods.length > 0
-              ? filteredFoods.map((item) => (
-                <motion.div
+        {/* ================= FOOD GRID OR EMPTY STATE ================= */}
+        <div>
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+              {Array.from({ length: 8 }).map((_, idx) => (
+                <SkeletonCard key={idx} theme={theme} />
+              ))}
+            </div>
+          ) : filteredResults && filteredResults.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+              {filteredResults.map((item) => (
+                <FoodCard
                   key={item._id}
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ type: "spring", stiffness: 250, damping: 20 }}
-                  layout
-                  transition={{ layout: { duration: 0.3 } }}
-                  className="rounded-xl"
-                >
-                  <FoodCard
-                    key={item._id}
-                    item={item}
-                    theme={theme}
-                    getItemQuantity={getItemQuantity}
-                    handleAddToCart={handleAddToCart}
-                    handleIncrease={handleIncrease}
-                    handleDecrease={handleDecrease}
-                    setQuickViewItem={setQuickViewItem}
-                    addLoadingId={addLoadingId}
-                  />
-                </motion.div>
-              ))
-              : (
-                <div className="col-span-full text-center py-12">
-                  <p className="text-gray-600 dark:text-gray-300">No food items found.</p>
-                </div>
-              )}
+                  item={item}
+                  theme={theme}
+                  getItemQuantity={getItemQuantity}
+                  handleAddToCart={handleAddToCart}
+                  handleIncrease={handleIncrease}
+                  handleDecrease={handleDecrease}
+                  setQuickViewItem={setQuickViewItem}
+                  addLoadingId={addLoadingId}
+                />
+              ))}
+            </div>
+          ) : (
+            /* Clean, Humanized Empty State */
+            <div
+              className={`py-16 px-6 text-center rounded-2xl border ${
+                isDark
+                  ? "bg-[#161619] border-neutral-800 text-white"
+                  : "bg-white border-gray-200 text-gray-900 shadow-sm"
+              }`}
+            >
+              <div className="w-12 h-12 mx-auto rounded-full bg-primary-light/10 text-primary-light dark:bg-primary-dark/15 dark:text-primary-dark flex items-center justify-center mb-3">
+                <Search size={22} />
+              </div>
+              <h3 className="text-lg font-semibold">No food items found</h3>
+              <p
+                className={`mt-1 text-sm max-w-sm mx-auto ${
+                  isDark ? "text-neutral-400" : "text-gray-600"
+                }`}
+              >
+                No dishes match your selected filters. Try searching for something else or reset your filters.
+              </p>
+
+              <button
+                onClick={handleClearFilters}
+                className="mt-4 px-4 py-2 rounded-lg bg-primary-light dark:bg-primary-dark hover:opacity-90 text-white text-xs font-semibold transition cursor-pointer shadow-sm"
+              >
+                Reset Filters
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Filter Modal (FAB opens) */}
-      <AnimatePresence>
-        {showFilterModal && (
-          <motion.div
-            className="fixed inset-0 z-50 grid place-items-center bg-black/50 px-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setShowFilterModal(false)}
-            aria-modal="true"
-            role="dialog"
+      {/* ================= FILTER MODAL ================= */}
+      {showFilterModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          onClick={() => setShowFilterModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className={`w-full max-w-md rounded-2xl border p-6 shadow-xl ${
+              isDark
+                ? "bg-[#18181b] border-neutral-800 text-white"
+                : "bg-white border-gray-200 text-gray-900"
+            }`}
           >
-            <motion.div
-              onClick={(e) => e.stopPropagation()}
-              initial={{ y: 40, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 40, opacity: 0 }}
-              className={`w-full max-w-md p-6 rounded-2xl shadow-2xl backdrop-blur-md ${theme === "dark" ? "bg-black/60 border border-[#333]" : "bg-white/80 border border-gray-200"
-                }`}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold">Filter & Sort</h3>
-                <XMarkIcon className="w-6 h-6 cursor-pointer text-gray-500" onClick={() => setShowFilterModal(false)} />
-              </div>
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-neutral-800">
+              <h3 className="font-bold text-base">Filter & Sort</h3>
+              <button
+                onClick={() => setShowFilterModal(false)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-white cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
 
-              <div className="mb-4">
-                <label className="block text-sm font-semibold mb-1">Sort</label>
-                <div className="relative">
-                  <select
-                    value={sortOrder}
-                    onChange={(e) => handleSortChange(e.target.value)}
-                    className={`w-full appearance-none px-4 py-2 pr-10 rounded-lg border focus:outline-none ${theme === "dark" ? "bg-[#111] border-[#333] text-white" : "bg-white border-gray-300 text-gray-800"
+            <div className="py-4 space-y-5">
+              {/* Category */}
+              <div>
+                <label className="text-xs font-semibold text-gray-500 dark:text-neutral-400 uppercase tracking-wider block mb-2">
+                  Category
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {categories.map((cat) => (
+                    <button
+                      key={cat.name}
+                      onClick={() => handleCategoryChange(cat.name)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition cursor-pointer ${
+                        selectedCategory === cat.name
+                          ? "bg-primary-light dark:bg-primary-dark text-white border-transparent shadow-sm font-semibold"
+                          : isDark
+                          ? "bg-neutral-900 border-neutral-700 text-neutral-300"
+                          : "bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100"
                       }`}
-                    aria-label="Sort options"
-                  >
-                    <option value="">Default</option>
-                    <option value="asc">Price: Low → High</option>
-                    <option value="desc">Price: High → Low</option>
-                  </select>
-                  <ChevronDownIcon className="w-5 h-5 absolute top-1/2 right-3 -translate-y-1/2 text-gray-400" />
+                    >
+                      {cat.name}
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              <div className="mb-4">
-                <label className="block text-sm font-semibold mb-1">Max Price: ₹{priceLimit}</label>
+              {/* Price Range */}
+              <div>
+                <div className="flex justify-between text-xs font-medium mb-1">
+                  <span className="text-gray-500 dark:text-neutral-400 uppercase tracking-wider font-semibold">
+                    Max Price
+                  </span>
+                  <span className="font-bold text-primary-light dark:text-primary-dark">₹{priceLimit}</span>
+                </div>
                 <input
                   type="range"
                   min="50"
                   max="1000"
                   step="50"
                   value={priceLimit}
-                  onChange={handlePriceChange}
-                  className="w-full"
-                  aria-label="Max price"
+                  onChange={(e) => setPriceLimit(parseInt(e.target.value, 10))}
+                  className="w-full accent-primary-light cursor-pointer"
+                />
+                <div className="flex justify-between text-[11px] text-gray-500 dark:text-neutral-400 mt-1">
+                  <span>₹50</span>
+                  <span>₹500</span>
+                  <span>₹1000</span>
+                </div>
+              </div>
+
+              {/* Min Rating */}
+              <div>
+                <label className="text-xs font-semibold text-gray-500 dark:text-neutral-400 uppercase tracking-wider block mb-2">
+                  Rating
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { label: "All", val: 0 },
+                    { label: "4.0★+", val: 4.0 },
+                    { label: "4.5★+", val: 4.5 },
+                  ].map((rt) => (
+                    <button
+                      key={rt.val}
+                      onClick={() => setMinRating(rt.val)}
+                      className={`py-1.5 rounded-lg text-xs font-medium border transition cursor-pointer ${
+                        minRating === rt.val
+                          ? "bg-primary-light dark:bg-primary-dark text-white border-transparent font-bold shadow-sm"
+                          : isDark
+                          ? "bg-neutral-900 border-neutral-700 text-neutral-300"
+                          : "bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100"
+                      }`}
+                    >
+                      {rt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="pt-3 border-t border-gray-100 dark:border-neutral-800 flex items-center justify-between gap-3">
+              <button
+                onClick={handleClearFilters}
+                className={`px-4 py-2 rounded-lg text-xs font-semibold border transition cursor-pointer ${
+                  isDark
+                    ? "bg-neutral-900 border-neutral-700 text-neutral-300 hover:bg-neutral-800"
+                    : "bg-gray-100 border-gray-200 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                Clear All
+              </button>
+
+              <button
+                onClick={() => setShowFilterModal(false)}
+                className="flex-1 px-4 py-2 rounded-lg text-xs font-semibold bg-primary-light dark:bg-primary-dark hover:opacity-90 text-white transition text-center cursor-pointer shadow-sm"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= QUICK VIEW MODAL ================= */}
+      {quickViewItem && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          onClick={() => setQuickViewItem(null)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className={`relative w-full max-w-2xl rounded-2xl border p-6 shadow-2xl ${
+              isDark
+                ? "bg-[#18181b] border-neutral-800 text-white"
+                : "bg-white border-gray-200 text-gray-900"
+            }`}
+          >
+            <div className="absolute top-4 right-4 flex items-center gap-1.5 z-10">
+              <button
+                onClick={() => toggleWishlist(quickViewItem)}
+                aria-label={
+                  isInWishlist(quickViewItem._id)
+                    ? "Remove from wishlist"
+                    : "Add to wishlist"
+                }
+                title={
+                  isInWishlist(quickViewItem._id)
+                    ? "Remove from wishlist"
+                    : "Add to wishlist"
+                }
+                className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-800 transition cursor-pointer"
+              >
+                <Heart
+                  size={18}
+                  className={
+                    isInWishlist(quickViewItem._id)
+                      ? "fill-red-500 text-red-500"
+                      : "text-gray-400 hover:text-red-500"
+                  }
+                />
+              </button>
+
+              <button
+                onClick={() => setQuickViewItem(null)}
+                className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-800 text-gray-400 hover:text-gray-600 dark:hover:text-white transition cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6 items-center">
+              <div className="w-full h-56 rounded-xl bg-gray-50 dark:bg-neutral-900 flex items-center justify-center p-4">
+                <img
+                  src={quickViewItem.image}
+                  alt={quickViewItem.name}
+                  className="max-h-full max-w-full object-contain"
                 />
               </div>
 
-              <div className="flex justify-between items-center mt-4">
-                {/* Clear Filters Button */}
-                <button
-                  onClick={handleClearFilters}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-orange-500 text-white font-semibold shadow-md hover:opacity-95 transition-all transform hover:-translate-y-0.5 active:translate-y-0.5"
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded bg-primary-light/10 text-primary-light dark:bg-primary-dark/15 dark:text-primary-dark">
+                    {quickViewItem.category}
+                  </span>
+                  <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-neutral-400">
+                    <Clock size={12} />
+                    <span>{quickViewItem.deliveryTime || "25–35 min"}</span>
+                  </div>
+                </div>
+
+                <h3 className="text-xl font-bold">{quickViewItem.name}</h3>
+
+                <div className="flex items-center gap-2">
+                  {renderStars(quickViewItem.rating || 4.2)}
+                  <span className="text-xs text-gray-500 dark:text-neutral-400">
+                    ({quickViewItem.rating || 4.2})
+                  </span>
+                </div>
+
+                <p
+                  className={`text-xs leading-relaxed ${
+                    isDark ? "text-neutral-400" : "text-gray-600"
+                  }`}
                 >
-                  <XCircleIcon className="w-5 h-5" />
-                  Clear
-                </button>
+                  {quickViewItem.description ||
+                    "Prepared fresh with quality ingredients and authentic taste."}
+                </p>
 
-                {/* Done Button */}
-                <button
-                  onClick={() => setShowFilterModal(false)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 font-semibold text-gray-800 hover:bg-gray-100 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-700 transition-all transform hover:-translate-y-0.5 active:translate-y-0.5"
-                >
-                  <CheckCircleIcon className="w-5 h-5" />
-                  Done
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Quick View Modal */}
-      <AnimatePresence>
-        {quickViewItem && (
-          <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center
-             bg-black/80 backdrop-blur-xl px-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            onClick={() => setQuickViewItem(null)}
-          >
-            <motion.div
-              onClick={(e) => e.stopPropagation()}
-              initial={{ opacity: 0, scale: 0.85, y: 80 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.85, y: 60 }}
-              transition={{ type: "spring", stiffness: 140, damping: 18 }}
-              className={`relative w-full max-w-4xl rounded-3xl overflow-hidden
-  border backdrop-blur-2xl
-  ${theme === "dark"
-                  ? "bg-[#121212]/80 border-white/10"
-                  : "bg-white/80 border-gray-200"}
-  shadow-[0_20px_80px_rgba(0,0,0,0.45)]`}
-            >
-              {/* Close Button */}
-              <button
-                onClick={() => setQuickViewItem(null)}
-                className="absolute top-5 right-5 z-20
-             bg-black/40 hover:bg-red-500
-             backdrop-blur-md
-             p-2 rounded-full
-             transition-all duration-300 hover:scale-110"
-              >
-                <XMarkIcon className="w-5 h-5 text-white" />
-              </button>
-
-              <div className="grid md:grid-cols-2 gap-10 p-7 md:p-10 items-center">
-
-                <motion.div
-                  className="relative group"
-                  initial={{ x: -60, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: 0.1 }}
-                >
-                  {/* Glow background */}
-                  <div className="absolute inset-0 rounded-2xl blur-2xl opacity-30
-                  bg-gradient-to-tr from-orange-500 to-yellow-400"></div>
-
-                  <motion.img
-                    src={`${quickViewItem.image}`}
-                    alt={quickViewItem.name}
-                    className="relative w-full h-60 object-cover rounded-2xl
-               shadow-2xl"
-                    whileHover={{ scale: 0.9 }}
-                    transition={{ duration: 0.4 }}
-                  />
-                </motion.div>
-                {/* Details */}
-                <motion.div
-                  className="flex flex-col gap-5"
-                  initial={{ x: 60, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: 0.2 }}
-                >
-
-                  {/* Title */}
-                  <h3 className="text-3xl font-bold tracking-tight">
-                    {quickViewItem.name}
-                  </h3>
-
-                  {/* Description */}
-                  <p className="text-sm leading-relaxed text-gray-500 dark:text-gray-300">
-                    {quickViewItem.description ||
-                      "Chef crafted delight prepared with premium ingredients and rich flavors."}
-                  </p>
-
-                  {/* Price + Rating */}
-                  <div className="flex items-center justify-between mt-2">
-
-                    <div>
-                      <div className="text-3xl font-bold text-orange-500">
-                        ₹{quickViewItem.price}
-                      </div>
-
-
-                      <div
-                        className={`flex items-center gap-1 text-xs`}
-                      >
-                        <Clock size={14} />{quickViewItem.deliveryTime || "25–35 mins"}
-                      </div>
-
-                      <div className="mt-2">
-                        {renderStars(quickViewItem.rating || 4.5)}
-                      </div>
-                    </div>
-
-                    <div className="text-center px-4 py-2 rounded-xl
-                  bg-orange-500/10 border border-orange-400/20">
-                      <div className="text-xs text-gray-500">In Cart</div>
-                      <div className="text-xl font-bold text-orange-500">
-                        {getItemQuantity(quickViewItem._id) || 0}
-                      </div>
-                    </div>
-
+                <div className="pt-2 flex items-center justify-between">
+                  <div className="text-2xl font-bold text-primary-light dark:text-primary-dark">
+                    ₹{Number(quickViewItem.price).toLocaleString("en-IN")}
                   </div>
 
-                  {/* Quantity + Add */}
-                  <div className="flex items-center gap-4 mt-3">
-
-                    {/* Quantity Controller */}
+                  <div className="flex items-center gap-2">
                     {quantity > 0 && (
-                      <div className="flex items-center gap-3
-                px-4 py-2 rounded-xl
-                bg-surface border border-gray-300 dark:border-gray-700">
-
+                      <div className="flex items-center border border-gray-300 dark:border-neutral-700 rounded-lg">
                         <button
                           onClick={() => setQuantity((p) => Math.max(1, p - 1))}
-                          className="w-9 h-9 rounded-full
-             bg-gray-200 dark:bg-gray-700
-             hover:scale-110 transition"
+                          className="w-7 h-7 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 text-sm font-bold cursor-pointer"
                         >
                           −
                         </button>
-
-                        <span className="font-semibold text-lg">{quantity}</span>
-
+                        <span className="w-6 text-center text-xs font-semibold">
+                          {quantity}
+                        </span>
                         <button
                           onClick={() => setQuantity((p) => p + 1)}
-                          className="w-9 h-9 rounded-full
-             bg-gray-200 dark:bg-gray-700
-             hover:scale-110 transition"
+                          className="w-7 h-7 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 text-sm font-bold cursor-pointer"
                         >
                           +
                         </button>
-
                       </div>
                     )}
 
-                    {/* Add / Update Button */}
-                    <motion.button
-                      whileHover={{ scale: 1.03 }}
-                      whileTap={{ scale: 0.96 }}
+                    <button
                       disabled={modalLoading}
                       onClick={() =>
                         quantity > 0
                           ? handleQuantityChange(quickViewItem._id, quantity)
                           : handleAddToCart(quickViewItem, true)
                       }
-                      className="flex-1 relative overflow-hidden
-             px-7 py-3 rounded-xl font-semibold
-             bg-gradient-to-r from-orange-500 to-yellow-400
-             text-black shadow-lg
-             hover:shadow-orange-500/40 transition"
+                      className="px-4 py-2 rounded-lg bg-primary-light dark:bg-primary-dark hover:opacity-90 text-white text-xs font-semibold transition cursor-pointer shadow-sm"
                     >
-                      <span className="relative z-10">
-                        {modalLoading
-                          ? "Processing..."
-                          : quantity > 0
-                            ? `Update (${quantity})`
-                            : "Add to Cart"}
-                      </span>
-
-                      <div className="absolute inset-0 opacity-0 hover:opacity-100
-                  transition bg-white/10"></div>
-                    </motion.button>
+                      {modalLoading
+                        ? "Saving..."
+                        : quantity > 0
+                        ? `Update Cart`
+                        : `Add to Cart`}
+                    </button>
                   </div>
-                </motion.div>
+                </div>
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </div>
+          </div>
+        </div>
+      )}
 
-
-
+      {/* Floating Filter Button on Mobile */}
       <button
         onClick={() => setShowFilterModal(true)}
-        aria-label="Open filters"
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3 rounded-full shadow-2xl transform transition-all hover:scale-105"
-        style={{
-          background: theme === "dark"
-            ? "linear-gradient(90deg,#FFA000,#FF7043)"
-            : "linear-gradient(90deg,#FFB300,#FF5722)",
-          color: theme === "dark" ? "#000" : "#fff"
-        }}
+        className="sm:hidden fixed bottom-5 right-5 z-40 flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary-light dark:bg-primary-dark text-white text-xs font-semibold shadow-lg cursor-pointer"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M3 4h18M8 12h8M10 20h4" />
-        </svg>
-        <span className="font-semibold">Filter</span>
+        <SlidersHorizontal size={15} />
+        <span>Filter</span>
+        {activeFiltersCount > 0 && (
+          <span className="w-4 h-4 rounded-full bg-white text-primary-light text-[10px] font-bold flex items-center justify-center">
+            {activeFiltersCount}
+          </span>
+        )}
       </button>
     </div>
   );

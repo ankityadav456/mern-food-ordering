@@ -17,6 +17,7 @@ const userSchema = new mongoose.Schema(
     },
 
     cart: [cartItemSchema],
+    wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "FoodItem" }],
     orders: [{ type: mongoose.Schema.Types.ObjectId, ref: "Order" }],
     address: {
         fullName: { type: String },

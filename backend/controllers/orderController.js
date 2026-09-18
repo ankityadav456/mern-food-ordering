@@ -108,6 +108,7 @@ export const placeOrder = async (req, res) => {
       totalAmount: finalAmount,
       appliedCoupon,
       paymentStatus: "Paid",
+      orderStatus: "Preparing",
       deliveryAddress,
     });
 
@@ -133,7 +134,7 @@ export const placeOrder = async (req, res) => {
 //  Get orders for a user using query param
 export const getUserOrders = async (req, res) => {
   try {
-    const userId = req.query.userId;
+    const userId = req.query.userId || req.user?.id;
     if (!userId) {
       return res.status(400).json({ message: "User ID is required" });
     }
@@ -149,5 +150,30 @@ export const getUserOrders = async (req, res) => {
   } catch (error) {
     console.error("Get Orders Error:", error.message);
     res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+//  Get single order by ID for live tracking
+export const getOrderById = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const order = await Order.findById(orderId).populate({
+      path: "items.foodId",
+      select: "name price image category",
+    });
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    // Verify ownership or admin
+    if (order.user.toString() !== req.user.id && !req.user.isAdmin) {
+      return res.status(403).json({ success: false, message: "Access denied" });
+    }
+
+    res.status(200).json({ success: true, order });
+  } catch (error) {
+    console.error("Get Order By ID Error:", error.message);
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
   }
 };

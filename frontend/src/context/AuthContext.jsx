@@ -126,7 +126,10 @@ export const AuthProvider = ({ children }) => {
         title: data.message,
         icon: "success",
       });
-      setUser(formatUser(data.user));
+      setUser((prev) => ({
+        ...prev,
+        ...formatUser(data.user),
+      }));
     } catch {
       showToast("Profile update failed","error");
     }

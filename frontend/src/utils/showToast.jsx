@@ -1,7 +1,6 @@
 import { toast } from "react-hot-toast";
 import {
-  CheckCircle,
-  XCircle,
+  Check,
   Info,
   X,
 } from "lucide-react";
@@ -11,11 +10,17 @@ export const showToast = (message, type = "success") => {
 
   const icon =
     type === "success" ? (
-      <CheckCircle className="text-green-500" size={22} />
+      <div className="w-[22px] h-[22px] rounded-full bg-[#22c55e] flex items-center justify-center shrink-0 shadow-sm">
+        <Check className="w-3.5 h-3.5 text-white stroke-[3]" />
+      </div>
     ) : type === "error" ? (
-      <XCircle className="text-red-500" size={22} />
+      <div className="w-[22px] h-[22px] rounded-full bg-[#ef4444] flex items-center justify-center shrink-0 shadow-sm">
+        <X className="w-3.5 h-3.5 text-white stroke-[3]" />
+      </div>
     ) : (
-      <Info className="text-orange-500" size={22} />
+      <div className="w-[22px] h-[22px] rounded-full bg-[#f97316] flex items-center justify-center shrink-0 shadow-sm">
+        <Info className="w-3.5 h-3.5 text-white stroke-[3]" />
+      </div>
     );
 
   toast.custom(

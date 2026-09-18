@@ -4,7 +4,11 @@ export default {
   darkMode: "class",
   theme: {
     extend: {
-      fontFamily: { sans: ["Poppins", "sans-serif"] },
+      fontFamily: {
+        sans: ["Poppins", "sans-serif"],
+        serif: ["'Playfair Display'", "Georgia", "serif"],
+        display: ["'Playfair Display'", "serif"],
+      },
       colors: {
         primary: { light: "#FF5722", dark: "#FF7043" },
         secondary: { light: "#FFC107", dark: "#FFD54F" },

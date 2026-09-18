@@ -1,59 +1,44 @@
-// src/components/SkeletonCard.jsx
 import React from "react";
-import { motion } from "framer-motion";
 
 const SkeletonCard = ({ theme }) => {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className={`rounded-2xl overflow-hidden border backdrop-blur-md 
-        ${theme === "dark"
-          ? "bg-[rgba(30,30,30,0.6)] border-[rgba(255,255,255,0.1)]"
-          : "bg-[rgba(255,255,255,0.5)] border-[rgba(0,0,0,0.05)] shadow-md"
-        }`}
-    >
-      {/* Image Skeleton */}
-      <div
-        className={`w-full h-44 animate-pulse rounded-t-2xl 
-          ${theme === "dark" ? "bg-[rgba(255,255,255,0.05)]" : "bg-gray-200"}
-        `}
-      ></div>
+  const isDark = theme === "dark";
 
-      {/* Content */}
+  return (
+    <div
+      className={`rounded-2xl border overflow-hidden animate-pulse ${
+        isDark ? "bg-[#18181b] border-neutral-800" : "bg-white border-gray-200"
+      }`}
+    >
+      <div
+        className={`w-full h-48 ${
+          isDark ? "bg-neutral-800" : "bg-gray-100"
+        }`}
+      />
       <div className="p-4 space-y-3">
         <div
-          className={`w-3/4 h-4 rounded-md animate-pulse 
-            ${theme === "dark" ? "bg-[rgba(255,255,255,0.08)]" : "bg-gray-300"}
-          `}
-        ></div>
+          className={`h-4 w-3/4 rounded ${
+            isDark ? "bg-neutral-800" : "bg-gray-200"
+          }`}
+        />
         <div
-          className={`w-1/2 h-3 rounded-md animate-pulse 
-            ${theme === "dark" ? "bg-[rgba(255,255,255,0.08)]" : "bg-gray-300"}
-          `}
-        ></div>
-        <div
-          className={`w-1/3 h-3 rounded-md animate-pulse 
-            ${theme === "dark" ? "bg-[rgba(255,255,255,0.08)]" : "bg-gray-300"}
-          `}
-        ></div>
-
-        {/* Buttons */}
-        <div className="flex gap-2 mt-3">
+          className={`h-3 w-1/2 rounded ${
+            isDark ? "bg-neutral-800" : "bg-gray-100"
+          }`}
+        />
+        <div className="pt-2 flex items-center justify-between">
           <div
-            className={`flex-1 h-8 rounded-lg animate-pulse 
-              ${theme === "dark" ? "bg-[rgba(255,255,255,0.08)]" : "bg-gray-300"}
-            `}
-          ></div>
+            className={`h-5 w-16 rounded ${
+              isDark ? "bg-neutral-800" : "bg-gray-200"
+            }`}
+          />
           <div
-            className={`flex-1 h-8 rounded-lg animate-pulse 
-              ${theme === "dark" ? "bg-[rgba(255,255,255,0.08)]" : "bg-gray-300"}
-            `}
-          ></div>
+            className={`h-8 w-16 rounded ${
+              isDark ? "bg-neutral-800" : "bg-gray-200"
+            }`}
+          />
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
