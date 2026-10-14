@@ -25,37 +25,47 @@ import OrderSummary from "./pages/OrderSummary";
 import ProfilePage from "./pages/ProfilePage";
 import ManageUser from "./pages/ManageUser";
 import TrackOrderPage from "./pages/TrackOrderPage";
+import AnalyticsPageTracker from "./AnalyticsPageTracker";
+import AnalyticsConsent from "./AnalyticsConsent";
 
 import { Toaster } from "react-hot-toast";
+import AuthModal from "./components/AuthModal";
 
 const Providers = ({ children }) => (
   <AuthProvider>
     <FoodProvider>
       <CartProvider>
         <WishlistProvider>
-          <SearchProvider>{children}</SearchProvider>
+          <SearchProvider>
+            {children}
+            <AuthModal />
+          </SearchProvider>
         </WishlistProvider>
       </CartProvider>
     </FoodProvider>
   </AuthProvider>
 );
 
+
 const App = () => {
   return (
     <BrowserRouter>
       <Providers>
         <ScrollToTop />
+        <AnalyticsPageTracker />
+        <AnalyticsConsent />
 
         <Toaster
           position="top-right"
           toastOptions={{
-            duration: 1500,
+            duration: 3000,
             className:
               "dark:bg-[#1f1f1f] dark:text-white text-white border border-gray-700",
           }}
           containerStyle={{
             top: "4.5rem",
             right: "1rem",
+            zIndex: 99999999,
           }}
         />
 
@@ -70,14 +80,8 @@ const App = () => {
               path="admin-dashboard"
               element={<AdminRoute><AdminDashboard /></AdminRoute>}
             />
-            <Route
-              path="menu"
-              element={<MenuPage />}
-            />
-            <Route
-              path="wishlist"
-              element={<WishlistPage />}
-            />
+            <Route path="menu" element={<MenuPage />} />
+            <Route path="wishlist" element={<WishlistPage />} />
             <Route
               path="food-management"
               element={<AdminRoute><AddFoodPage /></AdminRoute>}
@@ -110,9 +114,15 @@ const App = () => {
               path="profile"
               element={<ProtectedRoute><ProfilePage /></ProtectedRoute>}
             />
-             <Route
+            <Route
               path="users"
-              element={<ProtectedRoute><AdminRoute><ManageUser /></AdminRoute></ProtectedRoute>}
+              element={
+                <ProtectedRoute>
+                  <AdminRoute>
+                    <ManageUser />
+                  </AdminRoute>
+                </ProtectedRoute>
+              }
             />
           </Route>
 
@@ -124,5 +134,6 @@ const App = () => {
     </BrowserRouter>
   );
 };
+
 
 export default App;

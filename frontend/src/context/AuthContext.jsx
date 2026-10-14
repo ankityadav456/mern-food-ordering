@@ -24,8 +24,19 @@ export const AuthProvider = ({ children }) => {
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-    const [allUsers, setAllUsers] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authModalTab, setAuthModalTab] = useState("login");
+
+  const openAuthModal = useCallback((tab = "login") => {
+    setAuthModalTab(tab);
+    setAuthModalOpen(true);
+  }, []);
+
+  const closeAuthModal = useCallback(() => {
+    setAuthModalOpen(false);
+  }, []);
 
   /* ================= FORMAT USER ================= */
 
@@ -73,12 +84,20 @@ export const AuthProvider = ({ children }) => {
         password,
       });
 
-       localStorage.setItem("token", data.token);
+      localStorage.setItem("token", data.token);
 
       setUser(formatUser(data.user));
-      navigate("/");
+      setAuthModalOpen(false);
+      showToast("Account created successfully!", "success");
+      return data;
     } catch (error) {
-      showToast(error.response?.data?.message || "Signup failed", "error");
+      const msg =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Signup failed";
+      showToast(msg, "error");
+      throw new Error(msg);
     } finally {
       setLoading(false);
     }
@@ -92,21 +111,28 @@ export const AuthProvider = ({ children }) => {
         email,
         password,
       });
-        localStorage.setItem("token", data.token);
+      localStorage.setItem("token", data.token);
 
       // ✅ cookie already set by backend
       setUser(formatUser(data.user));
-
-      navigate("/");
+      setAuthModalOpen(false);
+      showToast("Logged in successfully!", "success");
+      return data;
     } catch (error) {
-      showToast(error.response?.data?.message || "Login failed","error");
+      const msg =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Login failed";
+      showToast(msg, "error");
+      throw new Error(msg);
     } finally {
       setLoading(false);
     }
   };
 
   const logout = useCallback(async () => {
-     localStorage.removeItem("token"); // ← remove token
+    localStorage.removeItem("token"); // ← remove token
     try {
       await axios.post("/auth/logout"); // clears cookie
     } catch {
@@ -114,7 +140,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     setUser(null);
-    navigate("/login");
+    navigate("/");
   }, [navigate]);
 
   /* ================= PROFILE ================= */
@@ -281,8 +307,24 @@ export const AuthProvider = ({ children }) => {
       deleteUser,
       toggleUserStatus,
       updateUser,
+      authModalOpen,
+      authModalTab,
+      openAuthModal,
+      closeAuthModal,
+      setAuthModalTab,
     }),
-    [user, loading, logout, fetchUser, allUsers, loadingUsers]
+    [
+      user,
+      loading,
+      logout,
+      fetchUser,
+      allUsers,
+      loadingUsers,
+      authModalOpen,
+      authModalTab,
+      openAuthModal,
+      closeAuthModal,
+    ]
   );
 
   return (

@@ -30,7 +30,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const Navbar = () => {
   const { searchQuery, setSearchQuery } = useContext(SearchContext);
-  const { user, logout } = useAuth();
+  const { user, logout, openAuthModal } = useAuth();
   const { cartItems } = useCart();
   const { wishlistCount } = useWishlist();
   const { theme, toggleTheme } = useTheme();
@@ -325,18 +325,20 @@ const Navbar = () => {
             </div>
           ) : (
             <div className="flex items-center gap-2 text-xs font-semibold">
-              <Link
-                to="/login"
-                className="px-3 py-1.5 rounded-full text-gray-700 dark:text-neutral-300 hover:text-black dark:hover:text-white transition"
+              <button
+                type="button"
+                onClick={() => openAuthModal("login")}
+                className="px-3 py-1.5 rounded-full text-gray-700 dark:text-neutral-300 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 transition cursor-pointer"
               >
                 Login
-              </Link>
-              <Link
-                to="/signup"
-                className="px-3.5 py-1.5 rounded-full bg-primary-light dark:bg-primary-dark text-white hover:opacity-90 transition shadow-sm"
+              </button>
+              <button
+                type="button"
+                onClick={() => openAuthModal("signup")}
+                className="px-3.5 py-1.5 rounded-full bg-primary-light dark:bg-primary-dark text-white hover:opacity-90 active:scale-95 transition shadow-sm cursor-pointer"
               >
                 Sign Up
-              </Link>
+              </button>
             </div>
           )}
         </div>
@@ -425,20 +427,26 @@ const Navbar = () => {
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Link
-                            to="/login"
-                            onClick={() => setNavMenuOpen(false)}
-                            className="flex-1 py-1.5 px-3 rounded-xl text-center text-xs font-semibold border border-gray-300 dark:border-neutral-700 hover:bg-gray-100 dark:hover:bg-neutral-800 transition"
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setNavMenuOpen(false);
+                              openAuthModal("login");
+                            }}
+                            className="flex-1 py-1.5 px-3 rounded-xl text-center text-xs font-semibold border border-gray-300 dark:border-neutral-700 hover:bg-gray-100 dark:hover:bg-neutral-800 transition cursor-pointer"
                           >
                             Log In
-                          </Link>
-                          <Link
-                            to="/signup"
-                            onClick={() => setNavMenuOpen(false)}
-                            className="flex-1 py-1.5 px-3 rounded-xl text-center text-xs font-semibold bg-primary-light dark:bg-primary-dark text-white hover:opacity-90 transition shadow-sm"
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setNavMenuOpen(false);
+                              openAuthModal("signup");
+                            }}
+                            className="flex-1 py-1.5 px-3 rounded-xl text-center text-xs font-semibold bg-primary-light dark:bg-primary-dark text-white hover:opacity-90 transition shadow-sm cursor-pointer"
                           >
                             Sign Up
-                          </Link>
+                          </button>
                         </div>
                       </div>
                     )}
