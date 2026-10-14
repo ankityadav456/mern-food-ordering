@@ -14,7 +14,7 @@ import { showToast } from "../utils/showToast.jsx";
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const { user } = useAuth();
+  const { user, openAuthModal } = useAuth();
 
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -63,18 +63,29 @@ export const CartProvider = ({ children }) => {
      ADD TO CART (OPTIMISTIC)
   =============================== */
   const addToCart = useCallback(
-    async (foodItem) => {
-      const existing = cartItems.find(
-        (item) => item.foodId._id === foodItem._id
-      );
+    async (foodItem, showToastMessage = true) => {
+      if (!user?._id) {
+        if (openAuthModal) openAuthModal("login");
+        showToast("Please sign in to add items to cart", "info");
+        return;
+      }
+
+      const targetId = (foodItem._id || foodItem.id)?.toString();
+      if (!targetId) return;
+
+      const existing = cartItems.find((item) => {
+        const id = (item.foodId?._id || item.foodId || item._id)?.toString();
+        return id === targetId;
+      });
 
       if (existing) {
         setCartItems((prev) =>
-          prev.map((item) =>
-            item.foodId._id === foodItem._id
+          prev.map((item) => {
+            const id = (item.foodId?._id || item.foodId || item._id)?.toString();
+            return id === targetId
               ? { ...item, quantity: item.quantity + 1 }
-              : item
-          )
+              : item;
+          })
         );
       } else {
         setCartItems((prev) => [
@@ -84,14 +95,16 @@ export const CartProvider = ({ children }) => {
       }
 
       try {
-        await axios.post("/cart", { foodId: foodItem._id });
-        showToast(`${foodItem.name} added`, "success");
+        await axios.post("/cart", { foodId: targetId });
+        if (showToastMessage) {
+          showToast(`${foodItem.name || "Item"} added to cart`, "success");
+        }
       } catch {
         showToast("Failed to add item", "error");
         fetchCartItems();
       }
     },
-    [cartItems, fetchCartItems]
+    [cartItems, fetchCartItems, user?._id, openAuthModal]
   );
 
   /* ===============================
@@ -99,14 +112,18 @@ export const CartProvider = ({ children }) => {
   =============================== */
   const removeFromCart = useCallback(
     async (foodId) => {
+      const targetId = foodId?.toString();
       const backup = cartItems;
 
       setCartItems((prev) =>
-        prev.filter((item) => item.foodId._id !== foodId)
+        prev.filter((item) => {
+          const id = (item.foodId?._id || item.foodId || item._id)?.toString();
+          return id !== targetId;
+        })
       );
 
       try {
-        await axios.delete(`/cart/${foodId}`);
+        await axios.delete(`/cart/${targetId}`);
         // showToast("Item removed", "success");
       } catch {
         showToast("Remove failed", "error");
@@ -121,23 +138,24 @@ export const CartProvider = ({ children }) => {
   =============================== */
   const updateItemQuantity = useCallback(
     async (foodId, quantity, showMessage = false) => {
+      const targetId = foodId?.toString();
+
       setCartItems((prev) =>
-        prev.map((item) =>
-          item.foodId._id === foodId
-            ? { ...item, quantity }
-            : item
-        )
+        prev.map((item) => {
+          const id = (item.foodId?._id || item.foodId || item._id)?.toString();
+          return id === targetId ? { ...item, quantity } : item;
+        })
       );
 
       try {
-        await axios.put(`/cart/${foodId}`, { quantity });
+        await axios.put(`/cart/${targetId}`, { quantity });
         if (showMessage) {
-      showToast("Quantity Updated", "success");
-    }
+          showToast("Quantity Updated", "success");
+        }
       } catch {
-      if (showMessage) {
-      showToast("Update failed", "error");
-    }
+        if (showMessage) {
+          showToast("Update failed", "error");
+        }
         fetchCartItems();
       }
     },

@@ -162,11 +162,11 @@ const Navbar = () => {
             {user && navButton("/dashboard", <LayoutDashboard size={16} />, "Dashboard")}
           </div>
 
-          {/* Theme Toggle Button */}
+          {/* Theme Toggle Button (Desktop & Tablet) */}
           <button
             onClick={toggleTheme}
             aria-label="Toggle theme"
-            className="w-9 h-9 rounded-full border border-neutral-200/90 dark:border-neutral-700/80 bg-white dark:bg-[#1a1a22] hover:bg-neutral-100 dark:hover:bg-[#242430] hover:border-neutral-300 dark:hover:border-neutral-600 text-gray-700 dark:text-neutral-200 transition-all duration-200 flex items-center justify-center flex-shrink-0 cursor-pointer shadow-sm shadow-black/[0.04] dark:shadow-black/40"
+            className="hidden sm:flex w-9 h-9 rounded-full border border-neutral-200/90 dark:border-neutral-700/80 bg-white dark:bg-[#1a1a22] hover:bg-neutral-100 dark:hover:bg-[#242430] hover:border-neutral-300 dark:hover:border-neutral-600 text-gray-700 dark:text-neutral-200 transition-all duration-200 items-center justify-center flex-shrink-0 cursor-pointer shadow-sm shadow-black/[0.04] dark:shadow-black/40"
           >
             {isDark ? (
               <Sun size={17} className="text-amber-400" />
@@ -175,11 +175,11 @@ const Navbar = () => {
             )}
           </button>
 
-          {/* Wishlist Icon Button */}
+          {/* Wishlist Icon Button (Desktop & Tablet) */}
           <Link
             to="/wishlist"
             aria-label="Wishlist"
-            className="relative w-9 h-9 rounded-full border border-neutral-200/90 dark:border-neutral-700/80 bg-white dark:bg-[#1a1a22] hover:bg-neutral-100 dark:hover:bg-[#242430] hover:border-neutral-300 dark:hover:border-neutral-600 text-gray-700 dark:text-neutral-200 transition-all duration-200 flex items-center justify-center flex-shrink-0 shadow-sm shadow-black/[0.04] dark:shadow-black/40"
+            className="hidden sm:flex relative w-9 h-9 rounded-full border border-neutral-200/90 dark:border-neutral-700/80 bg-white dark:bg-[#1a1a22] hover:bg-neutral-100 dark:hover:bg-[#242430] hover:border-neutral-300 dark:hover:border-neutral-600 text-gray-700 dark:text-neutral-200 transition-all duration-200 items-center justify-center flex-shrink-0 shadow-sm shadow-black/[0.04] dark:shadow-black/40"
           >
             <Heart
               size={17}
@@ -324,18 +324,18 @@ const Navbar = () => {
               </AnimatePresence>
             </div>
           ) : (
-            <div className="flex items-center gap-2 text-xs font-semibold">
+            <div className="flex items-center gap-1.5 sm:gap-2 text-xs font-semibold">
               <button
                 type="button"
                 onClick={() => openAuthModal("login")}
-                className="px-3 py-1.5 rounded-full text-gray-700 dark:text-neutral-300 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 transition cursor-pointer"
+                className="px-3 sm:px-3.5 py-1.5 rounded-full bg-primary-light dark:bg-primary-dark text-white hover:opacity-90 active:scale-95 transition shadow-sm cursor-pointer font-bold whitespace-nowrap"
               >
                 Login
               </button>
               <button
                 type="button"
                 onClick={() => openAuthModal("signup")}
-                className="px-3.5 py-1.5 rounded-full bg-primary-light dark:bg-primary-dark text-white hover:opacity-90 active:scale-95 transition shadow-sm cursor-pointer"
+                className="hidden sm:inline-flex px-3.5 py-1.5 rounded-full border border-gray-300 dark:border-neutral-700 text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800 transition cursor-pointer whitespace-nowrap"
               >
                 Sign Up
               </button>

@@ -176,14 +176,16 @@ export const WishlistProvider = ({ children }) => {
      REMOVE FROM WISHLIST
   =============================== */
   const removeFromWishlist = useCallback(
-    async (foodId) => {
+    async (foodId, showToastMessage = true) => {
       if (!foodId) return;
       const itemId = foodId.toString();
 
       setWishlistItems((prev) =>
         prev.filter((i) => (i._id || i.id)?.toString() !== itemId)
       );
-      showToast("Removed from wishlist", "info");
+      if (showToastMessage) {
+        showToast("Removed from wishlist", "info");
+      }
 
       if (user?._id) {
         try {
@@ -199,19 +201,24 @@ export const WishlistProvider = ({ children }) => {
   /* ===============================
      CLEAR WISHLIST
   =============================== */
-  const clearWishlist = useCallback(async () => {
-    setWishlistItems([]);
-    if (!user?._id) {
-      localStorage.removeItem(LOCAL_STORAGE_KEY);
-    } else {
-      try {
-        await axios.delete("/wishlist");
-      } catch (error) {
-        console.error("Error clearing wishlist:", error);
+  const clearWishlist = useCallback(
+    async (showToastMessage = true) => {
+      setWishlistItems([]);
+      if (!user?._id) {
+        localStorage.removeItem(LOCAL_STORAGE_KEY);
+      } else {
+        try {
+          await axios.delete("/wishlist");
+        } catch (error) {
+          console.error("Error clearing wishlist:", error);
+        }
       }
-    }
-    showToast("Wishlist cleared", "info");
-  }, [user?._id]);
+      if (showToastMessage) {
+        showToast("Wishlist cleared", "info");
+      }
+    },
+    [user?._id]
+  );
 
   return (
     <WishlistContext.Provider

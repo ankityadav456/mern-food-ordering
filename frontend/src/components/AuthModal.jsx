@@ -15,6 +15,8 @@ import {
   AlertCircle,
   ArrowRight,
   ShieldCheck,
+  Sparkles,
+  LockKeyhole,
 } from "lucide-react";
 import authBanner from "../assets/Images/authBanner.jpg";
 import logo from "../assets/Images/AppLogo.png";
@@ -59,22 +61,6 @@ const AuthModal = () => {
       document.body.style.overflow = "unset";
     };
   }, [authModalOpen, closeAuthModal]);
-
-  // Password strength calculation
-  const passwordStrength = useMemo(() => {
-    if (!password) return { score: 0, label: "", color: "" };
-    let score = 0;
-    if (password.length >= 6) score++;
-    if (password.length >= 8) score++;
-    if (/[A-Z]/.test(password)) score++;
-    if (/[0-9]/.test(password)) score++;
-    if (/[!@#$%^&*]/.test(password)) score++;
-
-    if (score <= 1) return { score: 1, label: "Weak", color: "bg-red-500" };
-    if (score <= 2) return { score: 2, label: "Fair", color: "bg-orange-500" };
-    if (score <= 3) return { score: 3, label: "Good", color: "bg-amber-500" };
-    return { score: 4, label: "Strong", color: "bg-emerald-500" };
-  }, [password]);
 
   const switchTab = (tab) => {
     setError("");
@@ -139,113 +125,138 @@ const AuthModal = () => {
   return createPortal(
     <AnimatePresence>
       {authModalOpen && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
-          {/* Frosted Backdrop */}
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+          {/* Frosted Dark Backdrop with subtle radial glow */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.25 }}
             onClick={closeAuthModal}
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/75 backdrop-blur-md"
           />
 
           {/* Modal Card - 2-Column Split: Left Image, Right Content */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.94, y: 18 }}
+            initial={{ opacity: 0, scale: 0.94, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.94, y: 18 }}
-            transition={{ type: "spring", duration: 0.38, bounce: 0.12 }}
+            exit={{ opacity: 0, scale: 0.94, y: 16 }}
+            transition={{ type: "spring", duration: 0.4, bounce: 0.1 }}
             onClick={(e) => e.stopPropagation()}
-            className={`relative w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden my-auto grid grid-cols-1 md:grid-cols-2 ${
+            className={`relative w-full max-w-4xl rounded-[28px] overflow-hidden shadow-[0_25px_70px_-15px_rgba(0,0,0,0.6)] border my-auto grid grid-cols-1 md:grid-cols-2 md:h-[620px] transition-colors ${
               isDark
-                ? "bg-[#141416] border-neutral-800 text-white"
-                : "bg-white border-gray-100 text-gray-900"
+                ? "bg-[#141417] border-neutral-800 text-white shadow-black/80"
+                : "bg-white border-neutral-100 text-gray-900"
             }`}
           >
-            {/* Top Close Button */}
+            {/* Top Close Button (Elevated tactile pill button) */}
             <button
               type="button"
               onClick={closeAuthModal}
-              className={`absolute top-4 right-4 p-2 rounded-full transition-all z-30 ${
+              className={`absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center transition-all z-30 cursor-pointer ${
                 isDark
-                  ? "text-neutral-400 hover:text-white hover:bg-neutral-800"
-                  : "text-gray-400 hover:text-gray-700 hover:bg-gray-100"
+                  ? "bg-neutral-900/80 text-neutral-400 hover:text-white hover:bg-neutral-800 border border-neutral-800"
+                  : "bg-gray-100/90 text-gray-500 hover:text-gray-900 hover:bg-gray-200 border border-gray-200/50"
               }`}
               aria-label="Close modal"
             >
-              <X size={19} />
+              <X size={17} />
             </button>
 
             {/* ════════════ LEFT COLUMN: IMAGE BANNER ════════════ */}
-            <div className="relative hidden md:flex flex-col justify-between w-full h-full min-h-[560px] bg-neutral-950 overflow-hidden select-none">
+            <div className="relative hidden md:flex flex-col justify-between w-full h-full bg-neutral-950 overflow-hidden select-none">
               <img
                 src={authBanner}
                 alt="Good Food Brings People Together - Yumigo"
-                className="absolute inset-0 w-full h-full object-cover object-top"
+                className="absolute inset-0 w-full h-full object-cover object-top filter brightness-[0.98] contrast-[1.02]"
               />
-              {/* Subtle inner edge shadow for seamless separation */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-black/30 pointer-events-none" />
+              {/* Subtle inner edge vignette for seamless transition */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-black/25 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
             </div>
 
             {/* ════════════ RIGHT COLUMN: FORM CONTENT ════════════ */}
-            <div className="p-6 sm:p-9 flex flex-col justify-center">
-              {/* Mobile Banner Header (when left image is hidden on small screens) */}
-              <div className="flex md:hidden items-center gap-3 mb-5">
-                <img src={logo} alt="Yumigo" className="w-10 h-10 rounded-xl" />
-                <div>
-                  <h3 className="font-bold text-lg leading-tight">Yumigo</h3>
-                  <p className="text-[11px] text-gray-400">Good Food Brings People Together</p>
+            <div className="p-7 sm:p-9 md:p-10 flex flex-col justify-between h-full overflow-y-auto">
+              <div>
+                {/* Mobile Banner Header (when left image is hidden on small screens) */}
+                <div className="flex md:hidden items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-950/30 p-1.5 border border-orange-200/60 dark:border-orange-500/20 shadow-xs flex items-center justify-center">
+                    <img src={logo} alt="Yumigo" className="w-full h-full object-contain" />
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-lg leading-tight">Yumigo</h3>
+                    <p className="text-[11px] text-gray-400">Good Food Brings People Together</p>
+                  </div>
                 </div>
-              </div>
 
-              {/* Title & Subtitle */}
-              <div className="mb-5">
-                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                  {authModalTab === "login" ? "Welcome Back" : "Create Account"}
-                </h2>
-                <p className={`text-xs sm:text-sm mt-1 ${isDark ? "text-neutral-400" : "text-gray-500"}`}>
-                  {authModalTab === "login"
-                    ? "Enter your credentials to access your account."
-                    : "Join Yumigo to discover and order delicious meals."}
-                </p>
-              </div>
+                {/* Title & Badge with fixed min-height so text difference does not shift layout */}
+                <div className="mb-5 min-h-[64px]">
+                  <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                    {authModalTab === "login" ? "Welcome Back" : "Create Account"}
+                  </h2>
+                  <p className={`text-xs sm:text-sm mt-1 leading-relaxed ${isDark ? "text-neutral-400" : "text-gray-500"}`}>
+                    {authModalTab === "login"
+                      ? "Enter your credentials to access your account."
+                      : "Join Yumigo to discover and order delicious meals."}
+                  </p>
+                </div>
 
-              {/* Segmented Switcher Tabs */}
-              <div
-                className={`grid grid-cols-2 p-1 rounded-2xl mb-5 ${
-                  isDark ? "bg-neutral-900 border border-neutral-800" : "bg-gray-100"
-                }`}
-              >
+                {/* Segmented Switcher Tabs (iOS / Linear Style) */}
+                <div
+                  className={`relative flex items-center p-1 rounded-2xl mb-5 ${
+                    isDark
+                      ? "bg-neutral-900/90 border border-neutral-800"
+                      : "bg-gray-100 border border-gray-200/60"
+                  }`}
+                >
                 <button
                   type="button"
                   onClick={() => switchTab("login")}
-                  className={`py-2 text-xs sm:text-sm font-semibold rounded-xl transition-all ${
+                  className={`relative flex-1 py-2 text-xs sm:text-sm font-bold rounded-xl transition-colors z-10 cursor-pointer ${
                     authModalTab === "login"
                       ? isDark
-                        ? "bg-neutral-800 text-white shadow-sm"
-                        : "bg-white text-gray-900 shadow-sm"
+                        ? "text-white"
+                        : "text-gray-900"
                       : isDark
                       ? "text-neutral-400 hover:text-neutral-200"
                       : "text-gray-500 hover:text-gray-900"
                   }`}
                 >
-                  Sign In
+                  {authModalTab === "login" && (
+                    <motion.div
+                      layoutId="activeTabBadge"
+                      className={`absolute inset-0 rounded-xl shadow-sm ${
+                        isDark ? "bg-neutral-800 border border-neutral-700/60" : "bg-white"
+                      }`}
+                      transition={{ type: "spring", stiffness: 450, damping: 35 }}
+                    />
+                  )}
+                  <span className="relative z-10">Sign In</span>
                 </button>
+
                 <button
                   type="button"
                   onClick={() => switchTab("signup")}
-                  className={`py-2 text-xs sm:text-sm font-semibold rounded-xl transition-all ${
+                  className={`relative flex-1 py-2 text-xs sm:text-sm font-bold rounded-xl transition-colors z-10 cursor-pointer ${
                     authModalTab === "signup"
                       ? isDark
-                        ? "bg-neutral-800 text-white shadow-sm"
-                        : "bg-white text-gray-900 shadow-sm"
+                        ? "text-white"
+                        : "text-gray-900"
                       : isDark
                       ? "text-neutral-400 hover:text-neutral-200"
                       : "text-gray-500 hover:text-gray-900"
                   }`}
                 >
-                  Sign Up
+                  {authModalTab === "signup" && (
+                    <motion.div
+                      layoutId="activeTabBadge"
+                      className={`absolute inset-0 rounded-xl shadow-sm ${
+                        isDark ? "bg-neutral-800 border border-neutral-700/60" : "bg-white"
+                      }`}
+                      transition={{ type: "spring", stiffness: 450, damping: 35 }}
+                    />
+                  )}
+                  <span className="relative z-10">Sign Up</span>
                 </button>
               </div>
 
@@ -253,13 +264,13 @@ const AuthModal = () => {
               <AnimatePresence>
                 {error && (
                   <motion.div
-                    initial={{ opacity: 0, y: -8, height: 0 }}
+                    initial={{ opacity: 0, y: -6, height: 0 }}
                     animate={{ opacity: 1, y: 0, height: "auto" }}
-                    exit={{ opacity: 0, y: -8, height: 0 }}
+                    exit={{ opacity: 0, y: -6, height: 0 }}
                     className="overflow-hidden mb-4"
                   >
                     <div
-                      className={`flex items-start gap-2.5 p-3 rounded-xl text-xs ${
+                      className={`flex items-start gap-2.5 p-3 rounded-2xl text-xs font-medium ${
                         isDark
                           ? "bg-red-500/15 border border-red-500/30 text-red-400"
                           : "bg-red-50 border border-red-200 text-red-600"
@@ -273,20 +284,26 @@ const AuthModal = () => {
               </AnimatePresence>
 
               {/* Form */}
-              <form onSubmit={handleSubmit} className="space-y-3.5">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Full Name (Sign Up only) */}
                 {authModalTab === "signup" && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
-                    className="space-y-1"
+                    className="space-y-1.5"
                   >
                     <label className={`text-xs font-semibold ${isDark ? "text-neutral-300" : "text-gray-700"}`}>
                       Full Name
                     </label>
-                    <div className="relative">
-                      <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                    <div
+                      className={`relative flex items-center rounded-xl border transition-all duration-200 ${
+                        isDark
+                          ? "bg-neutral-900/90 border-neutral-700/80 focus-within:border-orange-500 focus-within:ring-4 focus-within:ring-orange-500/10"
+                          : "bg-white border-gray-200 focus-within:border-orange-500 focus-within:ring-4 focus-within:ring-orange-500/15 shadow-xs"
+                      }`}
+                    >
+                      <div className="pl-3.5 pr-2 text-neutral-400">
                         <User size={17} />
                       </div>
                       <input
@@ -297,10 +314,8 @@ const AuthModal = () => {
                           setFullName(e.target.value);
                           if (error) setError("");
                         }}
-                        className={`w-full pl-10 pr-4 py-2.5 rounded-xl text-sm outline-none transition-all border ${
-                          isDark
-                            ? "bg-neutral-900/80 border-neutral-800 text-white placeholder-neutral-500 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
-                            : "bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/15"
+                        className={`w-full py-2.5 pr-3.5 text-sm bg-transparent outline-none ${
+                          isDark ? "text-white placeholder-neutral-500" : "text-gray-900 placeholder-gray-400"
                         }`}
                       />
                     </div>
@@ -308,12 +323,18 @@ const AuthModal = () => {
                 )}
 
                 {/* Email Address */}
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   <label className={`text-xs font-semibold ${isDark ? "text-neutral-300" : "text-gray-700"}`}>
                     Email Address
                   </label>
-                  <div className="relative">
-                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                  <div
+                    className={`relative flex items-center rounded-xl border transition-all duration-200 ${
+                      isDark
+                        ? "bg-neutral-900/90 border-neutral-700/80 focus-within:border-orange-500 focus-within:ring-4 focus-within:ring-orange-500/10"
+                        : "bg-white border-gray-200 focus-within:border-orange-500 focus-within:ring-4 focus-within:ring-orange-500/15 shadow-xs"
+                    }`}
+                  >
+                    <div className="pl-3.5 pr-2 text-neutral-400">
                       <Mail size={17} />
                     </div>
                     <input
@@ -324,22 +345,28 @@ const AuthModal = () => {
                         setEmail(e.target.value);
                         if (error) setError("");
                       }}
-                      className={`w-full pl-10 pr-4 py-2.5 rounded-xl text-sm outline-none transition-all border ${
-                        isDark
-                          ? "bg-neutral-900/80 border-neutral-800 text-white placeholder-neutral-500 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
-                          : "bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/15"
+                      className={`w-full py-2.5 pr-3.5 text-sm bg-transparent outline-none ${
+                        isDark ? "text-white placeholder-neutral-500" : "text-gray-900 placeholder-gray-400"
                       }`}
                     />
                   </div>
                 </div>
 
                 {/* Password */}
-                <div className="space-y-1">
-                  <label className={`text-xs font-semibold ${isDark ? "text-neutral-300" : "text-gray-700"}`}>
-                    Password
-                  </label>
-                  <div className="relative">
-                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className={`text-xs font-semibold ${isDark ? "text-neutral-300" : "text-gray-700"}`}>
+                      Password
+                    </label>
+                  </div>
+                  <div
+                    className={`relative flex items-center rounded-xl border transition-all duration-200 ${
+                      isDark
+                        ? "bg-neutral-900/90 border-neutral-700/80 focus-within:border-orange-500 focus-within:ring-4 focus-within:ring-orange-500/10"
+                        : "bg-white border-gray-200 focus-within:border-orange-500 focus-within:ring-4 focus-within:ring-orange-500/15 shadow-xs"
+                    }`}
+                  >
+                    <div className="pl-3.5 pr-2 text-neutral-400">
                       <Lock size={17} />
                     </div>
                     <input
@@ -350,73 +377,68 @@ const AuthModal = () => {
                         setPassword(e.target.value);
                         if (error) setError("");
                       }}
-                      className={`w-full pl-10 pr-10 py-2.5 rounded-xl text-sm outline-none transition-all border ${
-                        isDark
-                          ? "bg-neutral-900/80 border-neutral-800 text-white placeholder-neutral-500 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
-                          : "bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/15"
+                      className={`w-full py-2.5 pr-10 text-sm bg-transparent outline-none ${
+                        isDark ? "text-white placeholder-neutral-500" : "text-gray-900 placeholder-gray-400"
                       }`}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-neutral-300 transition"
+                      className="absolute right-3.5 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-neutral-300 transition cursor-pointer"
                       aria-label={showPassword ? "Hide password" : "Show password"}
                     >
-                      {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                      {showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
                     </button>
                   </div>
-
-                  {/* Password Strength Meter (Sign Up only) */}
-                  {authModalTab === "signup" && password && (
-                    <div className="pt-1 space-y-1">
-                      <div className="flex gap-1 h-1">
-                        {[1, 2, 3, 4].map((level) => (
-                          <div
-                            key={level}
-                            className={`flex-1 rounded-full transition-all duration-300 ${
-                              level <= passwordStrength.score
-                                ? passwordStrength.color
-                                : isDark
-                                ? "bg-neutral-800"
-                                : "bg-gray-200"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                      <div className="flex justify-between items-center text-[10px]">
-                        <span className={isDark ? "text-neutral-400" : "text-gray-500"}>
-                          Strength:
-                        </span>
-                        <span className="font-semibold text-amber-500">
-                          {passwordStrength.label}
-                        </span>
-                      </div>
-                    </div>
-                  )}
                 </div>
 
                 {/* Remember Me */}
                 {authModalTab === "login" && (
                   <div className="flex items-center justify-between text-xs pt-1">
-                    <label className="flex items-center gap-2 cursor-pointer select-none">
-                      <input
-                        type="checkbox"
-                        checked={rememberMe}
-                        onChange={(e) => setRememberMe(e.target.checked)}
-                        className="rounded border-gray-300 text-amber-500 focus:ring-amber-500 w-3.5 h-3.5"
-                      />
-                      <span className={isDark ? "text-neutral-400" : "text-gray-600"}>
+                    <label className="flex items-center gap-2 cursor-pointer select-none group">
+                      <div className="relative flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={rememberMe}
+                          onChange={(e) => setRememberMe(e.target.checked)}
+                          className="sr-only"
+                        />
+                        <div
+                          className={`w-4 h-4 rounded-md border transition-all flex items-center justify-center ${
+                            rememberMe
+                              ? "bg-gradient-to-r from-orange-500 to-amber-500 border-orange-500 text-white"
+                              : isDark
+                              ? "border-neutral-700 bg-neutral-800 group-hover:border-neutral-600"
+                              : "border-gray-300 bg-white group-hover:border-gray-400"
+                          }`}
+                        >
+                          {rememberMe && (
+                            <svg className="w-2.5 h-2.5 stroke-[3]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                          )}
+                        </div>
+                      </div>
+                      <span className={isDark ? "text-neutral-400 group-hover:text-neutral-300" : "text-gray-600 group-hover:text-gray-800"}>
                         Remember me
                       </span>
                     </label>
+
+                    <button
+                      type="button"
+                      onClick={() => switchTab("signup")}
+                      className="text-orange-500 hover:text-orange-600 hover:underline transition font-semibold"
+                    >
+                      Need help?
+                    </button>
                   </div>
                 )}
 
-                {/* Submit Button (Amber / Warm Yellow gradient matching the banner) */}
+                {/* Submit Button (Vibrant Warm Amber/Orange with hover lift and glow) */}
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full mt-2 py-3 px-4 rounded-xl font-semibold text-white text-sm bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-600 active:scale-[0.99] transition-all duration-200 shadow-md shadow-orange-500/20 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full mt-3 py-3 px-4 rounded-2xl font-bold text-white text-sm bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-600 hover:to-amber-600 active:scale-[0.99] transition-all duration-200 shadow-md shadow-orange-500/25 hover:shadow-lg hover:shadow-orange-500/35 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {loading ? (
                     <>
@@ -440,18 +462,21 @@ const AuthModal = () => {
                   )}
                 </button>
               </form>
+            </div>
 
+            {/* Bottom Footer: Switcher & Security Badge */}
+            <div className="pt-3">
               {/* Bottom Switcher */}
-              <div className="mt-5 text-center text-xs">
+              <div className="text-center text-xs">
                 {authModalTab === "login" ? (
                   <p className={isDark ? "text-neutral-400" : "text-gray-600"}>
                     Don't have an account?{" "}
                     <button
                       type="button"
                       onClick={() => switchTab("signup")}
-                      className="font-semibold text-amber-500 hover:text-amber-600 hover:underline transition ml-1 cursor-pointer"
+                      className="font-bold text-orange-500 hover:text-orange-600 hover:underline transition ml-1 cursor-pointer"
                     >
-                      Sign Up
+                      Sign Up for Free
                     </button>
                   </p>
                 ) : (
@@ -460,13 +485,20 @@ const AuthModal = () => {
                     <button
                       type="button"
                       onClick={() => switchTab("login")}
-                      className="font-semibold text-amber-500 hover:text-amber-600 hover:underline transition ml-1 cursor-pointer"
+                      className="font-bold text-orange-500 hover:text-orange-600 hover:underline transition ml-1 cursor-pointer"
                     >
                       Sign In
                     </button>
                   </p>
                 )}
               </div>
+
+              {/* Trust Badge / Security Info */}
+              <div className="mt-3 pt-3 border-t border-neutral-100 dark:border-neutral-800/80 flex items-center justify-center gap-1.5 text-[11px] text-neutral-400">
+                <LockKeyhole size={13} className="text-emerald-500 shrink-0" />
+                <span>256-bit encrypted secure authentication</span>
+              </div>
+            </div>
             </div>
           </motion.div>
         </div>
