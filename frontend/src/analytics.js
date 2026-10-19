@@ -41,3 +41,18 @@ export function trackPageView(path) {
     page_path: path
   });
 }
+
+export function setAnalyticsUser(user) {
+  if (!user) return;
+  initializeAnalytics();
+  if (!initialized || !hasAnalyticsConsent()) return;
+
+  window.gtag("set", "user_properties", {
+    user_id: user._id,
+    user_name: user.name,
+    is_admin: user.isAdmin ? "true" : "false",
+  });
+  window.gtag("config", GA_ID, {
+    user_id: user._id,
+  });
+}

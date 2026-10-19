@@ -16,6 +16,8 @@ import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import MenuPage from "./pages/MenuPage";
+import FoodDetailPage from "./pages/FoodDetailPage";
+import BookTablePage from "./pages/BookTablePage";
 import WishlistPage from "./pages/WishlistPage";
 import AddFoodPage from "./pages/AddFoodPage";
 import Cart from "./pages/Cart";
@@ -81,6 +83,9 @@ const App = () => {
               element={<AdminRoute><AdminDashboard /></AdminRoute>}
             />
             <Route path="menu" element={<MenuPage />} />
+            <Route path="food/:id" element={<FoodDetailPage />} />
+            <Route path="book-table" element={<BookTablePage />} />
+            <Route path="reservations" element={<BookTablePage />} />
             <Route path="wishlist" element={<WishlistPage />} />
             <Route
               path="food-management"

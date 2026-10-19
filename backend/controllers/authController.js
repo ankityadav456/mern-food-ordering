@@ -47,7 +47,15 @@ const sendTokenResponse = (res, user, message) => {
       if (exists)
         return res.status(400).json({ message: "User already exists" });
       
-      const user = await User.create({ name, email, password });
+      const now = new Date();
+      const user = await User.create({
+        name,
+        email,
+        password,
+        lastLogin: now,
+        lastActive: now,
+        isOnline: true,
+      });
 
       sendTokenResponse(res, user, "User registered successfully");
     } catch (err) {
@@ -62,7 +70,7 @@ const sendTokenResponse = (res, user, message) => {
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-
+    console.log( email,password);
     if (!email || !password) {
       return res.status(400).json({ message: "Email and password required" });
     }
@@ -72,10 +80,27 @@ export const loginUser = async (req, res) => {
       email: email.toLowerCase(),
     }).select("+password");
 
+    console.log("User found:", user);
+
     // check user + password
     if (!user || !(await user.matchPassword(password))) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
+
+    // check if user is blocked
+    if (user.status === "Blocked") {
+      return res.status(403).json({
+        success: false,
+        isBlocked: true,
+        message: "Your account has been blocked. Please contact the administrator.",
+      });
+    }
+
+    const now = new Date();
+    user.lastLogin = now;
+    user.lastActive = now;
+    user.isOnline = true;
+    await user.save();
 
     sendTokenResponse(res, user, "Login successful");
   } catch (error) {
@@ -88,7 +113,30 @@ export const loginUser = async (req, res) => {
    LOGOUT
 ====================================================== */
 
-export const logoutUser = (req, res) => {
+export const logoutUser = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    let token = authHeader?.startsWith("Bearer ")
+      ? authHeader.split(" ")[1]
+      : req.cookies?.token;
+
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        if (decoded?.id) {
+          await User.findByIdAndUpdate(decoded.id, {
+            isOnline: false,
+            lastActive: new Date(0), // instantly offline
+          });
+        }
+      } catch {
+        // Token expired/invalid, continue logout
+      }
+    }
+  } catch (err) {
+    console.error("Logout error:", err);
+  }
+
   res.clearCookie("token", {
     httpOnly: true,
     secure: true,
@@ -108,8 +156,14 @@ export const logoutUser = (req, res) => {
 
 export const getUserProfile = async (req, res) => {
   try {
+    const now = new Date();
+    await User.findByIdAndUpdate(req.user.id, {
+      lastActive: now,
+      isOnline: true,
+    });
+
     const user = await User.findById(req.user.id)
-      .select("_id name email isAdmin address avatar");
+      .select("_id name email isAdmin address avatar lastActive lastLogin isOnline");
 
     res.json({
       success: true,

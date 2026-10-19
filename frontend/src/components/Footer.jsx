@@ -240,6 +240,7 @@ const Footer = () => {
             <ul className="space-y-2 text-sm">
               {[
                 { name: "Home", to: "/" },
+                { name: "Book A Table", to: "/book-table" },
                 { name: "My Wishlist", to: "/wishlist" },
                 { name: "Cart & Checkout", to: "/cart" },
                 { name: "Track My Order", to: "/dashboard" },

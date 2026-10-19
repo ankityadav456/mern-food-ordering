@@ -16,6 +16,7 @@ import paymentRoutes from "./routes/paymentRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import couponRoutes from "./routes/couponRoutes.js";
 import wishlistRoutes from "./routes/wishlistRoutes.js";
+import reservationRoutes from "./routes/reservationRoutes.js";
 
 const app = express();
 
@@ -48,6 +49,7 @@ app.use("/api/payment", paymentRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/coupons", couponRoutes);
 app.use("/api/wishlist", wishlistRoutes);
+app.use("/api/reservations", reservationRoutes);
 
 app.get("/", (req, res) => {
   res.send("Server is running");

@@ -13,8 +13,6 @@ import {
   UtensilsCrossed,
   Star,
   Clock,
-  Plus,
-  Minus,
   ArrowRight,
   Check,
   ShoppingBag,
@@ -27,7 +25,7 @@ import { showToast } from "../utils/showToast.jsx";
 const WishlistPage = () => {
   const { wishlistItems, removeFromWishlist, clearWishlist, loading } =
     useWishlist();
-  const { cartItems, addToCart, updateItemQuantity, removeFromCart } = useCart();
+  const { addToCart } = useCart();
   const { user, openAuthModal } = useAuth();
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -35,17 +33,6 @@ const WishlistPage = () => {
 
   const [movingId, setMovingId] = useState(null);
   const [movingAll, setMovingAll] = useState(false);
-
-  // Helper to get in-cart quantity
-  const getItemQuantity = (id) => {
-    if (!Array.isArray(cartItems)) return 0;
-    const targetId = id?.toString();
-    const item = cartItems.find((ci) => {
-      const cId = (ci.foodId?._id || ci.foodId || ci._id)?.toString();
-      return cId === targetId;
-    });
-    return item ? item.quantity : 0;
-  };
 
   // Move a single item from Wishlist to Cart
   const handleMoveToCart = async (dish) => {
@@ -214,11 +201,10 @@ const WishlistPage = () => {
           </div>
         ) : (
           /* Wishlist Grid */
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6 gap-5">
             <AnimatePresence>
               {wishlistItems.map((dish) => {
                 const dishId = (dish._id || dish.id)?.toString();
-                const quantity = getItemQuantity(dishId);
                 const rating =
                   Number(dish.rating) > 0
                     ? Number(dish.rating).toFixed(1)
@@ -289,61 +275,28 @@ const WishlistPage = () => {
                         </p>
                       </div>
 
-                      {/* Price & Primary Actions */}
-                      <div className="pt-3 border-t border-neutral-100 dark:border-neutral-800 space-y-2.5">
-                        <div className="flex items-center justify-between gap-2">
-                          <div>
-                            <span className="text-[10px] uppercase font-semibold text-neutral-400 block -mb-0.5">
-                              Price
-                            </span>
-                            <span className="text-lg font-black text-orange-600 dark:text-orange-400">
-                              ₹{Number(dish.price).toLocaleString("en-IN")}
-                            </span>
-                          </div>
-
-                          {/* Stepper on Price Row if already in cart */}
-                          {quantity > 0 && (
-                            <div className="flex items-center gap-1.5 bg-neutral-100 dark:bg-neutral-800/90 border border-neutral-200 dark:border-neutral-700/80 rounded-xl p-1 text-neutral-800 dark:text-neutral-200 shadow-xs">
-                              <button
-                                onClick={() => {
-                                  if (quantity === 1) {
-                                    removeFromCart(dishId);
-                                  } else {
-                                    updateItemQuantity(dishId, quantity - 1);
-                                  }
-                                }}
-                                className="w-5 h-5 rounded-md bg-white dark:bg-neutral-700 flex items-center justify-center text-xs font-bold hover:text-red-500 transition shadow-xs cursor-pointer"
-                                aria-label="Decrease quantity"
-                              >
-                                <Minus className="w-3 h-3" />
-                              </button>
-                              <span className="text-[11px] font-bold px-1 text-center whitespace-nowrap text-orange-600 dark:text-orange-400">
-                                {quantity} in cart
-                              </span>
-                              <button
-                                onClick={() =>
-                                  updateItemQuantity(dishId, quantity + 1)
-                                }
-                                className="w-5 h-5 rounded-md bg-orange-500 text-white flex items-center justify-center text-xs font-bold hover:bg-orange-600 transition shadow-xs cursor-pointer"
-                                aria-label="Increase quantity"
-                              >
-                                <Plus className="w-3 h-3" />
-                              </button>
-                            </div>
-                          )}
+                      {/* Price & Move to Cart Button */}
+                      <div className="pt-3 border-t border-neutral-100 dark:border-neutral-800 flex items-center justify-between gap-3">
+                        <div>
+                          <span className="text-[10px] uppercase font-semibold text-neutral-400 block -mb-0.5">
+                            Price
+                          </span>
+                          <span className="text-lg font-black text-orange-600 dark:text-orange-400">
+                            ₹{Number(dish.price).toLocaleString("en-IN")}
+                          </span>
                         </div>
 
-                        {/* Full Width MOVE TO CART Button - Guaranteed 1 Line */}
+                        {/* MOVE TO CART Button */}
                         <button
                           onClick={() => handleMoveToCart(dish)}
                           disabled={isMoving}
-                          className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 active:scale-98 text-white shadow-sm shadow-orange-500/20 transition-all cursor-pointer whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
+                          className="flex items-center justify-center gap-1.5 py-2 px-3.5 sm:px-4 rounded-xl text-xs sm:text-sm font-bold bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 active:scale-98 text-white shadow-sm shadow-orange-500/20 transition-all cursor-pointer whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
                           title="Add item to cart and remove from wishlist"
                         >
                           {isMoving ? (
                             <>
                               <Loader2 className="w-4 h-4 animate-spin shrink-0" />
-                              <span className="whitespace-nowrap">Moving to Cart...</span>
+                              <span className="whitespace-nowrap">Moving...</span>
                             </>
                           ) : (
                             <>

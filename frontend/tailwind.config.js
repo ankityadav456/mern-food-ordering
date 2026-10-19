@@ -9,6 +9,12 @@ export default {
         serif: ["'Playfair Display'", "Georgia", "serif"],
         display: ["'Playfair Display'", "serif"],
       },
+      screens: {
+        'xs': '480px',
+        '2xl': '1536px',
+        '3xl': '1920px',
+        '4xl': '2560px',
+      },
       colors: {
         primary: { light: "#FF5722", dark: "#FF7043" },
         secondary: { light: "#FFC107", dark: "#FFD54F" },

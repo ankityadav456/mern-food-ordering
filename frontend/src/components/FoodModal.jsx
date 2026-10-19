@@ -1,26 +1,36 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, X, XCircle, CheckCircle } from "lucide-react";
+import {
+  Upload,
+  X,
+  Sparkles,
+  Layers,
+  IndianRupee,
+  Star,
+  Package,
+  Utensils,
+  Check,
+  Image as ImageIcon,
+} from "lucide-react";
 
 const FoodModal = ({
   isOpen,
   onClose,
   onSubmit,
   initialData,
-  categories,
+  categories = ["Pizza", "Burger", "Chinese", "Chicken", "Biryani"],
   theme = "light",
 }) => {
-  const [foodData, setFoodData] = useState({
-    name: "",
-    price: "",
-    rating: 0,
-    category: "",
+  const [foodData, setFoodData] = useState(() => ({
+    name: initialData?.name || "",
+    price: initialData?.price || "",
+    rating: initialData?.rating || "4.5",
+    category: initialData?.category || categories[0] || "Pizza",
+    stock: initialData?.stock !== undefined ? initialData.stock : 10,
     image: null,
-  });
+  }));
 
-  const [previewImage, setPreviewImage] = useState("");
-
-  /* ================= LOAD DATA ================= */
+  /* ================= SYNC DATA ON OPEN ================= */
   useEffect(() => {
     if (!isOpen) return;
 
@@ -28,78 +38,67 @@ const FoodModal = ({
       setFoodData({
         name: initialData.name || "",
         price: initialData.price || "",
-        rating: initialData.rating || "",
-        category: initialData.category || "",
+        rating: initialData.rating || "4.5",
+        category: initialData.category || categories[0] || "Pizza",
+        stock: initialData.stock !== undefined ? initialData.stock : 10,
         image: null,
       });
-
-      // existing cloudinary image
-      setPreviewImage(initialData.image || "");
     } else {
-      resetForm();
+      setFoodData({
+        name: "",
+        price: "",
+        rating: "4.5",
+        category: categories[0] || "Pizza",
+        stock: 10,
+        image: null,
+      });
     }
-  }, [isOpen, initialData]);
+  }, [isOpen, initialData, categories]);
 
-  /* ================= CLEANUP ================= */
-  useEffect(() => {
-    return () => {
-      if (previewImage?.startsWith("blob:")) {
-        URL.revokeObjectURL(previewImage);
-      }
-    };
-  }, [previewImage]);
-
-  /* ================= RESET ================= */
   const resetForm = () => {
     setFoodData({
       name: "",
       price: "",
-      rating: "",
-      category: "",
+      rating: "4.5",
+      category: categories[0] || "Pizza",
+      stock: 10,
       image: null,
     });
-    setPreviewImage("");
   };
 
-  /* ================= INPUT CHANGE ================= */
   const handleChange = (e) => {
+    const { name, value } = e.target;
     setFoodData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: value,
     }));
   };
 
-  /* ================= IMAGE CHANGE ================= */
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (!file) return;
 
     setFoodData((prev) => ({
       ...prev,
       image: file,
     }));
-
-    setPreviewImage(URL.createObjectURL(file));
   };
 
-  /* ================= SUBMIT (MAIN FIX) ================= */
   const handleSubmit = (e) => {
     e.preventDefault();
 
     const formData = new FormData();
-
     formData.append("name", foodData.name);
     formData.append("price", foodData.price);
-    formData.append("rating", foodData.rating);
-    formData.append("category", foodData.category);
+    formData.append("rating", foodData.rating || "4.5");
+    formData.append("category", foodData.category || categories[0]);
+    formData.append("stock", foodData.stock !== undefined ? foodData.stock : 10);
 
-    // append image ONLY if new file selected
     if (foodData.image instanceof File) {
       formData.append("image", foodData.image);
     }
 
     onSubmit(formData);
-
     resetForm();
     onClose();
   };
@@ -111,139 +110,216 @@ const FoodModal = ({
 
   if (!isOpen) return null;
 
-  /* ================= THEME ================= */
-  const isDark = theme === "dark";
-  const bgColor = isDark ? "bg-gray-900" : "bg-white";
-  const textColor = isDark ? "text-gray-100" : "text-gray-900";
-  const inputBg = isDark ? "bg-gray-800" : "bg-white";
-  const inputBorder = isDark ? "border-gray-700" : "border-gray-300";
-  const borderDashed = isDark ? "border-gray-600" : "border-gray-300";
-  const uploadText = isDark ? "text-gray-400" : "text-gray-600";
-
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-50"
+        className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-50 overflow-y-auto"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
+        transition={{ duration: 0.15 }}
         onClick={handleClose}
       >
         <motion.div
-          className={`${bgColor} rounded-2xl shadow-2xl w-full max-w-lg flex flex-col max-h-[90vh]`}
-          initial={{ scale: 0.9, opacity: 0, y: 50 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          exit={{ scale: 0.9, opacity: 0, y: 50 }}
-          transition={{ duration: 0.3 }}
+          initial={{ scale: 0.98, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.98, opacity: 0 }}
+          transition={{ duration: 0.15, ease: "easeOut" }}
           onClick={(e) => e.stopPropagation()}
+          className="relative w-full max-w-lg rounded-3xl bg-white dark:bg-[#111118] border border-neutral-200/90 dark:border-neutral-800 shadow-2xl overflow-hidden my-auto"
         >
-          {/* HEADER */}
-          <div className="flex justify-between items-center px-6 py-4 border-b">
-            <h2 className={`text-lg font-semibold ${textColor}`}>
-              {initialData ? "Edit Food Item" : "Add Food Item"}
-            </h2>
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100 dark:border-neutral-850 bg-neutral-50/50 dark:bg-[#14141d]/50">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-600 dark:text-orange-400">
+                <Utensils className="w-4 h-4" />
+              </div>
+              <div>
+                <h2 className="text-base font-extrabold text-neutral-900 dark:text-white tracking-tight">
+                  {initialData ? "Edit Dish Details" : "Add New Dish"}
+                </h2>
+                <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                  Update inventory, culinary specs, and pricing
+                </p>
+              </div>
+            </div>
 
-            <button onClick={handleClose}>
-              <X size={22} className={textColor} />
+            <button
+              onClick={handleClose}
+              className="p-1.5 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-400 hover:text-neutral-700 dark:hover:text-white transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
             </button>
           </div>
 
-          {/* BODY */}
-          <div className="px-6 py-4 overflow-y-auto flex-1 space-y-5">
-            {previewImage && (
-              <motion.img
-                src={previewImage}
-                alt="preview"
-                className="w-full h-44 object-cover rounded-lg"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[calc(85vh-120px)] overflow-y-auto">
+            
+            {/* Dish Name */}
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-600 dark:text-neutral-300 mb-1.5">
+                Dish Name *
+              </label>
+              <input
+                type="text"
+                name="name"
+                value={foodData.name}
+                onChange={handleChange}
+                placeholder="e.g. Artisanal Paneer Tikka Makhani"
+                required
+                className="w-full px-3.5 py-2.5 rounded-xl text-sm font-medium bg-neutral-50 dark:bg-[#171722] border border-neutral-200 dark:border-neutral-750 text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 transition-all"
               />
-            )}
+            </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <input
-                  name="name"
-                  value={foodData.name}
-                  onChange={handleChange}
-                  placeholder="Food Name"
-                  required
-                  className={`p-3 border rounded-lg ${inputBg} ${inputBorder} ${textColor}`}
-                />
-
-                <input
-                  name="rating"
-                  value={foodData.rating}
-                  onChange={handleChange}
-                  placeholder="Rating"
-                  className={`p-3 border rounded-lg ${inputBg} ${inputBorder} ${textColor}`}
-                />
-
+            {/* Price & Stock in 2 Columns */}
+            <div className="grid grid-cols-2 gap-3.5">
+              <div>
+                <label className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-neutral-600 dark:text-neutral-300 mb-1.5">
+                  <IndianRupee className="w-3.5 h-3.5 text-orange-500" />
+                  <span>Price (₹) *</span>
+                </label>
                 <input
                   type="number"
                   name="price"
                   value={foodData.price}
                   onChange={handleChange}
-                  placeholder="Price"
+                  placeholder="349"
                   required
-                  className={`p-3 border rounded-lg ${inputBg} ${inputBorder} ${textColor}`}
+                  min="1"
+                  className="w-full px-3.5 py-2.5 rounded-xl text-sm font-semibold bg-neutral-50 dark:bg-[#171722] border border-neutral-200 dark:border-neutral-750 text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 transition-all"
                 />
               </div>
 
-              {/* IMAGE UPLOAD */}
-              <label className={`block text-sm ${textColor}`}>
-                Upload Image
+              <div>
+                <label className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-neutral-600 dark:text-neutral-300 mb-1.5">
+                  <Package className="w-3.5 h-3.5 text-emerald-500" />
+                  <span>Stock Left *</span>
+                </label>
+                <input
+                  type="number"
+                  name="stock"
+                  value={foodData.stock}
+                  onChange={handleChange}
+                  placeholder="10"
+                  required
+                  min="0"
+                  className="w-full px-3.5 py-2.5 rounded-xl text-sm font-semibold bg-neutral-50 dark:bg-[#171722] border border-neutral-200 dark:border-neutral-750 text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 transition-all"
+                />
+              </div>
+            </div>
+
+            {/* Category & Rating */}
+            <div className="grid grid-cols-2 gap-3.5">
+              <div>
+                <label className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-neutral-600 dark:text-neutral-300 mb-1.5">
+                  <Layers className="w-3.5 h-3.5 text-orange-500" />
+                  <span>Category *</span>
+                </label>
+                <select
+                  name="category"
+                  value={foodData.category}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-3.5 py-2.5 rounded-xl text-sm font-medium bg-neutral-50 dark:bg-[#171722] border border-neutral-200 dark:border-neutral-750 text-neutral-900 dark:text-white focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 transition-all cursor-pointer"
+                >
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-neutral-600 dark:text-neutral-300 mb-1.5">
+                  <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                  <span>Rating (0–5)</span>
+                </label>
+                <input
+                  type="text"
+                  name="rating"
+                  value={foodData.rating}
+                  onChange={handleChange}
+                  placeholder="4.8"
+                  className="w-full px-3.5 py-2.5 rounded-xl text-sm font-medium bg-neutral-50 dark:bg-[#171722] border border-neutral-200 dark:border-neutral-750 text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 transition-all"
+                />
+              </div>
+            </div>
+
+            {/* Food Photo Upload Area (Clean, no image preview flicker) */}
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-600 dark:text-neutral-300 mb-1.5">
+                Food Photography {initialData ? "(Optional to change)" : "*"}
               </label>
 
-              <div
-                className={`relative border-2 border-dashed ${borderDashed} rounded-lg p-6 text-center cursor-pointer`}
+              {foodData.image instanceof File ? (
+                <div className="rounded-2xl border border-neutral-200 dark:border-neutral-750 bg-neutral-50 dark:bg-[#171722] p-3 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                      <Check className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-neutral-900 dark:text-white truncate">
+                        {foodData.image.name}
+                      </p>
+                      <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                        {(foodData.image.size / 1024).toFixed(1)} KB &bull; Ready to save
+                      </p>
+                    </div>
+                  </div>
+
+                  <label className="px-3 py-1.5 rounded-xl text-xs font-bold text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 hover:border-orange-500 transition-colors cursor-pointer shrink-0">
+                    Replace
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+              ) : (
+                <label className="relative border-2 border-dashed border-neutral-300 dark:border-neutral-700 hover:border-orange-500 dark:hover:border-orange-500 rounded-2xl p-4 text-center cursor-pointer flex flex-col items-center justify-center transition-all bg-neutral-50/50 dark:bg-[#151520]/50 group">
+                  <div className="w-9 h-9 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 flex items-center justify-center mb-1.5 group-hover:scale-105 transition-transform">
+                    <Upload className="w-4 h-4" />
+                  </div>
+                  <div className="text-xs font-bold text-neutral-800 dark:text-neutral-200">
+                    {initialData ? "Upload new photo to replace current image" : "Click to select dish photo"}
+                  </div>
+                  <div className="text-[11px] text-neutral-400 mt-0.5">
+                    {initialData ? "Optional &bull; PNG / JPG supported" : "Required &bull; PNG / JPG supported"}
+                  </div>
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    required={!initialData}
+                    className="hidden"
+                  />
+                </label>
+              )}
+            </div>
+
+            {/* Footer Action Buttons */}
+            <div className="pt-3 border-t border-neutral-100 dark:border-neutral-850 flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={handleClose}
+                className="px-4 py-2.5 rounded-xl text-xs font-bold text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
               >
-                <Upload size={28} className={`mx-auto ${uploadText}`} />
-                <p className={`text-sm mt-2 ${uploadText}`}>
-                  Click to upload
-                </p>
+                Cancel
+              </button>
 
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                />
-              </div>
-
-              {/* CATEGORY */}
-              <select
-                name="category"
-                value={foodData.category}
-                onChange={handleChange}
-                required
-                className={`w-full p-3 border rounded-lg ${inputBg} ${inputBorder} ${textColor}`}
+              <button
+                type="submit"
+                className="px-6 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-orange-600 to-amber-600 hover:shadow-md hover:shadow-orange-500/20 active:scale-95 transition-all cursor-pointer shadow-xs"
               >
-                <option value="">Select Category</option>
-                {categories.map((cat) => (
-                  <option key={cat}>{cat}</option>
-                ))}
-              </select>
-            </form>
-          </div>
+                {initialData ? "Save Changes" : "Add to Kitchen"}
+              </button>
+            </div>
 
-          {/* FOOTER */}
-          <div className="flex justify-end gap-3 px-6 py-4 border-t">
-            <button
-              onClick={handleClose}
-              className="flex items-center gap-2 px-5 py-2 rounded-lg bg-gray-200"
-            >
-              <XCircle size={18} /> Cancel
-            </button>
-
-            <button
-              onClick={handleSubmit}
-              className="flex items-center gap-2 px-5 py-2 rounded-lg bg-gradient-to-r from-[#FF5722] to-[#FFC107] text-white"
-            >
-              <CheckCircle size={18} />
-              {initialData ? "Update" : "Add"}
-            </button>
-          </div>
+          </form>
         </motion.div>
       </motion.div>
     </AnimatePresence>

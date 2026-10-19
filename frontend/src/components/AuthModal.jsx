@@ -476,7 +476,7 @@ const AuthModal = () => {
                       onClick={() => switchTab("signup")}
                       className="font-bold text-orange-500 hover:text-orange-600 hover:underline transition ml-1 cursor-pointer"
                     >
-                      Sign Up for Free
+                      Sign Up
                     </button>
                   </p>
                 ) : (

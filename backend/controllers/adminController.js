@@ -7,8 +7,35 @@ export const getAllUsers = async (req, res) => {
             return res.status(403).json({ message: "Access denied" });
         }
 
-        const users = await User.find().select("-password");
-        res.json({ success: true, count: users.length, users });
+        const users = await User.find().select("-password").sort({ createdAt: -1 });
+
+        const now = Date.now();
+        // A user is considered active now if:
+        // 1. Activity was within the last 2 minutes (immediate presence), OR
+        // 2. Marked isOnline AND active within the last 5 minutes
+        const activeThresholdMs = 5 * 60 * 1000;
+        const immediateThresholdMs = 2 * 60 * 1000;
+
+        const formattedUsers = users.map((u) => {
+            const userObj = u.toObject();
+            const lastActiveTime = userObj.lastActive ? new Date(userObj.lastActive).getTime() : 0;
+            const diffMs = now - lastActiveTime;
+            const isCurrentlyActive = Boolean(
+                userObj.lastActive && (
+                    (userObj.isOnline && diffMs <= activeThresholdMs) ||
+                    (diffMs <= immediateThresholdMs)
+                )
+            );
+
+            return {
+                ...userObj,
+                isCurrentlyActive,
+                // Ensure createdAt exists even for legacy documents without timestamps
+                createdAt: userObj.createdAt || (u._id?.getTimestamp ? u._id.getTimestamp() : null),
+            };
+        });
+
+        res.json({ success: true, count: formattedUsers.length, users: formattedUsers });
     } catch (error) {
         console.error("Error in getAllUsers:", error);
         res.status(500).json({ message: "Server error" });
@@ -50,6 +77,10 @@ export const toggleUserStatus = async (req, res) => {
         if (!user) return res.status(404).json({ message: "User not found" });
 
         user.status = status || (user.status === "Active" ? "Blocked" : "Active");
+        if (user.status === "Blocked") {
+            user.isOnline = false;
+            user.lastActive = new Date(0);
+        }
         await user.save();
 
         res.json({ success: true, message: "User status updated", status: user.status });

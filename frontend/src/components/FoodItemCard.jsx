@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { Star, Clock, Eye, ShoppingCart, Heart } from "lucide-react";
 import { useWishlist } from "../context/WishlistContext";
 
@@ -12,6 +13,7 @@ const FoodItemCard = ({
   setQuickViewItem,
   addLoadingId,
 }) => {
+  const navigate = useNavigate();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const isFav = isInWishlist(item._id);
   const inCart = getItemQuantity(item._id) > 0;
@@ -22,7 +24,8 @@ const FoodItemCard = ({
 
   return (
     <div
-      className={`relative overflow-hidden rounded-2xl border transition-all duration-300 group ${
+      onClick={() => navigate(`/food/${item._id}`)}
+      className={`relative overflow-hidden rounded-2xl border transition-all duration-300 group cursor-pointer ${
         isDark
           ? "bg-[#1E1E1E] border-[#2C2C2C] hover:shadow-xl hover:shadow-black/40"
           : "bg-white border-gray-200 hover:shadow-lg"
@@ -113,12 +116,13 @@ const FoodItemCard = ({
 
       {/* Card Action Buttons: View on Left, Add / Stepper on Right */}
       <div
+        onClick={(e) => e.stopPropagation()}
         className={`flex items-center gap-3 px-3 py-3 border-t ${
           isDark ? "border-[#2C2C2C]" : "border-gray-200"
         }`}
       >
         <button
-          onClick={() => setQuickViewItem(item)}
+          onClick={() => navigate(`/food/${item._id}`)}
           className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-medium transition cursor-pointer ${
             isDark
               ? "bg-[#2A2A2A] text-white hover:bg-[#353535]"
@@ -126,7 +130,7 @@ const FoodItemCard = ({
           }`}
         >
           <Eye size={15} />
-          <span>View</span>
+          <span>Details</span>
         </button>
 
         {quantity > 0 ? (

@@ -21,6 +21,7 @@ authRouter.post("/login", loginUser);
 authRouter.post("/logout", logoutUser); 
 
 authRouter.get("/me", protect, getUserProfile);
+authRouter.get("/ping", protect, (req, res) => res.json({ success: true, isOnline: true }));
 authRouter.put("/update-profile", protect, updateUserProfile);
 authRouter.put("/update-avatar", protect, uploadAvatar.single("avatar"), updateUserAvatar);
 authRouter.put("/save-address", protect, updateAddress);

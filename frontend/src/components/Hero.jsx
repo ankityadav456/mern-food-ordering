@@ -55,6 +55,8 @@ const SIGNATURE_DISHES = [
     portion: 'Serves 1–2',
     calories: '540 kcal',
     image: biryaniImg,
+    imageClass: 'scale-100',
+    badgeTop: 'top-3 right-5 sm:right-7',
     themeColor: '#f59e0b',
     glowColor: 'rgba(245, 158, 11, 0.35)',
     badgeText: 'Chef’s Signature Handi',
@@ -79,6 +81,8 @@ const SIGNATURE_DISHES = [
     portion: 'Medium 10"',
     calories: '680 kcal',
     image: pizzaImg,
+    imageClass: 'scale-105',
+    badgeTop: 'top-4 right-5 sm:right-7',
     themeColor: '#ef4444',
     glowColor: 'rgba(239, 68, 68, 0.35)',
     badgeText: 'Wood-Fired Special',
@@ -103,6 +107,8 @@ const SIGNATURE_DISHES = [
     portion: 'Double Patty',
     calories: '620 kcal',
     image: burgerImg,
+    imageClass: 'scale-105',
+    badgeTop: 'top-6 right-6 sm:right-8',
     themeColor: '#f97316',
     glowColor: 'rgba(249, 115, 22, 0.35)',
     badgeText: 'Dhaba Grill Masterpiece',
@@ -127,6 +133,8 @@ const SIGNATURE_DISHES = [
     portion: 'Serves 1–2',
     calories: '490 kcal',
     image: chineseImg,
+    imageClass: 'scale-115 sm:scale-120',
+    badgeTop: 'top-8 sm:top-10 right-6 sm:right-10',
     themeColor: '#e11d48',
     glowColor: 'rgba(225, 29, 72, 0.35)',
     badgeText: 'Smoky Wok Hei Heat',
@@ -151,6 +159,8 @@ const SIGNATURE_DISHES = [
     portion: 'Half / 4 Pieces',
     calories: '580 kcal',
     image: chickenImg,
+    imageClass: 'scale-100',
+    badgeTop: 'top-3 right-5 sm:right-7',
     themeColor: '#ea580c',
     glowColor: 'rgba(234, 88, 12, 0.35)',
     badgeText: 'Clay-Oven Charred',
@@ -168,9 +178,23 @@ export default function Hero() {
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [isSliderHovered, setIsSliderHovered] = useState(false);
   const [addedAnimation, setAddedAnimation] = useState(false);
 
   const auraRef = useRef(null);
+  const hoverTimeoutRef = useRef(null);
+
+  const handleMouseEnter = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsHovered(false);
+    }, 300);
+  };
 
   const currentDish = SIGNATURE_DISHES[activeIndex];
   const prevIndex = (activeIndex - 1 + SIGNATURE_DISHES.length) % SIGNATURE_DISHES.length;
@@ -192,14 +216,14 @@ export default function Hero() {
     setActiveIndex(idx);
   };
 
-  // Auto-play (paused on hover)
+  // Auto-play (paused whenever user hovers slider or active dish)
   useEffect(() => {
-    if (isHovered) return;
+    if (isHovered || isSliderHovered) return;
     const timer = setInterval(() => {
       nextSlide();
-    }, 4800);
+    }, 6000);
     return () => clearInterval(timer);
-  }, [isHovered, nextSlide]);
+  }, [isHovered, isSliderHovered, nextSlide]);
 
   // Ambient Breathing Aura
   useEffect(() => {
@@ -291,8 +315,8 @@ export default function Hero() {
 
         {/* ================= 2. APPLE-STYLE 3D COVERFLOW STAGE ================= */}
         <div
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
+          onMouseEnter={() => setIsSliderHovered(true)}
+          onMouseLeave={() => setIsSliderHovered(false)}
           className="relative w-full flex items-center justify-center my-4 sm:my-6 min-h-[340px] sm:min-h-[440px] lg:min-h-[480px]"
         >
           {/* Watermark Centered Directly Behind Active Dish */}
@@ -318,9 +342,13 @@ export default function Hero() {
             </span>
           </div>
 
-          {/* CENTER: Massive Active Dish Showcase (No mouse parallax/drag) */}
-          <div className="relative z-20 flex flex-col items-center justify-center max-w-[340px] sm:max-w-[440px] lg:max-w-[480px] w-full px-4">
-            
+          {/* CENTER: Massive Active Dish Showcase with Speech Bubble Popover */}
+          <div
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            onClick={() => setIsHovered((prev) => !prev)}
+            className="relative z-30 flex flex-col items-center justify-center max-w-[340px] sm:max-w-[440px] lg:max-w-[480px] w-full px-4 group cursor-pointer"
+          >
             {/* Ambient Radial Dish Pedestal Glow */}
             <div
               style={{
@@ -329,16 +357,7 @@ export default function Hero() {
               className="absolute w-[280px] sm:w-[380px] h-[280px] sm:h-[380px] rounded-full blur-2xl pointer-events-none transition-all duration-700"
             />
 
-            {/* Floating Quick Badges on Active Dish */}
-           
-
-            <div className="absolute top-2 right-4 sm:right-6 z-30 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md border border-neutral-200/80 dark:border-neutral-800 shadow-md pointer-events-none select-none">
-              <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-              <span className="text-xs font-bold text-neutral-900 dark:text-white">{currentDish.rating}</span>
-              <span className="text-[10px] text-neutral-500">({currentDish.reviewCount})</span>
-            </div>
-
-            {/* Stable Center Dish Plate (No tilt, no grab, no mouse-follow) */}
+            {/* Stable Center Dish Plate Container */}
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentDish.id}
@@ -346,16 +365,115 @@ export default function Hero() {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: -15 }}
                 transition={{ duration: 0.4, ease: 'easeOut' }}
-                className="relative z-10 w-full aspect-square flex items-center justify-center p-2 pointer-events-none select-none"
+                className="relative z-10 w-full aspect-square flex items-center justify-center p-2 select-none group-hover:scale-105 transition-transform duration-300"
               >
+                {/* Quick Rating Badge - Snuggled tight against dish rim */}
+                <div
+                  className={`absolute ${currentDish.badgeTop || 'top-4 right-6'} z-30 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/85 dark:bg-neutral-900/85 backdrop-blur-md border border-white/60 dark:border-white/10 shadow-lg pointer-events-none select-none transition-all duration-200 ${
+                    isHovered ? "opacity-0 scale-90 pointer-events-none" : "opacity-100 scale-100"
+                  }`}
+                >
+                  <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                  <span className="text-xs font-bold text-neutral-900 dark:text-white">{currentDish.rating}</span>
+                  <span className="text-[10px] text-neutral-500">({currentDish.reviewCount})</span>
+                </div>
+
                 <img
                   src={currentDish.image}
                   alt={currentDish.name}
-                  className="w-full h-full object-contain filter drop-shadow-[0_24px_40px_rgba(0,0,0,0.35)] dark:drop-shadow-[0_30px_50px_rgba(0,0,0,0.75)]"
+                  className={`w-full h-full object-contain filter drop-shadow-[0_24px_40px_rgba(0,0,0,0.35)] dark:drop-shadow-[0_30px_50px_rgba(0,0,0,0.75)] transition-transform duration-300 ${currentDish.imageClass || 'scale-100'}`}
                 />
               </motion.div>
             </AnimatePresence>
 
+            {/* ================= SPEECH BUBBLE POPOVER (PERFECTLY POSITIONED BESIDE DISH) ================= */}
+            <AnimatePresence>
+              {isHovered && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.94, x: 10 }}
+                  animate={{ opacity: 1, scale: 1, x: 0 }}
+                  exit={{ opacity: 0, scale: 0.94, x: 10 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
+                  onClick={(e) => e.stopPropagation()}
+                  className="absolute z-50 top-[80%] sm:top-4 md:top-6 lg:top-8 left-1/2 sm:left-[72%] md:left-[75%] lg:left-[78%] -translate-x-1/2 sm:translate-x-0 w-[90vw] sm:w-[265px] max-w-[275px] bg-white/70 dark:bg-[#121218]/70 backdrop-blur-xl sm:backdrop-blur-2xl rounded-2xl p-3.5 sm:p-4 border border-white/60 dark:border-white/[0.12] shadow-[0_20px_50px_rgba(0,0,0,0.18)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.65)] ring-1 ring-black/[0.04] dark:ring-white/[0.05] text-left cursor-default select-text before:absolute before:-left-12 before:top-0 before:bottom-0 before:w-12"
+                >
+                  {/* Subtle Top Specular Sheen */}
+                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 dark:via-white/30 to-transparent rounded-t-2xl pointer-events-none" />
+
+                  {/* Speech Bubble Pointer Arrow on LEFT (Desktop: points to dish) */}
+                  <div className="hidden sm:block absolute -left-2 top-[62%] -translate-y-1/2 w-0 h-0 border-y-[8px] border-y-transparent border-r-[8px] border-r-white/80 dark:border-r-[#15151e]/90 z-20" />
+                  <div className="hidden sm:block absolute -left-[9px] top-[62%] -translate-y-1/2 w-0 h-0 border-y-[9px] border-y-transparent border-r-[9px] border-r-white/60 dark:border-r-white/[0.15] z-10" />
+
+                  {/* Speech Bubble Pointer Arrow on TOP (Mobile: points up to dish) */}
+                  <div className="sm:hidden absolute -top-2 left-1/2 -translate-x-1/2 w-0 h-0 border-x-[8px] border-x-transparent border-b-[8px] border-b-white/80 dark:border-b-[#15151e]/90 z-20" />
+                  <div className="sm:hidden absolute -top-[9px] left-1/2 -translate-x-1/2 w-0 h-0 border-x-[9px] border-x-transparent border-b-[9px] border-b-white/60 dark:border-b-white/[0.15] z-10" />
+
+                  {/* Top Row: Dish Name & Rating */}
+                  <div className="flex items-start justify-between gap-2 relative">
+                    <h3
+                      onClick={() => {
+                        const dbMatch = foodItems?.find(
+                          (f) => f.category?.toLowerCase() === currentDish.category?.toLowerCase()
+                        );
+                        if (dbMatch) {
+                          navigate(`/food/${dbMatch._id}`);
+                        } else {
+                          navigate('/menu');
+                        }
+                      }}
+                      className="text-sm sm:text-base font-extrabold text-neutral-950 dark:text-white tracking-tight leading-snug drop-shadow-sm hover:text-orange-500 cursor-pointer transition-colors"
+                      title="View Dish Details"
+                    >
+                      {currentDish.name}
+                    </h3>
+                    <div className="flex items-center gap-1 text-xs font-bold text-amber-500 shrink-0 mt-0.5 bg-amber-500/10 dark:bg-amber-400/10 px-1.5 py-0.5 rounded-md border border-amber-500/20">
+                      <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                      <span>{currentDish.rating}</span>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <p className="mt-1.5 text-[11px] sm:text-xs text-neutral-700 dark:text-neutral-300 leading-relaxed line-clamp-2 font-normal">
+                    {currentDish.description}
+                  </p>
+
+                  {/* Bottom Row: Price & Add to Cart */}
+                  <div className="mt-3 pt-2.5 border-t border-neutral-300/40 dark:border-white/[0.08] flex items-center justify-between gap-2 relative">
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-lg sm:text-xl font-black text-neutral-950 dark:text-white">
+                        ₹{currentDish.price}
+                      </span>
+                      <span className="text-[11px] text-neutral-400/80 line-through">
+                        ₹{currentDish.originalPrice}
+                      </span>
+                    </div>
+
+                    <button
+                      onClick={() => handleAddToCart()}
+                      className={`px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md active:scale-95 ${
+                        addedAnimation
+                          ? "bg-emerald-600 text-white"
+                          : "bg-gradient-to-r from-orange-600 to-amber-600 text-white hover:shadow-orange-500/30 hover:brightness-105"
+                      }`}
+                    >
+                      {addedAnimation ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 animate-bounce" />
+                          <span>Added!</span>
+                        </>
+                      ) : (
+                        <>
+                          <ShoppingBag className="w-3.5 h-3.5" />
+                          <span>Add to Cart</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* RIGHT DISH: Peeking Next Dish (Click to slide) */}
@@ -394,109 +512,20 @@ export default function Hero() {
 
         </div>
 
-        {/* ================= 3. DISH DETAIL & ORDER CAPSULE (CENTERED) ================= */}
-        <div className="w-full max-w-4xl flex flex-col items-center text-center mt-2">
-          
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentDish.id}
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.35 }}
-              className="w-full bg-white/80 dark:bg-[#111118]/85 backdrop-blur-2xl rounded-3xl p-5 sm:p-6 border border-neutral-200/80 dark:border-neutral-800/80 shadow-2xl shadow-neutral-900/5 dark:shadow-black/50 flex flex-col items-center"
-            >
-              {/* Category Pill & Tagline */}
-              <div className="flex items-center gap-2 mb-2">
-                <span
-                  style={{ backgroundColor: `${currentDish.themeColor}20`, color: currentDish.themeColor }}
-                  className="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider"
-                >
-                  {currentDish.category}
-                </span>
-                <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">
-                  {currentDish.badgeText}
-                </span>
-              </div>
-
-              {/* Title */}
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-neutral-950 dark:text-white tracking-tight">
-                {currentDish.name}
-              </h2>
-
-              <p className="mt-2 text-xs sm:text-sm text-neutral-600 dark:text-neutral-300 max-w-lg leading-relaxed">
-                {currentDish.description}
-              </p>
-
-              {/* Dish Highlights */}
-              <div className="mt-3.5 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
-                {currentDish.highlights.map((item) => (
-                  <span
-                    key={item}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-800/80 border border-neutral-200/60 dark:border-neutral-750 text-[11px] font-medium text-neutral-700 dark:text-neutral-300"
-                  >
-                    <Utensils className="w-3 h-3 text-orange-500" />
-                    <span>{item}</span>
-                  </span>
-                ))}
-              </div>
-
-              {/* Price & Action Row */}
-              <div className="mt-5 pt-4 border-t border-neutral-200/80 dark:border-neutral-800/80 w-full flex flex-col sm:flex-row items-center justify-between gap-4">
-                
-                {/* Price Display */}
-                <div className="flex items-baseline gap-2.5">
-                  <span className="text-3xl font-black text-neutral-950 dark:text-white">
-                    ₹{currentDish.price}
-                  </span>
-                  <span className="text-sm text-neutral-400 line-through">
-                    ₹{currentDish.originalPrice}
-                  </span>
-                  <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
-                    {Math.round(((currentDish.originalPrice - currentDish.price) / currentDish.originalPrice) * 100)}% OFF
-                  </span>
-                  <span className="text-xs text-neutral-500 dark:text-neutral-400 hidden sm:inline">
-                    • {currentDish.prepTime} prep
-                  </span>
-                </div>
-
-                {/* Direct Action Buttons */}
-                <div className="flex items-center gap-3 w-full sm:w-auto">
-                  <button
-                    onClick={() => handleAddToCart()}
-                    className={`flex-1 sm:flex-none px-6 py-3 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg active:scale-95 ${
-                      addedAnimation
-                        ? 'bg-emerald-600 text-white shadow-emerald-500/25'
-                        : 'bg-gradient-to-r from-orange-600 via-orange-500 to-amber-600 text-white shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-[1.02]'
-                    }`}
-                  >
-                    {addedAnimation ? (
-                      <>
-                        <Check className="w-4 h-4 animate-bounce" />
-                        <span>Added to Cart!</span>
-                      </>
-                    ) : (
-                      <>
-                        <ShoppingBag className="w-4 h-4" />
-                        <span>Add To Cart • ₹{currentDish.price}</span>
-                      </>
-                    )}
-                  </button>
-
-                  <button
-                    onClick={() => navigate('/menu')}
-                    className="px-4 py-3 rounded-2xl font-bold text-sm bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-750 text-neutral-800 dark:text-neutral-200 transition-all cursor-pointer border border-neutral-200 dark:border-neutral-750 flex items-center gap-1.5"
-                  >
-                    <span>Menu</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
-
-              </div>
-
-            </motion.div>
-          </AnimatePresence>
-
+        {/* Slide Pagination Indicator Dots */}
+        <div className="flex items-center justify-center gap-2 mt-4 sm:mt-6 z-20">
+          {SIGNATURE_DISHES.map((dish, idx) => (
+            <button
+              key={dish.id}
+              onClick={() => goToSlide(idx)}
+              className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                activeIndex === idx
+                  ? "w-8 bg-orange-500 shadow-sm shadow-orange-500/40"
+                  : "w-2 bg-neutral-300 dark:bg-neutral-700 hover:bg-neutral-400 dark:hover:bg-neutral-600"
+              }`}
+              aria-label={`Go to ${dish.name}`}
+            />
+          ))}
         </div>
 
       </div>

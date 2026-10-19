@@ -15,11 +15,39 @@ export const getAllFoodItems = async (req, res) => {
 };
 
 /* ===================================================
+   GET SINGLE FOOD ITEM BY ID
+=================================================== */
+export const getFoodItemById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const food = await FoodItem.findById(id).lean();
+
+    if (!food) {
+      return res.status(404).json({
+        success: false,
+        message: "Food item not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      foodItem: food,
+    });
+  } catch (error) {
+    console.error("Error fetching food item by ID:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
+/* ===================================================
    ADD FOOD ITEM
 =================================================== */
 export const addFoodItem = async (req, res) => {
   try {
-    const { name, price, rating, category } = req.body;
+    const { name, price, rating, category, stock } = req.body;
 
     // ✅ image required
     if (!req.file) {
@@ -34,6 +62,7 @@ export const addFoodItem = async (req, res) => {
       price,
       rating,
       category,
+      stock: stock !== undefined && stock !== "" ? Number(stock) : 10,
       image: req.file.path, // ✅ Cloudinary URL
       imagePublicId: req.file.filename, // needed for delete/update
     });
@@ -68,7 +97,7 @@ export const updateFoodItem = async (req, res) => {
       });
     }
 
-    const { name, price, rating, category } = req.body;
+    const { name, price, rating, category, stock } = req.body;
 
     /* ===== IF NEW IMAGE UPLOADED ===== */
     if (req.file) {
@@ -83,9 +112,12 @@ export const updateFoodItem = async (req, res) => {
 
     // update fields
     food.name = name || food.name;
-    food.price = price || food.price;
-    food.rating = rating || food.rating;
+    food.price = price !== undefined ? price : food.price;
+    food.rating = rating !== undefined ? rating : food.rating;
     food.category = category || food.category;
+    if (stock !== undefined && stock !== "") {
+      food.stock = Number(stock);
+    }
 
     await food.save();
 

@@ -630,7 +630,7 @@ function FeaturedSignatureMenu() {
 
         {/* Loading Skeletons */}
         {loading && (!foodItems || foodItems.length === 0) ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6 gap-4 sm:gap-5">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
               <SkeletonCard key={i} theme={theme} />
             ))}
@@ -656,7 +656,7 @@ function FeaturedSignatureMenu() {
           </div>
         ) : (
           /* Compact Dish Cards Grid (4 columns on desktop, smaller height & balanced typography) */
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6 gap-4 sm:gap-5">
             <AnimatePresence mode="popLayout">
               {filteredDishes.map((dish) => {
                 const id = dish._id || dish.id;
@@ -673,29 +673,31 @@ function FeaturedSignatureMenu() {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.2 }}
-                    className="rounded-2xl overflow-hidden bg-white dark:bg-[#15151c] border border-neutral-200/90 dark:border-neutral-800 shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between group"
+                    onClick={() => navigate(`/food/${id}`)}
+                    className="rounded-2xl overflow-hidden bg-white dark:bg-[#15151c] border border-neutral-200/90 dark:border-neutral-800 shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between group cursor-pointer"
                   >
-                    {/* Card Header & Photo - Compact height & centered drop shadow */}
-                    <div className="relative w-full h-36 sm:h-40 overflow-hidden rounded-t-2xl bg-neutral-100/70 dark:bg-[#14141c] flex items-center justify-center p-2.5 sm:p-3 border-b border-neutral-100 dark:border-neutral-800/80">
+                    {/* Card Header & Photo - Frosted ambient dish stage */}
+                    <div className="relative w-full h-36 sm:h-40 overflow-hidden rounded-t-2xl bg-gradient-to-b from-neutral-100/80 to-neutral-100/40 dark:from-[#161622] dark:to-[#111118] flex items-center justify-center p-2.5 sm:p-3 border-b border-neutral-100 dark:border-neutral-800/80">
+                      
+                      {/* Ambient dish soft glow */}
+                      <div className="absolute w-24 h-24 rounded-full bg-orange-500/10 dark:bg-orange-500/15 blur-2xl pointer-events-none" />
+
                       <img
                         src={dish.image}
                         alt={dish.name}
                         loading="lazy"
-                        className="max-h-full max-w-full object-contain filter drop-shadow-md group-hover:scale-105 transition-transform duration-300 pointer-events-none select-none"
+                        className="relative z-10 max-h-full max-w-full object-contain filter drop-shadow-md group-hover:scale-105 transition-transform duration-300 pointer-events-none select-none"
                       />
 
-                      {/* Tag badge (Top Left) */}
-                      <div className="absolute top-2.5 left-2.5 flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white text-[10px] font-bold border border-white/10 shadow-sm">
-                        <Sparkles className="w-2.5 h-2.5 text-amber-400" />
-                        <span>{dish.tag}</span>
-                      </div>
-
-                      {/* Like button (Top Right) */}
+                      {/* Like button (Top Right) with blurry transparent glass */}
                       <button
-                        onClick={() => toggleWishlist(dish)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleWishlist(dish);
+                        }}
                         aria-label={isFav ? "Remove from wishlist" : "Add to favorites"}
                         title={isFav ? "Remove from wishlist" : "Add to wishlist"}
-                        className="absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md flex items-center justify-center hover:scale-110 active:scale-95 transition-transform shadow-sm cursor-pointer border border-neutral-200/50 dark:border-neutral-700/50"
+                        className="absolute top-2.5 right-2.5 z-20 w-7 h-7 rounded-full bg-white/75 dark:bg-black/50 backdrop-blur-md flex items-center justify-center hover:scale-110 active:scale-95 transition-transform shadow-xs cursor-pointer border border-white/60 dark:border-white/10"
                       >
                         <Heart
                           className={`w-3.5 h-3.5 transition-colors ${
@@ -706,14 +708,14 @@ function FeaturedSignatureMenu() {
                         />
                       </button>
 
-                      {/* Clean Bottom Overlay Info */}
-                      <div className="absolute bottom-2 left-2.5 right-2.5 flex items-center justify-between text-xs pointer-events-none">
-                        <div className="flex items-center gap-1 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-full text-white text-[10px] font-medium border border-white/10 shadow-sm">
-                          <Clock className="w-2.5 h-2.5 text-neutral-300" />
+                      {/* Clean Modern Blurry Transparent Bottom Overlay Info */}
+                      <div className="absolute bottom-2 left-2.5 right-2.5 z-20 flex items-center justify-between text-xs pointer-events-none">
+                        <div className="flex items-center gap-1 bg-white/75 dark:bg-black/55 backdrop-blur-md px-2 py-0.5 rounded-full text-neutral-700 dark:text-neutral-200 text-[10px] font-medium border border-white/60 dark:border-white/10 shadow-xs">
+                          <Clock className="w-2.5 h-2.5 text-neutral-400 dark:text-neutral-400" />
                           <span>{dish.prepTime}</span>
                         </div>
 
-                        <div className="flex items-center gap-1 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-full text-amber-400 text-[10px] font-bold border border-white/10 shadow-sm">
+                        <div className="flex items-center gap-1 bg-white/75 dark:bg-black/55 backdrop-blur-md px-2 py-0.5 rounded-full text-amber-500 dark:text-amber-400 text-[10px] font-bold border border-white/60 dark:border-white/10 shadow-xs">
                           <Star className="w-2.5 h-2.5 fill-current" />
                           <span>{dish.rating}</span>
                         </div>
@@ -757,7 +759,10 @@ function FeaturedSignatureMenu() {
                       </div>
 
                       {/* Pricing & Add to Cart */}
-                      <div className="mt-3 pt-2.5 border-t border-neutral-100 dark:border-neutral-800 flex items-center justify-between gap-2">
+                      <div
+                        onClick={(e) => e.stopPropagation()}
+                        className="mt-3 pt-2.5 border-t border-neutral-100 dark:border-neutral-800 flex items-center justify-between gap-2"
+                      >
                         <div>
                           <div className="flex items-baseline gap-1">
                             <span className="text-base sm:text-lg font-black text-neutral-900 dark:text-white">
@@ -935,6 +940,7 @@ function KitchenStory() {
 
 // 4. Table Reservation & Dine-in Booking Bar
 function ReservationBanner() {
+  const navigate = useNavigate();
   const [guests, setGuests] = useState('2 Guests');
   const [timeSlot, setTimeSlot] = useState('07:30 PM');
   const [date, setDate] = useState('Today');
@@ -943,101 +949,120 @@ function ReservationBanner() {
   const handleBookTable = (e) => {
     e.preventDefault();
     setBooked(true);
-    toast.success(`Table booked for ${guests} at ${timeSlot} (${date})!`, {
+    toast.success(`Table reserved for ${guests} at ${timeSlot}!`, {
       icon: '🍽️',
-      duration: 3500,
+      duration: 3000,
     });
-    setTimeout(() => setBooked(false), 3000);
+    setTimeout(() => {
+      setBooked(false);
+      navigate('/book-table', {
+        state: { guests, timeSlot, date },
+      });
+    }, 900);
   };
 
   return (
-    <section className="py-12 sm:py-16 bg-neutral-900 text-white relative overflow-hidden">
-      {/* Subtle warm accent */}
-      <div className="absolute top-0 right-1/4 w-96 h-96 rounded-full blur-3xl bg-orange-600/10 pointer-events-none" />
-      <div className="absolute bottom-0 left-1/4 w-96 h-96 rounded-full blur-3xl bg-amber-600/10 pointer-events-none" />
-
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-neutral-850 border border-neutral-700/80 rounded-3xl p-5 sm:p-8 lg:p-10 shadow-2xl">
-          
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-8">
+    <section className="py-12 sm:py-16 bg-[#0f0f12] text-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-[#17171c] border border-neutral-800 rounded-3xl p-6 sm:p-8 lg:p-10 shadow-xl">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-10">
+            
+            {/* Left: Heading & Description */}
             <div className="max-w-xl">
-              <span className="text-xs font-bold tracking-widest uppercase text-orange-400">
+              <span className="text-[11px] font-bold tracking-widest uppercase text-orange-500 block mb-1">
                 Family & Friends Dining
               </span>
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight mt-1 text-white">
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
                 Book A Table For Dine-In
               </h2>
-              <p className="text-xs sm:text-sm text-neutral-300 mt-1.5 leading-relaxed">
+              <p className="text-xs sm:text-sm text-neutral-400 mt-2 leading-relaxed">
                 Coming with family or friends? Book your table in advance so your seats are ready when you arrive. Zero booking charges.
               </p>
             </div>
 
-            {/* Quick Reservation Form */}
+            {/* Right: Clean, spacious horizontal reservation bar */}
             <form
               onSubmit={handleBookTable}
-              className="flex-1 max-w-2xl bg-neutral-900/90 border border-neutral-700/80 p-3 sm:p-4 rounded-2xl grid grid-cols-1 sm:grid-cols-4 gap-2.5 sm:gap-3 items-center"
+              className="bg-[#1f1f26] border border-neutral-750/70 p-3 sm:p-3.5 rounded-2xl flex flex-col sm:flex-row items-stretch sm:items-end gap-2.5 sm:gap-3 shrink-0"
             >
-              <div>
-                <label className="block text-[10px] uppercase font-bold text-neutral-400 mb-1">
+              {/* Date */}
+              <div className="min-w-[110px]">
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-400 mb-1 px-0.5">
                   Date
                 </label>
-                <select
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="w-full bg-neutral-800 text-xs font-semibold rounded-lg px-2.5 py-2 border border-neutral-700 text-white focus:outline-none focus:border-orange-500 cursor-pointer"
-                >
-                  <option value="Today">Today</option>
-                  <option value="Tomorrow">Tomorrow</option>
-                  <option value="This Weekend">This Weekend</option>
-                </select>
+                <div className="relative">
+                  <select
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    className="w-full bg-[#272732] hover:bg-[#2d2d3a] text-xs font-semibold rounded-xl px-3 py-2.5 border border-neutral-700/80 text-white focus:outline-none focus:border-orange-500 cursor-pointer transition appearance-none pr-7"
+                  >
+                    <option className="bg-[#1f1f26] text-white" value="Today">Today</option>
+                    <option className="bg-[#1f1f26] text-white" value="Tomorrow">Tomorrow</option>
+                    <option className="bg-[#1f1f26] text-white" value="This Weekend">This Weekend</option>
+                  </select>
+                  <ChevronRight size={13} className="absolute right-2.5 top-3 text-neutral-400 rotate-90 pointer-events-none" />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-[10px] uppercase font-bold text-neutral-400 mb-1">
+              {/* Party Size */}
+              <div className="min-w-[115px]">
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-400 mb-1 px-0.5">
                   Party Size
                 </label>
-                <select
-                  value={guests}
-                  onChange={(e) => setGuests(e.target.value)}
-                  className="w-full bg-neutral-800 text-xs font-semibold rounded-lg px-2.5 py-2 border border-neutral-700 text-white focus:outline-none focus:border-orange-500 cursor-pointer"
-                >
-                  <option value="1 Guest">1 Guest</option>
-                  <option value="2 Guests">2 Guests</option>
-                  <option value="4 Guests">4 Guests</option>
-                  <option value="6+ Guests">6+ Guests (Family)</option>
-                </select>
+                <div className="relative">
+                  <select
+                    value={guests}
+                    onChange={(e) => setGuests(e.target.value)}
+                    className="w-full bg-[#272732] hover:bg-[#2d2d3a] text-xs font-semibold rounded-xl px-3 py-2.5 border border-neutral-700/80 text-white focus:outline-none focus:border-orange-500 cursor-pointer transition appearance-none pr-7"
+                  >
+                    <option className="bg-[#1f1f26] text-white" value="1 Guest">1 Guest</option>
+                    <option className="bg-[#1f1f26] text-white" value="2 Guests">2 Guests</option>
+                    <option className="bg-[#1f1f26] text-white" value="4 Guests">4 Guests</option>
+                    <option className="bg-[#1f1f26] text-white" value="6 Guests">6 Guests</option>
+                    <option className="bg-[#1f1f26] text-white" value="8+ Guests">8+ Guests</option>
+                  </select>
+                  <ChevronRight size={13} className="absolute right-2.5 top-3 text-neutral-400 rotate-90 pointer-events-none" />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-[10px] uppercase font-bold text-neutral-400 mb-1">
+              {/* Time */}
+              <div className="min-w-[110px]">
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-400 mb-1 px-0.5">
                   Time
                 </label>
-                <select
-                  value={timeSlot}
-                  onChange={(e) => setTimeSlot(e.target.value)}
-                  className="w-full bg-neutral-800 text-xs font-semibold rounded-lg px-2.5 py-2 border border-neutral-700 text-white focus:outline-none focus:border-orange-500 cursor-pointer"
-                >
-                  <option value="01:00 PM">01:00 PM (Lunch)</option>
-                  <option value="02:30 PM">02:30 PM (Lunch)</option>
-                  <option value="07:30 PM">07:30 PM (Dinner)</option>
-                  <option value="09:00 PM">09:00 PM (Dinner)</option>
-                </select>
+                <div className="relative">
+                  <select
+                    value={timeSlot}
+                    onChange={(e) => setTimeSlot(e.target.value)}
+                    className="w-full bg-[#272732] hover:bg-[#2d2d3a] text-xs font-semibold rounded-xl px-3 py-2.5 border border-neutral-700/80 text-white focus:outline-none focus:border-orange-500 cursor-pointer transition appearance-none pr-7"
+                  >
+                    <option className="bg-[#1f1f26] text-white" value="01:00 PM">01:00 PM</option>
+                    <option className="bg-[#1f1f26] text-white" value="02:30 PM">02:30 PM</option>
+                    <option className="bg-[#1f1f26] text-white" value="07:00 PM">07:00 PM</option>
+                    <option className="bg-[#1f1f26] text-white" value="07:30 PM">07:30 PM</option>
+                    <option className="bg-[#1f1f26] text-white" value="08:00 PM">08:00 PM</option>
+                    <option className="bg-[#1f1f26] text-white" value="08:30 PM">08:30 PM</option>
+                    <option className="bg-[#1f1f26] text-white" value="09:00 PM">09:00 PM</option>
+                  </select>
+                  <ChevronRight size={13} className="absolute right-2.5 top-3 text-neutral-400 rotate-90 pointer-events-none" />
+                </div>
               </div>
 
-              <div className="sm:self-end">
-                <button
-                  type="submit"
-                  className={`w-full py-2.5 px-4 rounded-lg font-bold text-xs sm:text-sm text-white transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                    booked ? 'bg-emerald-600' : 'bg-primary-light hover:opacity-95'
-                  }`}
-                >
-                  {booked ? <Check className="w-4 h-4" /> : <Calendar className="w-4 h-4" />}
-                  <span>{booked ? 'Reserved!' : 'Book Table'}</span>
-                </button>
-              </div>
+              {/* Book Table Button */}
+              <button
+                type="submit"
+                className={`h-[38px] px-5 rounded-xl font-bold text-xs sm:text-sm text-white transition-all flex items-center justify-center gap-1.5 cursor-pointer shrink-0 shadow-sm ${
+                  booked
+                    ? 'bg-emerald-600'
+                    : 'bg-orange-600 hover:bg-orange-500 active:scale-95'
+                }`}
+              >
+                {booked ? <Check className="w-4 h-4 shrink-0" /> : <Calendar className="w-4 h-4 shrink-0" />}
+                <span className="whitespace-nowrap">{booked ? 'Reserved' : 'Book Table'}</span>
+              </button>
             </form>
-          </div>
 
+          </div>
         </div>
       </div>
     </section>

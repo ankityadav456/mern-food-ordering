@@ -22,6 +22,7 @@ import {
   Navigation,
   ChevronRight,
   LogIn,
+  Calendar,
 } from "lucide-react";
 import { SearchContext } from "../context/SearchContext";
 import { useTheme } from "../context/ThemeContext";
@@ -159,6 +160,7 @@ const Navbar = () => {
           <div className="hidden lg:flex items-center gap-1.5 mr-2">
             {navButton("/", <Home size={16} />, "Home")}
             {navButton("/menu", <UtensilsCrossed size={16} />, "Menu")}
+            {navButton("/book-table", <Calendar size={16} />, "Book Table")}
             {user && navButton("/dashboard", <LayoutDashboard size={16} />, "Dashboard")}
           </div>
 
@@ -499,6 +501,28 @@ const Navbar = () => {
                         </div>
                         <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                           Fresh
+                        </span>
+                      </button>
+
+                      {/* Book A Table */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigate("/book-table");
+                          setNavMenuOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
+                          isActive("/book-table")
+                            ? "bg-primary-light/10 text-primary-light dark:bg-primary-dark/15 dark:text-primary-dark font-bold"
+                            : "text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-800/60"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Calendar size={17} />
+                          <span>Book A Table</span>
+                        </div>
+                        <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md bg-orange-500/10 text-orange-600 dark:text-orange-400">
+                          Dine-In
                         </span>
                       </button>
 

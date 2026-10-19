@@ -16,6 +16,11 @@ const foodSchema = new mongoose.Schema(
       min: 0,
       max: 5,
     },
+    stock: {
+      type: Number,
+      default: 10,
+      min: 0,
+    },
   },
   { timestamps: true },
 );

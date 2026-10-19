@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { showToast } from "../utils/showToast.jsx"
 import defaultUserLogo from "../assets/Images/profile.png";
+import { setAnalyticsUser } from "../analytics";
 
 const AuthContext = createContext();
 
@@ -58,7 +59,9 @@ export const AuthProvider = ({ children }) => {
   const fetchUser = useCallback(async () => {
     try {
       const { data } = await axios.get("/auth/me");
-      setUser(formatUser(data.user));
+      const formatted = formatUser(data.user);
+      setUser(formatted);
+      if (formatted) setAnalyticsUser(formatted);
     } catch {
       setUser(null);
     } finally {
@@ -71,6 +74,59 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     fetchUser(); // cookie auto sent
   }, [fetchUser]);
+
+  /* ================= HEARTBEAT FOR ACTIVE STATUS ================= */
+  useEffect(() => {
+    if (!user) return;
+
+    const ping = () => {
+      axios.get("/auth/ping").catch(() => {});
+    };
+
+    // Ping immediately when user is loaded/active
+    ping();
+
+    // Regular heartbeat every 45 seconds
+    const interval = setInterval(ping, 45 * 1000);
+
+    // Ping when window regains focus or tab becomes visible
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        ping();
+      }
+    };
+
+    window.addEventListener("visibilitychange", handleVisibility);
+    window.addEventListener("focus", ping);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("focus", ping);
+    };
+  }, [user]);
+
+  /* ================= AUTO LOGOUT ON USER BLOCKED ================= */
+  useEffect(() => {
+    const handleUserBlocked = (e) => {
+      const message =
+        e.detail ||
+        "Your account has been blocked by an administrator. You have been logged out.";
+      localStorage.removeItem("token");
+      setUser(null);
+      Swal.fire({
+        icon: "error",
+        title: "Account Blocked",
+        text: message,
+        confirmButtonColor: "#FF5722",
+      }).then(() => {
+        navigate("/");
+      });
+    };
+
+    window.addEventListener("user-blocked", handleUserBlocked);
+    return () => window.removeEventListener("user-blocked", handleUserBlocked);
+  }, [navigate]);
 
   /* ================= AUTH ================= */
 
@@ -86,7 +142,9 @@ export const AuthProvider = ({ children }) => {
 
       localStorage.setItem("token", data.token);
 
-      setUser(formatUser(data.user));
+      const formatted = formatUser(data.user);
+      setUser(formatted);
+      if (formatted) setAnalyticsUser(formatted);
       setAuthModalOpen(false);
       showToast("Account created successfully!", "success");
       return data;
@@ -114,7 +172,9 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("token", data.token);
 
       // ✅ cookie already set by backend
-      setUser(formatUser(data.user));
+      const formatted = formatUser(data.user);
+      setUser(formatted);
+      if (formatted) setAnalyticsUser(formatted);
       setAuthModalOpen(false);
       showToast("Logged in successfully!", "success");
       return data;
@@ -132,15 +192,15 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = useCallback(async () => {
-    localStorage.removeItem("token"); // ← remove token
     try {
-      await axios.post("/auth/logout"); // clears cookie
+      await axios.post("/auth/logout"); // clears cookie & notifies server
     } catch {
       showToast("Logout failed", "error");
+    } finally {
+      localStorage.removeItem("token");
+      setUser(null);
+      navigate("/");
     }
-
-    setUser(null);
-    navigate("/");
   }, [navigate]);
 
   /* ================= PROFILE ================= */
@@ -236,16 +296,16 @@ export const AuthProvider = ({ children }) => {
 
   
   // 🔹 Admin actions
-  const fetchAllUsers = async () => {
+  const fetchAllUsers = async (showLoading = true) => {
     if (!user?.isAdmin) return;
     try {
-      setLoadingUsers(true);
+      if (showLoading) setLoadingUsers(true);
       const { data } = await axios.get("/admin/users"); // admin endpoint
       if (data.success) setAllUsers(data.users);
     } catch (error) {
       showToast(error.response?.data?.message || "Failed to fetch users", "error");
     } finally {
-      setLoadingUsers(false);
+      if (showLoading) setLoadingUsers(false);
     }
   };
 

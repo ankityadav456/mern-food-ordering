@@ -415,13 +415,13 @@ const MenuPage = () => {
         {/* ================= FOOD GRID OR EMPTY STATE ================= */}
         <div>
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6 gap-5">
               {Array.from({ length: 8 }).map((_, idx) => (
                 <SkeletonCard key={idx} theme={theme} />
               ))}
             </div>
           ) : filteredResults && filteredResults.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6 gap-5">
               {filteredResults.map((item) => (
                 <FoodCard
                   key={item._id}

@@ -16,6 +16,19 @@ const userSchema = new mongoose.Schema(
       default: "Active",
     },
 
+    lastLogin: {
+      type: Date,
+      default: null,
+    },
+    lastActive: {
+      type: Date,
+      default: null,
+    },
+    isOnline: {
+      type: Boolean,
+      default: false,
+    },
+
     cart: [cartItemSchema],
     wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "FoodItem" }],
     orders: [{ type: mongoose.Schema.Types.ObjectId, ref: "Order" }],

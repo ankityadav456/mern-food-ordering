@@ -5,8 +5,8 @@ import Footer from "./Footer";
 const Layout = () => {
   const location = useLocation();
 
-  const noPaddingRoutes = ["/"];
-  const isNoPadding = noPaddingRoutes.includes(location.pathname);
+  const noPaddingRoutes = ["/", "/book-table", "/reservations"];
+  const isNoPadding = noPaddingRoutes.includes(location.pathname) || location.pathname.startsWith("/food/");
 
   return (
     <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-[#fdfbf7] text-text-light dark:bg-[#09090d] dark:text-text-dark transition-colors duration-200">
