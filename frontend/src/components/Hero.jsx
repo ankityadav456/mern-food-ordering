@@ -18,6 +18,7 @@ import {
   ChevronRight,
   Utensils,
   TrendingUp,
+  X,
 } from 'lucide-react';
 
 // Transparent cutout dish assets
@@ -183,18 +184,44 @@ export default function Hero() {
 
   const auraRef = useRef(null);
   const hoverTimeoutRef = useRef(null);
+  const dishContainerRef = useRef(null);
+  const isTouchRef = useRef(false);
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
+  const isSwiping = useRef(false);
 
   const handleMouseEnter = () => {
+    if (isTouchRef.current) return;
     if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
     setIsHovered(true);
   };
 
   const handleMouseLeave = () => {
+    if (isTouchRef.current) return;
     if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
     hoverTimeoutRef.current = setTimeout(() => {
       setIsHovered(false);
     }, 300);
   };
+
+  const handleDishClick = (e) => {
+    if (isSwiping.current) return;
+    setIsHovered((prev) => !prev);
+  };
+
+  // Close popover when clicking or tapping outside
+  useEffect(() => {
+    if (!isHovered) return;
+    const handleClickOutside = (e) => {
+      if (dishContainerRef.current && !dishContainerRef.current.contains(e.target)) {
+        setIsHovered(false);
+      }
+    };
+    document.addEventListener('pointerdown', handleClickOutside);
+    return () => {
+      document.removeEventListener('pointerdown', handleClickOutside);
+    };
+  }, [isHovered]);
 
   const currentDish = SIGNATURE_DISHES[activeIndex];
   const prevIndex = (activeIndex - 1 + SIGNATURE_DISHES.length) % SIGNATURE_DISHES.length;
@@ -205,15 +232,49 @@ export default function Hero() {
 
   // Navigation handlers
   const nextSlide = useCallback(() => {
+    setIsHovered(false);
     setActiveIndex((prev) => (prev + 1) % SIGNATURE_DISHES.length);
   }, []);
 
   const prevSlide = useCallback(() => {
+    setIsHovered(false);
     setActiveIndex((prev) => (prev - 1 + SIGNATURE_DISHES.length) % SIGNATURE_DISHES.length);
   }, []);
 
   const goToSlide = (idx) => {
+    setIsHovered(false);
     setActiveIndex(idx);
+  };
+
+  // Touch Swipe handlers for mobile coverflow navigation
+  const handleTouchStart = (e) => {
+    isTouchRef.current = true;
+    isSwiping.current = false;
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchMove = (e) => {
+    const deltaX = Math.abs(e.touches[0].clientX - touchStartX.current);
+    const deltaY = Math.abs(e.touches[0].clientY - touchStartY.current);
+    if (deltaX > 10 || deltaY > 10) {
+      isSwiping.current = true;
+    }
+  };
+
+  const handleTouchEnd = (e) => {
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+    const deltaY = e.changedTouches[0].clientY - touchStartY.current;
+    if (Math.abs(deltaX) > 45 && Math.abs(deltaX) > Math.abs(deltaY) * 1.4) {
+      if (deltaX > 0) {
+        prevSlide();
+      } else {
+        nextSlide();
+      }
+    }
+    setTimeout(() => {
+      isSwiping.current = false;
+    }, 120);
   };
 
   // Auto-play (paused whenever user hovers slider or active dish)
@@ -317,7 +378,7 @@ export default function Hero() {
         <div
           onMouseEnter={() => setIsSliderHovered(true)}
           onMouseLeave={() => setIsSliderHovered(false)}
-          className="relative w-full flex items-center justify-center my-4 sm:my-6 min-h-[340px] sm:min-h-[440px] lg:min-h-[480px]"
+          className="relative w-full flex items-center justify-center my-4 sm:my-6 min-h-[400px] sm:min-h-[440px] lg:min-h-[480px] pb-6 sm:pb-0"
         >
           {/* Watermark Centered Directly Behind Active Dish */}
           <div className="absolute top-20 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none opacity-[0.045] dark:opacity-[0.07] font-black text-7xl sm:text-9xl lg:text-[14rem] tracking-tighter leading-none text-neutral-950 dark:text-white z-0 whitespace-nowrap transition-all duration-500">
@@ -344,17 +405,21 @@ export default function Hero() {
 
           {/* CENTER: Massive Active Dish Showcase with Speech Bubble Popover */}
           <div
+            ref={dishContainerRef}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
-            onClick={() => setIsHovered((prev) => !prev)}
-            className="relative z-30 flex flex-col items-center justify-center max-w-[340px] sm:max-w-[440px] lg:max-w-[480px] w-full px-4 group cursor-pointer"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onClick={handleDishClick}
+            className="relative z-30 flex flex-col items-center justify-center max-w-[320px] sm:max-w-[440px] lg:max-w-[480px] w-full px-3 sm:px-4 group cursor-pointer"
           >
             {/* Ambient Radial Dish Pedestal Glow */}
             <div
               style={{
                 background: `radial-gradient(circle, ${currentDish.glowColor} 0%, transparent 70%)`,
               }}
-              className="absolute w-[280px] sm:w-[380px] h-[280px] sm:h-[380px] rounded-full blur-2xl pointer-events-none transition-all duration-700"
+              className="absolute w-[260px] sm:w-[380px] h-[260px] sm:h-[380px] rounded-full blur-2xl pointer-events-none transition-all duration-700"
             />
 
             {/* Stable Center Dish Plate Container */}
@@ -365,11 +430,11 @@ export default function Hero() {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: -15 }}
                 transition={{ duration: 0.4, ease: 'easeOut' }}
-                className="relative z-10 w-full aspect-square flex items-center justify-center p-2 select-none group-hover:scale-105 transition-transform duration-300"
+                className="relative z-10 w-full aspect-square flex items-center justify-center p-2 select-none group-hover:scale-105 active:scale-95 transition-transform duration-300"
               >
                 {/* Quick Rating Badge - Snuggled tight against dish rim */}
                 <div
-                  className={`absolute ${currentDish.badgeTop || 'top-4 right-6'} z-30 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/85 dark:bg-neutral-900/85 backdrop-blur-md border border-white/60 dark:border-white/10 shadow-lg pointer-events-none select-none transition-all duration-200 ${
+                  className={`absolute ${currentDish.badgeTop || 'top-4 right-6'} z-30 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md border border-white/60 dark:border-white/10 shadow-lg pointer-events-none select-none transition-all duration-200 ${
                     isHovered ? "opacity-0 scale-90 pointer-events-none" : "opacity-100 scale-100"
                   }`}
                 >
@@ -386,92 +451,113 @@ export default function Hero() {
               </motion.div>
             </AnimatePresence>
 
-            {/* ================= SPEECH BUBBLE POPOVER (PERFECTLY POSITIONED BESIDE DISH) ================= */}
+            {/* ================= SPEECH BUBBLE POPOVER (PERFECTLY POSITIONED BESIDE DISH ON DESKTOP, CENTERED BELOW ON MOBILE) ================= */}
             <AnimatePresence>
               {isHovered && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.94, x: 10 }}
-                  animate={{ opacity: 1, scale: 1, x: 0 }}
-                  exit={{ opacity: 0, scale: 0.94, x: 10 }}
-                  transition={{ duration: 0.2, ease: "easeOut" }}
-                  onMouseEnter={handleMouseEnter}
-                  onMouseLeave={handleMouseLeave}
-                  onClick={(e) => e.stopPropagation()}
-                  className="absolute z-50 top-[80%] sm:top-4 md:top-6 lg:top-8 left-1/2 sm:left-[72%] md:left-[75%] lg:left-[78%] -translate-x-1/2 sm:translate-x-0 w-[90vw] sm:w-[265px] max-w-[275px] bg-white/70 dark:bg-[#121218]/70 backdrop-blur-xl sm:backdrop-blur-2xl rounded-2xl p-3.5 sm:p-4 border border-white/60 dark:border-white/[0.12] shadow-[0_20px_50px_rgba(0,0,0,0.18)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.65)] ring-1 ring-black/[0.04] dark:ring-white/[0.05] text-left cursor-default select-text before:absolute before:-left-12 before:top-0 before:bottom-0 before:w-12"
+                <div
+                  className="absolute z-50 top-[68%] sm:top-4 md:top-6 lg:top-8 left-1/2 sm:left-[72%] md:left-[75%] lg:left-[78%] -translate-x-1/2 sm:translate-x-0 w-[calc(100vw-32px)] max-w-[310px] sm:w-[265px] sm:max-w-[275px] pointer-events-auto"
                 >
-                  {/* Subtle Top Specular Sheen */}
-                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 dark:via-white/30 to-transparent rounded-t-2xl pointer-events-none" />
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.94, y: 8 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.94, y: 8 }}
+                    transition={{ duration: 0.2, ease: "easeOut" }}
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
+                    onClick={(e) => e.stopPropagation()}
+                    className="relative w-full bg-white/95 dark:bg-[#121218]/95 sm:bg-white/80 sm:dark:bg-[#121218]/80 backdrop-blur-xl sm:backdrop-blur-2xl rounded-2xl p-3.5 sm:p-4 border border-neutral-200/90 dark:border-white/[0.12] shadow-[0_20px_50px_rgba(0,0,0,0.22)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.75)] ring-1 ring-black/[0.05] dark:ring-white/[0.05] text-left cursor-default select-text sm:before:absolute sm:before:-left-12 sm:before:top-0 sm:before:bottom-0 sm:before:w-12"
+                  >
+                    {/* Subtle Top Specular Sheen */}
+                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 dark:via-white/30 to-transparent rounded-t-2xl pointer-events-none" />
 
-                  {/* Speech Bubble Pointer Arrow on LEFT (Desktop: points to dish) */}
-                  <div className="hidden sm:block absolute -left-2 top-[62%] -translate-y-1/2 w-0 h-0 border-y-[8px] border-y-transparent border-r-[8px] border-r-white/80 dark:border-r-[#15151e]/90 z-20" />
-                  <div className="hidden sm:block absolute -left-[9px] top-[62%] -translate-y-1/2 w-0 h-0 border-y-[9px] border-y-transparent border-r-[9px] border-r-white/60 dark:border-r-white/[0.15] z-10" />
+                    {/* Speech Bubble Pointer Arrow on LEFT (Desktop: points to dish) */}
+                    <div className="hidden sm:block absolute -left-2 top-[62%] -translate-y-1/2 w-0 h-0 border-y-[8px] border-y-transparent border-r-[8px] border-r-white/90 dark:border-r-[#121218]/95 z-20" />
+                    <div className="hidden sm:block absolute -left-[9px] top-[62%] -translate-y-1/2 w-0 h-0 border-y-[9px] border-y-transparent border-r-[9px] border-r-neutral-300 dark:border-r-white/[0.15] z-10" />
 
-                  {/* Speech Bubble Pointer Arrow on TOP (Mobile: points up to dish) */}
-                  <div className="sm:hidden absolute -top-2 left-1/2 -translate-x-1/2 w-0 h-0 border-x-[8px] border-x-transparent border-b-[8px] border-b-white/80 dark:border-b-[#15151e]/90 z-20" />
-                  <div className="sm:hidden absolute -top-[9px] left-1/2 -translate-x-1/2 w-0 h-0 border-x-[9px] border-x-transparent border-b-[9px] border-b-white/60 dark:border-b-white/[0.15] z-10" />
+                    {/* Speech Bubble Pointer Arrow on TOP (Mobile: points up to dish) */}
+                    <div className="sm:hidden absolute -top-2 left-1/2 -translate-x-1/2 w-0 h-0 border-x-[8px] border-x-transparent border-b-[8px] border-b-white/95 dark:border-b-[#121218]/95 z-20" />
+                    <div className="sm:hidden absolute -top-[9px] left-1/2 -translate-x-1/2 w-0 h-0 border-x-[9px] border-x-transparent border-b-[9px] border-b-neutral-300 dark:border-b-white/[0.15] z-10" />
 
-                  {/* Top Row: Dish Name & Rating */}
-                  <div className="flex items-start justify-between gap-2 relative">
-                    <h3
-                      onClick={() => {
-                        const dbMatch = foodItems?.find(
-                          (f) => f.category?.toLowerCase() === currentDish.category?.toLowerCase()
-                        );
-                        if (dbMatch) {
-                          navigate(`/food/${dbMatch._id}`);
-                        } else {
-                          navigate('/menu');
-                        }
-                      }}
-                      className="text-sm sm:text-base font-extrabold text-neutral-950 dark:text-white tracking-tight leading-snug drop-shadow-sm hover:text-orange-500 cursor-pointer transition-colors"
-                      title="View Dish Details"
-                    >
-                      {currentDish.name}
-                    </h3>
-                    <div className="flex items-center gap-1 text-xs font-bold text-amber-500 shrink-0 mt-0.5 bg-amber-500/10 dark:bg-amber-400/10 px-1.5 py-0.5 rounded-md border border-amber-500/20">
-                      <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-                      <span>{currentDish.rating}</span>
+                    {/* Top Row: Dish Name, Rating & Close button */}
+                    <div className="flex items-start justify-between gap-2 relative">
+                      <div className="flex-1 min-w-0 pr-1">
+                        <h3
+                          onClick={() => {
+                            const dbMatch = foodItems?.find(
+                              (f) => f.category?.toLowerCase() === currentDish.category?.toLowerCase()
+                            );
+                            if (dbMatch) {
+                              navigate(`/food/${dbMatch._id}`);
+                            } else {
+                              navigate('/menu');
+                            }
+                          }}
+                          className="text-sm sm:text-base font-extrabold text-neutral-950 dark:text-white tracking-tight leading-snug drop-shadow-sm hover:text-orange-500 cursor-pointer transition-colors truncate"
+                          title="View Dish Details"
+                        >
+                          {currentDish.name}
+                        </h3>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <div className="flex items-center gap-1 text-xs font-bold text-amber-500 bg-amber-500/10 dark:bg-amber-400/10 px-1.5 py-0.5 rounded-md border border-amber-500/20">
+                          <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                          <span>{currentDish.rating}</span>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setIsHovered(false);
+                          }}
+                          className="sm:hidden -mr-1 p-1 rounded-full text-neutral-400 hover:text-neutral-700 dark:hover:text-white transition-colors cursor-pointer"
+                          aria-label="Close popover"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Description */}
-                  <p className="mt-1.5 text-[11px] sm:text-xs text-neutral-700 dark:text-neutral-300 leading-relaxed line-clamp-2 font-normal">
-                    {currentDish.description}
-                  </p>
+                    {/* Description */}
+                    <p className="mt-1.5 text-[11px] sm:text-xs text-neutral-600 dark:text-neutral-300 leading-relaxed line-clamp-2 font-normal">
+                      {currentDish.description}
+                    </p>
 
-                  {/* Bottom Row: Price & Add to Cart */}
-                  <div className="mt-3 pt-2.5 border-t border-neutral-300/40 dark:border-white/[0.08] flex items-center justify-between gap-2 relative">
-                    <div className="flex items-baseline gap-1.5">
-                      <span className="text-lg sm:text-xl font-black text-neutral-950 dark:text-white">
-                        ₹{currentDish.price}
-                      </span>
-                      <span className="text-[11px] text-neutral-400/80 line-through">
-                        ₹{currentDish.originalPrice}
-                      </span>
+                    {/* Bottom Row: Price & Add to Cart */}
+                    <div className="mt-3 pt-2.5 border-t border-neutral-200 dark:border-white/[0.08] flex items-center justify-between gap-2 relative">
+                      <div className="flex items-baseline gap-1.5">
+                        <span className="text-lg sm:text-xl font-black text-neutral-950 dark:text-white">
+                          ₹{currentDish.price}
+                        </span>
+                        <span className="text-[11px] text-neutral-400/80 line-through">
+                          ₹{currentDish.originalPrice}
+                        </span>
+                      </div>
+
+                      <button
+                        onClick={() => handleAddToCart()}
+                        className={`px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md active:scale-95 ${
+                          addedAnimation
+                            ? "bg-emerald-600 text-white"
+                            : "bg-gradient-to-r from-orange-600 to-amber-600 text-white hover:shadow-orange-500/30 hover:brightness-105"
+                        }`}
+                      >
+                        {addedAnimation ? (
+                          <>
+                            <Check className="w-3.5 h-3.5 animate-bounce" />
+                            <span>Added!</span>
+                          </>
+                        ) : (
+                          <>
+                            <ShoppingBag className="w-3.5 h-3.5" />
+                            <span>Add to Cart</span>
+                          </>
+                        )}
+                      </button>
                     </div>
-
-                    <button
-                      onClick={() => handleAddToCart()}
-                      className={`px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md active:scale-95 ${
-                        addedAnimation
-                          ? "bg-emerald-600 text-white"
-                          : "bg-gradient-to-r from-orange-600 to-amber-600 text-white hover:shadow-orange-500/30 hover:brightness-105"
-                      }`}
-                    >
-                      {addedAnimation ? (
-                        <>
-                          <Check className="w-3.5 h-3.5 animate-bounce" />
-                          <span>Added!</span>
-                        </>
-                      ) : (
-                        <>
-                          <ShoppingBag className="w-3.5 h-3.5" />
-                          <span>Add to Cart</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </motion.div>
+                  </motion.div>
+                </div>
               )}
             </AnimatePresence>
           </div>

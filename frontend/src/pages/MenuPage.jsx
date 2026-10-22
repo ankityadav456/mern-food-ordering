@@ -387,7 +387,7 @@ const MenuPage = () => {
                   Top Rated
                 </option>
               </select>
-              <ChevronDown size={14} className="pointer-events-none absolute right-2 text-gray-400" />
+              {/* <ChevronDown size={14} className="pointer-events-none absolute right-2 text-gray-400" /> */}
             </div>
 
             {/* Filter modal toggle */}
@@ -415,13 +415,13 @@ const MenuPage = () => {
         {/* ================= FOOD GRID OR EMPTY STATE ================= */}
         <div>
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6 gap-5">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6 gap-3 sm:gap-5">
               {Array.from({ length: 8 }).map((_, idx) => (
                 <SkeletonCard key={idx} theme={theme} />
               ))}
             </div>
           ) : filteredResults && filteredResults.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6 gap-5">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6 gap-3 sm:gap-5">
               {filteredResults.map((item) => (
                 <FoodCard
                   key={item._id}

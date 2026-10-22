@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Star, Clock, Eye, ShoppingCart, Heart } from "lucide-react";
+import { Star, Clock, Heart, ShoppingBag, Minus, Plus } from "lucide-react";
 import { useWishlist } from "../context/WishlistContext";
 
 const FoodItemCard = ({
@@ -16,159 +16,180 @@ const FoodItemCard = ({
   const navigate = useNavigate();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const isFav = isInWishlist(item._id);
-  const inCart = getItemQuantity(item._id) > 0;
   const isDark = theme === "dark";
 
   const rating = Number(item.rating) > 0 ? Number(item.rating).toFixed(1) : "4.5";
   const quantity = getItemQuantity(item._id);
 
+  const isVeg =
+    item.isVeg !== undefined
+      ? item.isVeg
+      : ["Pizza", "Chinese", "Burger"].includes(item.category) &&
+        !item.name?.toLowerCase().includes("chicken") &&
+        !item.name?.toLowerCase().includes("meat") &&
+        !item.name?.toLowerCase().includes("mutton") &&
+        !item.name?.toLowerCase().includes("fish");
+
+  const originalPrice = item.originalPrice || Math.round(Number(item.price) * 1.25);
+  const discountPercent = Math.round(
+    ((originalPrice - item.price) / originalPrice) * 100
+  );
+  const prepTime =
+    item.deliveryTime ||
+    (item.category === "Burger"
+      ? "15 min"
+      : item.category === "Pizza"
+      ? "18 min"
+      : "22 min");
+
   return (
     <div
       onClick={() => navigate(`/food/${item._id}`)}
-      className={`relative overflow-hidden rounded-2xl border transition-all duration-300 group cursor-pointer ${
-        isDark
-          ? "bg-[#1E1E1E] border-[#2C2C2C] hover:shadow-xl hover:shadow-black/40"
-          : "bg-white border-gray-200 hover:shadow-lg"
-      }`}
+      className="rounded-2xl overflow-hidden bg-white dark:bg-[#15151c] border border-neutral-200/90 dark:border-neutral-800 shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between group cursor-pointer active:scale-[0.99]"
     >
-      {/* Top Left: Wishlist Heart */}
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          toggleWishlist(item);
-        }}
-        aria-label={isFav ? "Remove from wishlist" : "Add to wishlist"}
-        title={isFav ? "Remove from wishlist" : "Add to wishlist"}
-        className={`absolute top-2.5 left-2.5 z-20 w-7 h-7 rounded-full backdrop-blur-md flex items-center justify-center transition-transform hover:scale-110 active:scale-95 cursor-pointer shadow-sm ${
-          isFav
-            ? "bg-red-500/20 text-red-500 border border-red-500/40"
-            : "bg-black/40 hover:bg-black/60 text-white border border-white/10"
-        }`}
-      >
-        <Heart
-          size={13}
-          className={isFav ? "fill-red-500 text-red-500" : "text-white"}
-        />
-      </button>
-
-      {/* Top Right: In-Cart Count Badge */}
-      {inCart && (
-        <div className="absolute top-2.5 right-2.5 z-20 text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-md bg-orange-500 text-white">
-          {quantity}
-        </div>
-      )}
-
-      {/* Food Image Container with Old UI Gray Background & Soft Gradient */}
-      <div className="relative w-full h-44 overflow-hidden rounded-t-2xl bg-gray-100 dark:bg-gray-900 flex items-center justify-center p-2">
+      {/* Food Image Container - with Menu Page Background Gradient */}
+      <div className="relative w-full h-32 sm:h-40 overflow-hidden rounded-t-2xl bg-gray-100 dark:bg-gray-900 flex items-center justify-center p-2 sm:p-3 border-b border-gray-200/80 dark:border-neutral-800/80">
         <img
           src={item.image}
           alt={item.name}
           loading="lazy"
-          className="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-95"
+          className="relative z-10 max-h-full max-w-full object-contain filter drop-shadow-md group-hover:scale-105 active:scale-95 transition-transform duration-300 pointer-events-none select-none"
         />
 
-        {/* Soft bottom gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent pointer-events-none" />
+        {/* Soft bottom background gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent pointer-events-none" />
 
-        {/* Rating Badge (Bottom Left) */}
-        <div className="absolute bottom-2 left-2 flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold bg-black/70 text-yellow-400 backdrop-blur pointer-events-none">
-          <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-          <span>{rating}</span>
-        </div>
-      </div>
-
-      {/* Card Info */}
-      <div className="p-4 flex flex-col gap-2">
-        <h3
-          title={item.name}
-          className={`text-lg font-semibold truncate ${
-            isDark ? "text-white" : "text-gray-900"
-          }`}
-        >
-          {item.name}
-        </h3>
-
-        {/* Price on Left, Category on Right */}
-        <div className="flex items-center justify-between">
-          <p className="font-bold text-lg text-orange-500">
-            ₹{Number(item.price).toLocaleString("en-IN")}
-          </p>
-
-          <span
-            className={`text-xs font-medium ${
-              isDark ? "text-gray-400" : "text-gray-600"
-            }`}
-          >
-            {item.category}
-          </span>
-        </div>
-
-        {/* Delivery Time with Clock Icon */}
-        <div
-          className={`flex items-center gap-1 text-xs ${
-            isDark ? "text-gray-400" : "text-gray-600"
-          }`}
-        >
-          <Clock size={14} />
-          <span>{item.deliveryTime || "25–35 mins"}</span>
-        </div>
-      </div>
-
-      {/* Card Action Buttons: View on Left, Add / Stepper on Right */}
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className={`flex items-center gap-3 px-3 py-3 border-t ${
-          isDark ? "border-[#2C2C2C]" : "border-gray-200"
-        }`}
-      >
+        {/* Wishlist Heart Button (Top Right) */}
         <button
-          onClick={() => navigate(`/food/${item._id}`)}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-medium transition cursor-pointer ${
-            isDark
-              ? "bg-[#2A2A2A] text-white hover:bg-[#353535]"
-              : "bg-gray-100 text-gray-900 hover:bg-gray-200"
-          }`}
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleWishlist(item);
+          }}
+          aria-label={isFav ? "Remove from wishlist" : "Add to wishlist"}
+          title={isFav ? "Remove from wishlist" : "Add to wishlist"}
+          className="absolute top-2 right-2 z-20 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-white/75 dark:bg-black/50 backdrop-blur-md flex items-center justify-center hover:scale-110 active:scale-90 transition-transform shadow-xs cursor-pointer border border-white/60 dark:border-white/10"
         >
-          <Eye size={15} />
-          <span>Details</span>
+          <Heart
+            className={`w-3 h-3 sm:w-3.5 sm:h-3.5 transition-colors ${
+              isFav ? "fill-red-500 text-red-500" : "text-neutral-600 dark:text-neutral-300"
+            }`}
+          />
         </button>
 
-        {quantity > 0 ? (
-          <div
-            className={`flex items-center justify-between px-3 flex-1 py-2 rounded-xl ${
-              isDark ? "bg-[#2A2A2A] text-white" : "bg-gray-100 text-gray-900"
-            }`}
-          >
-            <button
-              onClick={() => handleDecrease(item)}
-              className="text-base font-bold px-1 hover:text-orange-500 cursor-pointer"
-            >
-              −
-            </button>
-
-            <span className="font-semibold text-sm">{quantity}</span>
-
-            <button
-              onClick={() => handleIncrease(item)}
-              className="text-base font-bold px-1 hover:text-orange-500 cursor-pointer"
-            >
-              +
-            </button>
+        {/* Clean Modern Blurry Transparent Bottom Overlay Info (Time & Rating) */}
+        <div className="absolute bottom-1.5 sm:bottom-2 left-1.5 sm:left-2.5 right-1.5 sm:right-2.5 z-20 flex items-center justify-between text-xs pointer-events-none">
+          <div className="flex items-center gap-1 bg-white/80 dark:bg-black/60 backdrop-blur-md px-1.5 sm:px-2 py-0.5 rounded-full text-neutral-700 dark:text-neutral-200 text-[9px] sm:text-[10px] font-medium border border-white/60 dark:border-white/10 shadow-xs">
+            <Clock className="w-2.5 h-2.5 text-neutral-400 dark:text-neutral-400" />
+            <span>{prepTime}</span>
           </div>
-        ) : (
-          <button
-            onClick={() => handleAddToCart(item)}
-            disabled={addLoadingId === item._id}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-semibold transition shadow-sm cursor-pointer ${
-              addLoadingId === item._id
-                ? "bg-gray-400 text-white cursor-not-allowed"
-                : "bg-gradient-to-r from-orange-500 to-amber-500 text-white hover:opacity-90 active:scale-95"
-            }`}
+
+          <div className="flex items-center gap-1 bg-white/80 dark:bg-black/60 backdrop-blur-md px-1.5 sm:px-2 py-0.5 rounded-full text-amber-500 dark:text-amber-400 text-[9px] sm:text-[10px] font-bold border border-white/60 dark:border-white/10 shadow-xs">
+            <Star className="w-2.5 h-2.5 fill-current" />
+            <span>{rating}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Card Content */}
+      <div className="p-2.5 sm:p-3.5 flex-1 flex flex-col justify-between">
+        <div>
+          {/* Category & Veg/Non-Veg Badge */}
+          <div className="flex items-center justify-between gap-1.5 mb-1 sm:mb-1.5">
+            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-orange-600 dark:text-orange-400 truncate">
+              {item.category}
+            </span>
+
+            {/* Indian Veg / Non-Veg Icon */}
+            <div
+              className="flex items-center gap-1 flex-shrink-0"
+              title={isVeg ? "Vegetarian" : "Non-Vegetarian"}
+            >
+              <span
+                className={`w-2.5 h-2.5 sm:w-3 sm:h-3 border flex items-center justify-center p-0.5 rounded-xs ${
+                  isVeg ? "border-emerald-600" : "border-red-600"
+                }`}
+              >
+                <span
+                  className={`w-1 h-1 rounded-full ${
+                    isVeg ? "bg-emerald-600" : "bg-red-600"
+                  }`}
+                />
+              </span>
+              <span className="text-[9px] sm:text-[10px] text-neutral-400 font-medium">
+                {isVeg ? "Veg" : "Non-Veg"}
+              </span>
+            </div>
+          </div>
+
+          {/* Dish Title */}
+          <h3
+            className="text-xs sm:text-base font-bold text-neutral-900 dark:text-white leading-snug truncate"
+            title={item.name}
           >
-            <ShoppingCart size={15} />
-            <span>{addLoadingId === item._id ? "Adding..." : "Add"}</span>
-          </button>
-        )}
+            {item.name}
+          </h3>
+        </div>
+
+        {/* Pricing & Add to Cart */}
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="mt-2.5 sm:mt-3 pt-2 sm:pt-2.5 border-t border-neutral-100 dark:border-neutral-800 flex items-center justify-between gap-1.5 sm:gap-2"
+        >
+          <div className="min-w-0">
+            <div className="flex items-baseline gap-1">
+              <span className="text-sm sm:text-lg font-black text-neutral-900 dark:text-white">
+                ₹{item.price}
+              </span>
+              <span className="text-[10px] sm:text-[11px] text-neutral-400 line-through truncate">
+                ₹{originalPrice}
+              </span>
+            </div>
+            <span className="text-[8px] sm:text-[9px] font-bold text-emerald-600 dark:text-emerald-400 block truncate">
+              {discountPercent}% OFF
+            </span>
+          </div>
+
+          {/* Dynamic Cart Quantity Stepper or Add to Order Button */}
+          {quantity > 0 ? (
+            <div className="flex items-center bg-orange-600 dark:bg-orange-500 text-white rounded-xl shadow-xs p-0.5 shrink-0">
+              <button
+                onClick={() => handleDecrease(item)}
+                className="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-lg hover:bg-black/20 transition-colors cursor-pointer active:scale-95"
+                aria-label="Decrease quantity"
+              >
+                <Minus className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+              </button>
+              <span className="w-5 sm:w-6 text-center text-[11px] sm:text-xs font-black select-none">
+                {quantity}
+              </span>
+              <button
+                onClick={() => handleIncrease(item)}
+                className="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-lg hover:bg-black/20 transition-colors cursor-pointer active:scale-95"
+                aria-label="Increase quantity"
+              >
+                <Plus className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => handleAddToCart(item)}
+              disabled={addLoadingId === item._id}
+              className={`px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-[11px] sm:text-xs text-white transition-all flex items-center justify-center gap-1 shadow-xs active:scale-95 cursor-pointer shrink-0 ${
+                addLoadingId === item._id
+                  ? "bg-neutral-400 cursor-not-allowed"
+                  : "bg-primary-light dark:bg-primary-dark hover:opacity-95"
+              }`}
+            >
+              <ShoppingBag className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+              <span className="hidden min-[420px]:inline">
+                {addLoadingId === item._id ? "Adding..." : "Add To Order"}
+              </span>
+              <span className="min-[420px]:hidden">
+                {addLoadingId === item._id ? "..." : "Add"}
+              </span>
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
